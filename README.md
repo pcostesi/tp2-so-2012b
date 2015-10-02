@@ -1,2 +1,3 @@
-# tp-arqui-q1-2015
-From the acclaimed developers of "Oops, I just rm'ed / on Production" comes... The Barely Compiles Operating System.
+# tp2-so-2012b ~~tp-arqui-q1-2015~~
+
+From the ashes of The Barely Compiles Operating System comes... ATLAS/CMS ®©™ Mainframe Corporate Edition.
