@@ -10,6 +10,7 @@ GLOBAL idt_pic_slave_set_map
 GLOBAL _irq_sys_handler
 
 EXTERN irq_handler
+EXTERN mem_handler
 EXTERN sys_handler
 
 
@@ -135,6 +136,18 @@ _irq_sys_handler:
     pop     RBP
 	sti
 	iretq
+
+GLOBAL _int_eh_handler
+_int_eh_handler:
+    cli
+    push rax
+    push rdi
+    mov rdi, %1
+    call mem_handler
+    pop rdi
+    pop rax
+    sti
+    iretq
 
 
 ; PIC Master ints
