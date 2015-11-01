@@ -142,7 +142,7 @@ _int_eh_handler:
     cli
     push rax
     push rdi
-    mov rdi, %1
+    mov rdi, [rsp - 3]
     call mem_handler
     pop rdi
     pop rax
