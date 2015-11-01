@@ -54,6 +54,7 @@ extern void idt_pic_master_set_map(char);
 extern void idt_pic_slave_mask(char);
 extern void idt_pic_master_mask(char);
 
+extern void _int_eh_handler(void);
 extern void _irq_sys_handler(void);
 
 extern void _irq_20h_handler(void);
@@ -75,14 +76,19 @@ extern void _irq_76h_handler(void);
 extern void _irq_77h_handler(void);
 
 static inline int _irq_get_hw_index(int irq);
-
 void irq_handler(int irq);
+void mem_handler(uint64_t flag);
 uint64_t sys_handler(uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64_t RCX, uint64_t R8, uint64_t R9);
 
 static IntHwHandler handlers[INT_TABLE_SIZE] = {0};
 static IntSysHandler syscall_handler = (void *) 0;
 static struct IDT_Register * idtr;
 
+/* TODO: replace this function with a final version before shipping */
+void mem_handler(uint64_t flag)
+{
+	return;
+}
 
 uint64_t sys_handler(uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64_t RCX, uint64_t R8, uint64_t R9)
 {
@@ -155,11 +161,12 @@ void install_interrupts(void)
 
 	/* override int80h entry */
 	install_IDT_entry(table, 0x80, 			&_irq_sys_handler, IDTE_SW);
+	install_IDT_entry(table, 0xe, 			&_int_eh_handler,  IDTE_SW);
 
 	/* override Master HW ints with our own */
 	install_IDT_entry(table, INT_PIT, 		&_irq_20h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_KEYB, 		&_irq_21h_handler, IDTE_HW);
-	/*						 cascade interrupt (not triggered)			*/
+	/*						 cascade interrupt (not triggered) */
 	install_IDT_entry(table, INT_COM2, 		&_irq_23h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_COM1, 		&_irq_24h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_LPT2, 		&_irq_25h_handler, IDTE_HW);
