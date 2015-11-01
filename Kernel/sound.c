@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <sound.h>
 #include <io.h>
-#include <screensaver.h>
 
 static unsigned int timeout = 0;
 
