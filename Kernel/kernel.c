@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <video.h>
@@ -26,7 +25,11 @@ typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[])
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
-	memset(bssAddress, 0, bssSize);
+	char * ptr = (char *) bssAddress;
+
+	while (bssSize-- > 0) {
+		*ptr++ = 0;
+	}
 }
 
 void * getStackBase()
@@ -82,7 +85,7 @@ int main()
 	kbrd_install();
 	vid_clr();
 
-    ((EntryPoint)shellModuleAddress)(0, (char *) 0, (void *) 0);
+    ((EntryPoint)shellModuleAddress)(0, (char **) 0, (void *) 0);
 
     syscall_halt();
 	return 0;

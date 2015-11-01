@@ -108,7 +108,7 @@ int syscall_ioctl(unsigned int fd, unsigned long request, void * params)
 			break;
 
 			case 3: /* inactive */
-			return (unsigned int) params;
+			return (uint64_t) params;
 			break;
 		}
 	}
