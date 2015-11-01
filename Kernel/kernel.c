@@ -2,14 +2,12 @@
 #include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
-#include <naiveConsole.h>
 #include <video.h>
 #include <sound.h>
 #include <interrupts.h>
 #include <keyboard.h>
 #include <rtc-driver.h>
 #include <syscalls.h>
-#include <screensaver.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -63,14 +61,6 @@ void wake_up(void)
 void pit_irq(int irq)
 {
 	tick_sound();
-	static unsigned int tick = 0;
-	if (scrsvr_should_show(timer)) {
-		syscall_pause();
-		scrsvr_tick(tick++);
-	} else {
-		timer++;
-		tick = 0;
-	}
 }
 
 void kbrd_irq_with_activity(int irq)
@@ -92,16 +82,7 @@ int main()
 	kbrd_install();
 	vid_clr();
 
-	/* these are the PUBLICLY ACCESSIBLE modules */
-	void * moduleAddresses[] = {
-	};
-
-	char * moduleNames[] = {
-	};
-
-	/* call shell */
-	uint8_t modules = sizeof(moduleNames) / sizeof(char *);
-    ((EntryPoint)shellModuleAddress)(modules, moduleNames, moduleAddresses);
+    ((EntryPoint)shellModuleAddress)(0, (char *) 0, (void *) 0);
 
     syscall_halt();
 	return 0;

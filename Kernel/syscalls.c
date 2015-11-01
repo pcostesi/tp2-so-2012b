@@ -5,8 +5,6 @@
 #include <interrupts.h>
 #include <keyboard.h>
 #include <rtc-driver.h>
-#include <screensaver.h>
-
 #define STDIN  0
 #define STDOUT 1
 #define STDERR 2
@@ -110,7 +108,6 @@ int syscall_ioctl(unsigned int fd, unsigned long request, void * params)
 			break;
 
 			case 3: /* inactive */
-			scrsvr_set_delay((unsigned int) params);
 			return (unsigned int) params;
 			break;
 		}
