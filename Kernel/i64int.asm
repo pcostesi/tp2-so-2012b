@@ -7,7 +7,8 @@ GLOBAL idt_pic_master_mask
 GLOBAL idt_pic_slave_mask
 GLOBAL idt_pic_master_set_map
 GLOBAL idt_pic_slave_set_map
-GLOBAL _irq_sys_handler
+GLOBAL _int_sys_handler
+GLOBAL _int_mem_handler
 
 EXTERN irq_handler
 EXTERN mem_handler
@@ -127,7 +128,7 @@ idt_pic_slave_set_map:
 
 
 ;Int 80h
-_irq_sys_handler:
+_int_sys_handler:
 	cli
     push    RBP
     PUSHALL
@@ -137,8 +138,7 @@ _irq_sys_handler:
 	sti
 	iretq
 
-GLOBAL _int_eh_handler
-_int_eh_handler:
+_int_mem_handler:
     cli
     push rax
     push rdi

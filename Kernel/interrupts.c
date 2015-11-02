@@ -16,6 +16,8 @@
 
 #define IDTE_HW			(IDTE_PRESENT | IDTE_DPL_HW | IDTE_I_GATE)
 #define IDTE_SW			(IDTE_PRESENT | IDTE_DPL_SW | IDTE_I_GATE)
+#define INT_SYS 		0x80
+#define INT_MEM			0x0E
 
 
 /* The following structs are packed to reflect the arch registers. 
@@ -54,8 +56,8 @@ extern void idt_pic_master_set_map(char);
 extern void idt_pic_slave_mask(char);
 extern void idt_pic_master_mask(char);
 
-extern void _int_eh_handler(void);
-extern void _irq_sys_handler(void);
+extern void _int_mem_handler(void);
+extern void _int_sys_handler(void);
 
 extern void _irq_20h_handler(void);
 extern void _irq_21h_handler(void);
@@ -160,8 +162,8 @@ void install_interrupts(void)
 	table = (struct IDT_Entry *) idtr->offset;
 
 	/* override int80h entry */
-	install_IDT_entry(table, 0x80, 			&_irq_sys_handler, IDTE_SW);
-	install_IDT_entry(table, 0xe, 			&_int_eh_handler,  IDTE_SW);
+	install_IDT_entry(table, INT_SYS, 		&_int_sys_handler, IDTE_SW);
+	install_IDT_entry(table, INT_MEM, 		&_int_mem_handler, IDTE_SW);
 
 	/* override Master HW ints with our own */
 	install_IDT_entry(table, INT_PIT, 		&_irq_20h_handler, IDTE_HW);
