@@ -1,4 +1,5 @@
--include ../Toolchain.inc
+BASE := $(dir $(lastword $(MAKEFILE_LIST)))
+-include ${BASE}/Toolchain.inc
 
 GCC?=gcc
 GPP?=g++
