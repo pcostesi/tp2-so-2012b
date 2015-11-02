@@ -1,6 +1,6 @@
 # tp2-so-2015b ~~tp-arqui-q1-2015~~
 
-![Travis CI Build Status][https://travis-ci.org/pcostesi/tp2-so-2015b.svg?branch=master]
+![Travis CI Build Status](https://travis-ci.org/pcostesi/tp2-so-2015b.svg?branch=master)
 
 From the ashes of The Barely Compiles Operating System comes... ATLAS/CMS ®©™ Mainframe Corporate Edition.
 
