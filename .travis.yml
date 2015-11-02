@@ -1,0 +1,3 @@
+language: c
+install: make deps
+script: make image
