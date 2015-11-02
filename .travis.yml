@@ -1,4 +1,4 @@
 language: c
 sudo: required
 install: make travis
-script: make image
+script: make userland
