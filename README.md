@@ -16,6 +16,12 @@ make
 ## Using a cross-compiler
 At the root of the project add a `Toolchain.inc` file with the following variables pointing to your cross compiler:
 
+- GCC: gcc cross compiler
+- GPP: g++. Not needed, but...
+- LD: Linker.
+- AR: Archiver. Not used.
+- ASM: nasm. Try not to change this.
+
 You can download a ready-made cross-compiler from the [OSDev site](http://wiki.osdev.org/GCC_Cross-Compiler). We recommend the __[x86_64-elf 4.9.1 target](http://newos.org/toolchains/x86_64-elf-4.9.1-Linux-x86_64.tar.xz)__
 
 ### Ubuntu
