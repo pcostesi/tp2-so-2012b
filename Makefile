@@ -4,7 +4,7 @@ deps:
 	sudo apt-get install -q nasm qemu=2.0.0+dfsg-2ubuntu1.12 gcc make
 
 travis:
-	sudo apt-get install -q nasm
+	sudo apt-get install -q nasm gcc make qemu
 
 toolchain:
 	- cd Toolchain; make all
