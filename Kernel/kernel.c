@@ -16,10 +16,7 @@ extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x4000;
-
 static const void * shellModuleAddress = (void*)0x400000;
-
-unsigned int timer = 0;
 
 typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[]);
 
@@ -54,7 +51,6 @@ void * initializeKernelBinary()
 void wake_up(void)
 {
 	syscall_wake();
-	timer = 0;
 }
 
 void pit_irq(int irq)
@@ -70,18 +66,20 @@ void kbrd_irq_with_activity(int irq)
 
 int main()
 {	
-	/* driver initialization */
-	/* set up IDTs & int80h */
+	EntryPoint init = (EntryPoint) *((EntryPoint *) &shellModuleAddress);
 
+	/* set up IDTs & int80h */
 	install_syscall_handler((IntSysHandler) &int80h);
 	install_hw_handler((IntHwHandler) &kbrd_irq_with_activity, INT_KEYB);
 	install_hw_handler((IntHwHandler) &pit_irq, INT_PIT);
 	install_interrupts();
 
+	/* driver initialization */
 	kbrd_install();
 	vid_clr();
 
-    ((EntryPoint)shellModuleAddress)(0, (char **) 0, (void *) 0);
+	/* Drop to environment */
+    ((EntryPoint) init)(0, (char **) 0, (void *) 0);
 
     syscall_halt();
 	return 0;
