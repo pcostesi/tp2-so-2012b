@@ -10,6 +10,10 @@ From the ashes of The Barely Compiles Operating System comes... ATLAS/CMS ®©�
 
 ## TL;DR
 ```bash
+wget http://newos.org/toolchains/x86_64-elf-4.9.1-Linux-x86_64.tar.xz
+tar xvf x86_64-elf-4.9.1-Linux-x86_64.tar.xz
+mv "x86_64-elf-4.9.1-Linux-x86_64" "${HOME}/x86_64-elf-4.9.1-Linux-x86_64"
+cp Toolchain.inc.sample Toolchain.inc
 make
 ```
 

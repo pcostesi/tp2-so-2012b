@@ -1,4 +1,4 @@
-BIN=/home/pcostesi/sf_arqui/x86_64-elf-4.9.1-Linux-x86_64/bin
+BIN=${HOME}/x86_64-elf-4.9.1-Linux-x86_64/bin
 
 GCC=${BIN}/x86_64-elf-gcc
 GPP=${BIN}/x86_64-elf-g++
