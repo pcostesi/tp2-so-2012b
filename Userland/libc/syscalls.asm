@@ -48,10 +48,25 @@ GLOBAL %1
 
 _int80h	write, 0
 _int80h read, 1
-_int80h ioctl, 6
+_int80h open, 2
+_int80h close, 3
+
+_int80h mmap, 9
+_int80h munmap, 11
+
+_int80h ioctl, 16
+_int80h pipe, 22
+
 _int80h pause, 34
+_int80h getpid, 39
+_int80h beep, 42
+
 _int80h halt, 48
 _int80h shutdown, 48
-_int80h beep, 42
-_int80h gettime, 200
-_int80h settime, 201
+
+_int80h fork, 57
+_int80h execv, 59
+_int80h exit, 60
+
+_int80h gettime, 228
+_int80h settime, 227

@@ -120,40 +120,40 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 {
 	int exitno = 0;
 	switch (sysno) {
-		case 0: /* sys_write fd buf size */
+		case SYSCALL_WRITE: /* sys_write fd buf size */
 		exitno = syscall_write((unsigned int) RDI, (char *) RSI, (unsigned int) RDX);
 		break;
 
-		case 1: /* sys_read fd buf size */
+		case SYSCALL_READ: /* sys_read fd buf size */
 		exitno = syscall_read((unsigned int) RDI, (char *) RSI, (unsigned int) RDX);
 		break;
 
-		case 6:
+		case SYSCALL_IOCTL:
 		exitno = syscall_ioctl((unsigned int) RDI, (unsigned long) RSI, (void *) RDX);
 		break;
 
-		case 34: /* sys_pause */
+		case SYSCALL_PAUSE: /* sys_pause */
 		syscall_pause();
 		break;
 
-		case 48: /* sys_shutdown */
+		case SYSCALL_HALT: /* sys_shutdown */
 		syscall_halt();
 		break;
 
-		case 42: /* sys_beep */
+		case SYSCALL_BEEP: /* sys_beep */
 		beep();
 		break;
 
-		case 200:
+		case SYSCALL_GETTIME:
 		syscall_get_time((struct rtc_time *) RDI);
 		break;
 
-		case 201:
+		case SYSCALL_SETTIME:
 		syscall_set_time((struct rtc_time *) RDI);
 		break;
 
 		default:
-		return 0;
+		return -1;
 	}
 	return exitno;
 }
