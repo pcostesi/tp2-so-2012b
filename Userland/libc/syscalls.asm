@@ -48,10 +48,10 @@ GLOBAL %1
 
 _int80h	write, 0
 _int80h read, 1
-_int80h ioctl, 6
+_int80h ioctl, 16
 _int80h pause, 34
 _int80h halt, 48
 _int80h shutdown, 48
 _int80h beep, 42
-_int80h gettime, 200
-_int80h settime, 201
+_int80h gettime, 228
+_int80h settime, 227
