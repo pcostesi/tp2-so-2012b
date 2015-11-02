@@ -330,7 +330,7 @@ void key_buffer_add(enum KEYCODE key)
 	else
 	{
 		key_buffer[buffer_last_key] = key;
-		buffer_last_key = (++buffer_last_key) % KEY_BUFFER_SIZE;
+		buffer_last_key = (buffer_last_key + 1) % KEY_BUFFER_SIZE;
 	}
 }
 
@@ -341,7 +341,7 @@ int buffer_is_empty()
 
 int key_buffer_is_full()
 {
-	return buffer_first_key == (buffer_last_key +1)% KEY_BUFFER_SIZE;
+	return buffer_first_key == (buffer_last_key + 1) % KEY_BUFFER_SIZE;
 }
 
 void key_buffer_reset()
@@ -357,7 +357,7 @@ enum KEYCODE kbrd_get_key ()
 		return KEY_UNKNOWN;
 	}
 	enum KEYCODE c = key_buffer[buffer_first_key];
-	buffer_first_key = ( ++buffer_first_key )% KEY_BUFFER_SIZE;
+	buffer_first_key = (buffer_first_key + 1) % KEY_BUFFER_SIZE;
 	return c;
 }
 
@@ -445,8 +445,6 @@ void kbrd_enc_send_cmd (uint8_t cmd)
 /*****	keyboard interrupt handler *****/
 void kbrd_irq () 
 {
-	static uint8_t _extended = false;
-
 	int code = 0;
 
 	// read scan code only if the kbrd controller output buffer is full (scan code is in it)
@@ -457,13 +455,9 @@ void kbrd_irq ()
 
 		// is this an extended code? If so, set it and return
 		if (code == 0xE0 || code == 0xE1){
-			_extended = true;
+			return;
 		}
 		else {
-
-			// either the second byte of an extended scan code or a single byte scan code
-			_extended = false;
-
 			// test if this is a break code (Original XT Scan Code Set specific)
 			if (code & 0x80) {	//test bit 7
 
@@ -490,8 +484,7 @@ void kbrd_irq ()
 						alt_hold = false;
 						break;
 				}
-			}
-			else {
+			} else {
 
 				// this is a make code - set the scan code
 				scancode = code;

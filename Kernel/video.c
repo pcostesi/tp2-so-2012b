@@ -24,7 +24,7 @@ static void _vid_set_cursor(const unsigned int row, const unsigned int col);
 void vid_flip_buffer(void)
 {
 	char p;
-	char * cur;
+	volatile char * cur;
 	int idx;
 
 	for (idx = 0; idx < VID_BUF_SIZE; idx++) {

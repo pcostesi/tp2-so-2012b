@@ -25,11 +25,7 @@ typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[])
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
-	char * ptr = (char *) bssAddress;
-
-	while (bssSize-- > 0) {
-		*ptr++ = 0;
-	}
+	memset(bssAddress, 0, bssSize);
 }
 
 void * getStackBase()
@@ -47,7 +43,7 @@ void * initializeKernelBinary()
 	 * IT BREAKS, LIKE, *REALLY* BAD.
 	 */
 	void * moduleAddresses[] = {
-	    shellModuleAddress
+	    (void *) shellModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
