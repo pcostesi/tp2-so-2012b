@@ -17,11 +17,11 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x4000;
 
-static const void * shellModuleAddress = (void*)0x400000;
+typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[]);
+
+static const EntryPoint shellModuleAddress = (EntryPoint) 0x400000;
 
 unsigned int timer = 0;
-
-typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[]);
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
@@ -43,7 +43,7 @@ void * initializeKernelBinary()
 	 * IT BREAKS, LIKE, *REALLY* BAD.
 	 */
 	void * moduleAddresses[] = {
-	    (void *) shellModuleAddress
+	    (void *)(EntryPoint *) &shellModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
@@ -81,7 +81,7 @@ int main()
 	kbrd_install();
 	vid_clr();
 
-    ((EntryPoint)shellModuleAddress)(0, (char **) 0, (void *) 0);
+    (shellModuleAddress)(0, (char **) 0, (void *) 0);
 
     syscall_halt();
 	return 0;
