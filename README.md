@@ -8,6 +8,16 @@ From the ashes of The Barely Compiles Operating System comes... ATLAS/CMS ®©�
 
 ## Building
 
+## TL;DR
+```bash
+make
+```
+
+## Using a cross-compiler
+At the root of the project add a `Toolchain.inc` file with the following variables pointing to your cross compiler:
+
+You can download a ready-made cross-compiler from the [OSDev site](http://wiki.osdev.org/GCC_Cross-Compiler). We recommend the __[x86_64-elf 4.9.1 target](http://newos.org/toolchains/x86_64-elf-4.9.1-Linux-x86_64.tar.xz)__
+
 ### Ubuntu
 In order to build the system, first install the dependencies with `make deps`. This will install `gcc`, `nasm` and `make` (which you should already have, or you would't be able to run `make`).
 
