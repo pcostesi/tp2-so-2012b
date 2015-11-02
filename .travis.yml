@@ -1,3 +1,4 @@
 language: c
+sudo: required
 install: make deps
 script: make image
