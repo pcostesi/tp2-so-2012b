@@ -3,6 +3,9 @@ all:  clean toolchain bootloader kernel userland image raw
 deps:
 	sudo apt-get install -q nasm qemu=2.0.0+dfsg-2ubuntu1.12 gcc make
 
+travis:
+	sudo apt-get install -q nasm
+
 toolchain:
 	- cd Toolchain; make all
 
