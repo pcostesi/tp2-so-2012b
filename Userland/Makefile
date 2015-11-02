@@ -1,5 +1,3 @@
-include Makefile.inc
-
 all:	clean libc shell tpl
 
 libc:

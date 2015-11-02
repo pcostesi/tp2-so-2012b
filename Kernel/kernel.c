@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
 #include <video.h>
@@ -44,7 +43,7 @@ void * initializeKernelBinary()
 	 * IT BREAKS, LIKE, *REALLY* BAD.
 	 */
 	void * moduleAddresses[] = {
-	    shellModuleAddress
+	    (void *) shellModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
@@ -82,7 +81,7 @@ int main()
 	kbrd_install();
 	vid_clr();
 
-    ((EntryPoint)shellModuleAddress)(0, (char *) 0, (void *) 0);
+    ((EntryPoint)shellModuleAddress)(0, (char **) 0, (void *) 0);
 
     syscall_halt();
 	return 0;
