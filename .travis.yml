@@ -1,4 +1,10 @@
 language: c
-sudo: required
-install: make travis
+
+addons:
+  apt:
+    packages:
+    - nasm
+    - gcc
+    - make
+
 script: make userland
