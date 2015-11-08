@@ -9,5 +9,6 @@ void* pop();
 void push(void * addr);
 void* gmem();
 int fmem();
+void init_mem();
 
 #endif
