@@ -2,29 +2,29 @@ include Makefile.inc
 
 KERNEL=kernel.bin
 SOURCES=$(wildcard *.c)
+SOURCES_ASM=$(wildcard asm/*.asm) i64int.asm
 OBJECTS=$(SOURCES:.c=.o)
+OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 LOADERSRC=loader.asm
-INTERRUPTSSRC=i64int.asm
 
 LOADEROBJECT=$(LOADERSRC:.asm=.o)
-INTERRUPTS=$(INTERRUPTSSRC:.asm=.o)
 STATICLIBS=
 
 all: $(KERNEL)
 
-$(KERNEL): $(LOADEROBJECT) $(INTERRUPTS) $(OBJECTS) $(STATICLIBS)
-	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJECT) $(INTERRUPTS) $(OBJECTS) $(STATICLIBS)
+$(KERNEL): $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
+	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJECT) $(OBJECTS) $(STATICLIBS) $(OBJECTS_ASM)
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
 
+%.o: %.asm
+	$(ASM) $(ASMFLAGS) $< -o $@
+
 $(LOADEROBJECT):
 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJECT)
 
-$(INTERRUPTS):
-	$(ASM) $(ASMFLAGS) $(INTERRUPTSSRC) -o $(INTERRUPTS)
-
 clean:
-	rm -rf *.o *.bin
+	rm -rf asm/*.o *.o *.bin
 
 .PHONY: all clean

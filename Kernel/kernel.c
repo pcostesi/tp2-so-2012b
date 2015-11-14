@@ -39,6 +39,7 @@ void * initializeKernelBinary()
 	/* THIS HAS TO BE IN THE SAME ORDER THE PACKER PACKS IT OR
 	 * IT BREAKS, LIKE, *REALLY* BAD.
 	 */
+
 	void * moduleAddresses[] = {
 	    (void *) shellModuleAddress
 	};
@@ -48,11 +49,6 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-void wake_up(void)
-{
-	syscall_wake();
-}
-
 void pit_irq(int irq)
 {
 	tick_sound();
@@ -60,7 +56,7 @@ void pit_irq(int irq)
 
 void kbrd_irq_with_activity(int irq)
 {
-	wake_up();
+	syscall_wake();
 	kbrd_irq(irq);
 }
 
