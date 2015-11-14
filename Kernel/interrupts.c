@@ -2,6 +2,8 @@
 #include <lib.h>
 #include <stdint.h>
 
+#include <syscalls.h>
+
 /*
  * See http://wiki.osdev.org/Interrupt_Descriptor_Table
  * for more information about each register and such.
@@ -15,7 +17,7 @@
 #define IDTE_T_GATE		0x0F		/*	Gate type (32bit)		....1111	*/
 
 #define IDTE_HW			(IDTE_PRESENT | IDTE_DPL_HW | IDTE_I_GATE)
-#define IDTE_SW			(IDTE_PRESENT | IDTE_DPL_SW | IDTE_I_GATE)
+#define IDTE_SW			(IDTE_PRESENT | IDTE_DPL_SW | IDTE_T_GATE)
 #define INT_SYS 		0x80
 #define INT_MEM			0x0E
 
@@ -58,6 +60,7 @@ extern void idt_pic_master_mask(char);
 
 extern void _int_mem_handler(void);
 extern void _int_sys_handler(void);
+extern void _int_pit_handler(void);
 
 extern void _irq_20h_handler(void);
 extern void _irq_21h_handler(void);
@@ -89,6 +92,7 @@ static struct IDT_Register * idtr;
 /* TODO: replace this function with a final version before shipping */
 void mem_handler(uint64_t flag)
 {
+	syscall_write(2, "fault", 5);
 	return;
 }
 
@@ -163,10 +167,10 @@ void install_interrupts(void)
 
 	/* override int80h entry */
 	install_IDT_entry(table, INT_SYS, 		&_int_sys_handler, IDTE_SW);
-	install_IDT_entry(table, INT_MEM, 		&_int_mem_handler, IDTE_SW);
+	install_IDT_entry(table, INT_MEM, 		&_int_mem_handler, IDTE_HW);
 
 	/* override Master HW ints with our own */
-	install_IDT_entry(table, INT_PIT, 		&_irq_20h_handler, IDTE_HW);
+	install_IDT_entry(table, INT_PIT, 		&_int_pit_handler, IDTE_HW);
 	install_IDT_entry(table, INT_KEYB, 		&_irq_21h_handler, IDTE_HW);
 	/*						 cascade interrupt (not triggered) */
 	install_IDT_entry(table, INT_COM2, 		&_irq_23h_handler, IDTE_HW);

@@ -7,6 +7,7 @@
 #include <keyboard.h>
 #include <rtc-driver.h>
 #include <syscalls.h>
+#include <sched.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -63,6 +64,7 @@ void kbrd_irq_with_activity(int irq)
 int main()
 {	
 	EntryPoint init = (EntryPoint) *((EntryPoint *) &shellModuleAddress);
+	sched_init();
 
 	/* set up IDTs & int80h */
 	install_syscall_handler((IntSysHandler) &int80h);
