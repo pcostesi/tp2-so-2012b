@@ -15,6 +15,12 @@ extern uint8_t data;
 extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
+extern uint8_t bss2;
+
+extern void _cli(void);
+extern void _sti(void);
+extern void _halt(void);
+extern void _drool(void);
 
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
@@ -29,7 +35,8 @@ void clearBSS(void * bssAddress, uint64_t bssSize)
 void * getStackBase()
 {
 	return (void*)(
-		(uint64_t)&endOfKernel
+		//(uint64_t)&endOfKernel
+		(uint64_t)&bss2
 		+ PageSize * 8				//The size of the stack itself, 32KiB
 		- sizeof(uint64_t)			//Begin at the top of the stack
 	);
@@ -63,7 +70,7 @@ void kbrd_irq_with_activity(int irq)
 
 int main()
 {	
-	EntryPoint init = (EntryPoint) *((EntryPoint *) &shellModuleAddress);
+	_cli();
 	sched_init();
 
 	/* set up IDTs & int80h */
@@ -77,8 +84,11 @@ int main()
 	vid_clr();
 
 	/* Drop to environment */
-    ((EntryPoint) init)(0, (char **) 0, (void *) 0);
-
-    syscall_halt();
+	sched_spawn_process((void *) shellModuleAddress);
+	_sti();
+	
+    while (1) _drool();
+    syscall_write(1, "banana", 6);
+    _halt();
 	return 0;
 }

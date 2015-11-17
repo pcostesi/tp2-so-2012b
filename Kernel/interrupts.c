@@ -48,8 +48,6 @@ struct IDT_Entry
 #pragma pack(pop)
 
 
-extern void _cli(void);
-extern void _sti(void);
 extern void _lidt(void *);
 extern void _sidt(void *);
 extern void _halt(void);
@@ -93,6 +91,7 @@ static struct IDT_Register * idtr;
 void mem_handler(uint64_t flag)
 {
 	syscall_write(2, "fault", 5);
+	_halt();
 	return;
 }
 
@@ -152,7 +151,6 @@ static void install_IDT_entry(struct IDT_Entry * table, unsigned int idx,
 void install_interrupts(void)
 {
 	struct IDT_Entry * table;
-	_cli();
 	_sidt(idtr);
 
 	/* enable ALL the interrupts! */
@@ -191,8 +189,6 @@ void install_interrupts(void)
 	install_IDT_entry(table, INT_ATA2, 		&_irq_77h_handler, IDTE_HW);
 	
 	_lidt(idtr);
-	
-	_sti();
 }
 
 void install_syscall_handler(IntSysHandler handler)

@@ -8,7 +8,6 @@ OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 LOADERSRC=loader.asm
 
 LOADEROBJECT=$(LOADERSRC:.asm=.o)
-STATICLIBS=
 
 all: $(KERNEL)
 
