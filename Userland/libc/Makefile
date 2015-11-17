@@ -6,7 +6,7 @@ COBJECTS=$(CSOURCES:.c=.o)
 ASMSOURCES=syscalls.asm
 ASMOBJECTS=$(ASMSOURCES:.asm=.o)
 
-all:	clean $(CRT0) $(LIB)
+all:	$(CRT0) $(LIB)
 
 $(COBJECTS):	$(CSOURCES)
 

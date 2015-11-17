@@ -1,4 +1,4 @@
-all:	clean libc shell tpl
+all:	libc shell tpl
 
 libc:
 	@cd libc; make
