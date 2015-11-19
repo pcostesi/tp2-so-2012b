@@ -195,15 +195,32 @@ _sched_init_stack:
     mov     rbx,    rsp
     mov     rsp,    rdi
 
-    push    rdi     ;save stack base
+    ; If the interrupt is in a higher privelege level, SS and RSP
+    ; are pushed to the stack, each one consuming 8 bytes.
+    ; For the same level this step is skipped.
+
+    ; SS / RSP get saved to the stack if/when a stack switch occurs.
+    ; This is default for inter-privilege events (interrupt while
+    ; in usermode / ring 3) and non-default for intra-privilege
+    ; events (interrupt while already in kernel / ring 0)
+
+    
     push    0       ;save stack segment
     push    rsp     ;save frame rsp
+
+    ; Then RFLAGS, CS and RIP are pushed to the stack, each one
+    ; using 8 bytes too.
+
     push    0x202   ;save rflags
     push    0x08    ;save code segment
     push    rsi     ;save RIP
-   
+
     mov     rax,    rsp
 
+    ; Create a faux trap frame. If / when we implement params,
+    ; then this function should store argc and argv in the rdi
+    ; and rsi stack positions.
+    
     push    0       ;save current rax
     push    0       ;save current rbx
     push    0       ;save current rcx
