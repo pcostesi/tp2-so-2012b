@@ -46,6 +46,10 @@ SECTION .text
     pop     RBX
 %endmacro
 
+
+; This macro will save the current process state into
+; the stack. It does not, however, set the trap frame.
+; See _sched_init_stack for that
 %macro PUSHA 0
     push    rax      ;save current rax
     push    rbx      ;save current rbx
@@ -190,6 +194,9 @@ _int_mem_handler:
 
 GLOBAL _sched_init_stack
 
+; Read this before making any changes:
+; http://stackoverflow.com/questions/9383544
+
 _sched_init_stack:
     ENTER
     mov     rbx,    rsp
@@ -220,7 +227,7 @@ _sched_init_stack:
     ; Create a faux trap frame. If / when we implement params,
     ; then this function should store argc and argv in the rdi
     ; and rsi stack positions.
-    
+
     push    0       ;save current rax
     push    0       ;save current rbx
     push    0       ;save current rcx
@@ -244,6 +251,7 @@ _sched_init_stack:
     LEAVE
 
 GLOBAL _int_pit_handler
+
 
 _int_pit_handler:
     cli
