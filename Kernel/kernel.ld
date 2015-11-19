@@ -23,21 +23,21 @@ SECTIONS
 		*(EXCLUDE_FILE (*.o) COMMON)
 	}
 	. = ALIGN(0x1000);
-	.bss2 ALIGN(0x4000) : AT(ADDR(.bss2))
+	.bss2 ALIGN(0x8000) : AT(ADDR(.bss2))
 	{
 		bss2 = .;
 		*(.bss2*)
 		*(EXCLUDE_FILE (*.o) COMMON)
 	}
 	. = ALIGN(0x1000);
-	.idle_stack ALIGN(0x1000) : AT(ADDR(.idle_stack))
+	.idle_stack ALIGN(0x4000) : AT(ADDR(.idle_stack))
 	{
 		idle_stack = .;
 		*(.idle_stack*)
 		*(EXCLUDE_FILE (*.o) COMMON)
 	}
 	. = ALIGN(0x1000);
-	.idle_kernel_stack ALIGN(0x1000) : AT(ADDR(.idle_kernel_stack))
+	.idle_kernel_stack ALIGN(0x4000) : AT(ADDR(.idle_kernel_stack))
 	{
 		idle_kernel_stack = .;
 		*(.idle_kernel_stack*)

@@ -195,9 +195,9 @@ _sched_init_stack:
     mov     rbx,    rsp
     mov     rsp,    rdi
 
-    push    rdi     ;save base (stack)
+    push    rdi     ;save stack base
     push    0       ;save stack segment
-    push    rsp     ;save rsp
+    push    rsp     ;save frame rsp
     push    0x202   ;save rflags
     push    0x08    ;save code segment
     push    rsi     ;save RIP
@@ -208,7 +208,7 @@ _sched_init_stack:
     push    0       ;save current rbx
     push    0       ;save current rcx
     push    0       ;save current rdx
-    push    rax     ;save current rbp
+    push    rbp     ;save current rbp
     push    0       ;save current rdi
     push    0       ;save current rsi
     push    0       ;save current r8

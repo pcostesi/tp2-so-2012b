@@ -2,14 +2,14 @@
 #define __SCHED 1
 
 #include <stdint.h>
-#define SCHED_MAX_PROC (1 << 10)
+#define SCHED_MAX_PROC (16)
 
 typedef uint64_t pid_t;
 typedef enum {
+	FREE,
 	ACTIVE,
 	WAITING,
 	TERMINATED,
-	FREE
 } pstat_t;
 
 struct sched_process {
