@@ -5,7 +5,6 @@ extern uint64_t bss2;
 
 extern void _drool(void);
 extern void _halt(void);
-extern int syscall_write(int, char *, int);
 
 static struct sched_process idle_process = {0};
 static struct sched_process processes[SCHED_MAX_PROC] = {{0}};
@@ -20,7 +19,7 @@ static volatile int idle_active = 1;
 
 static uint64_t _sched_idle_process(void)
 {
-    while (1) syscall_write(2, "HELP! ", 6); _drool();
+    while (1) _drool();
 	return 0;
 }
 
@@ -102,11 +101,9 @@ uint64_t sched_pick_process(void)
 			current_process_idx = next;
 			idle_active = 0;
 
-			syscall_write(2, "switching to task ", 18);
 			return (uint64_t) process->stack;
 		}
 	}
-	syscall_write(2, "switching to idle ", 18);
 
 	return (uint64_t) idle_process.stack;
 }
