@@ -16,12 +16,6 @@ extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
-extern void _cli(void);
-extern void _sti(void);
-extern void _halt(void);
-extern void _drool(void);
-
-
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
 

@@ -7,21 +7,22 @@
 ; Preserved Registers:      rbx, rsp, rbp, r12, r13, r14, r15
 ; Call List:                rbp
 
-GLOBAL cpuVendor
+%include "asm/stack.mac"
+
+GLOBAL cpu_vendor
 GLOBAL _halt
 GLOBAL _drool
+GLOBAL get_memory_size
 
 section .text
     
-cpuVendor:
-    push rbp
-    mov rbp, rsp
+cpu_vendor:
+    ENTER
 
     push rbx
 
     mov rax, 0
     cpuid
-
 
     mov [rdi], ebx
     mov [rdi + 4], edx
@@ -33,9 +34,14 @@ cpuVendor:
 
     pop rbx
 
-    mov rsp, rbp
-    pop rbp
-    ret
+    LEAVE
+
+
+get_memory_size:
+    ENTER
+    xor     rax,    rax
+    mov     eax,    [0x5020]
+    LEAVE
 
 
 _halt:
