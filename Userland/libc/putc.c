@@ -2,14 +2,14 @@
 #include <libc.h>
 #include <string.h>
 
-void fputc(int fd, char c)
+int fputc(int fd, char c)
 {
-	write(fd, &c, 1);
+	return write(fd, &c, 1);
 }
 
-void putc(char c)
+int putc(char c)
 {
-	fputc(STDOUT, c);
+	return fputc(STDOUT, c);
 }
 
 int fputsn(int fd, char * c, int n)

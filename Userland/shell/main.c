@@ -6,9 +6,7 @@
 int main(void) {
 	init_shell();
 
-	while (1) {
-		update_shell();
-	}
+	while (update_shell());
 
 	return 0;
 }
