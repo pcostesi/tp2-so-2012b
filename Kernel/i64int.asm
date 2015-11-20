@@ -10,6 +10,10 @@ GLOBAL idt_pic_master_set_map
 GLOBAL idt_pic_slave_set_map
 GLOBAL _int_sys_handler
 GLOBAL _int_mem_handler
+GLOBAL _read_cr0
+GLOBAL _write_cr0
+GLOBAL _read_cr3
+GLOBAL _write_cr3
 
 EXTERN irq_handler
 EXTERN mem_handler
@@ -323,3 +327,28 @@ _halt:
 _drool:
     hlt
     ret
+
+_read_cr0:
+    ENTER
+    mov rax, cr0
+    LEAVE
+
+
+_write_cr0:
+    ENTER
+    mov rax, rdi
+    mov cr0,  rax
+    LEAVE
+
+
+_read_cr3:
+    ENTER
+    mov rax, cr3
+    LEAVE
+
+
+_write_cr3:
+    ENTER
+    mov rax, rdi
+    mov cr3, rax
+    LEAVE
