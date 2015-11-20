@@ -126,7 +126,6 @@ _idt_irq_slave_handler 75h
 _idt_irq_slave_handler 76h
 _idt_irq_slave_handler 77h
 
-
 _lidt:
     ENTER
     lidt 	[rdi]

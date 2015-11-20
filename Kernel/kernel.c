@@ -30,17 +30,16 @@ void clearBSS(void * bssAddress, uint64_t bssSize)
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase()
+void * getStackBase(void)
 {
 	return (void*)(
-		//(uint64_t)&endOfKernel
-		(uint64_t)&bss
+		(uint64_t)&endOfKernel
 		+ PageSize * 8				//The size of the stack itself, 32KiB
 		- sizeof(uint64_t)			//Begin at the top of the stack
 	);
 }
 
-void * initializeKernelBinary()
+void * initializeKernelBinary(void)
 {
 	/* THIS HAS TO BE IN THE SAME ORDER THE PACKER PACKS IT OR
 	 * IT BREAKS, LIKE, *REALLY* BAD.
@@ -66,33 +65,7 @@ void kbrd_irq_with_activity(int irq)
 	kbrd_irq(irq);
 }
 
-int pseudo_main(int argc, char * argv)
-{
-	syscall_write(2, "hey ", 4);
-	syscall_write(1, "hey ", 4);
-	syscall_write(2, "hey ", 4);
-	syscall_write(1, "hey ", 4);
-	syscall_write(2, "hey ", 4);
-	syscall_write(1, "hey ", 4);
-	syscall_write(2, "hey ", 4);
-	while (1) _drool();
-	return 0;
-}
-
-int pseudo_main2(int argc, char * argv)
-{
-	syscall_write(1, "=== ", 4);
-	syscall_write(2, "=== ", 4);
-	syscall_write(1, "=== ", 4);
-	syscall_write(2, "=== ", 4);
-	syscall_write(1, "=== ", 4);
-	syscall_write(2, "=== ", 4);
-	syscall_write(1, "=== ", 4);
-	while (1) _drool();
-	return 0;
-}
-
-int main()
+int main(void)
 {	
 	_cli();
 	sched_init();
@@ -107,13 +80,7 @@ int main()
 	kbrd_install();
 	vid_clr();
 
-	//uint64_t other = (uint64_t) pseudo_main;
-	//sched_spawn_process((void *) other);
-
 	sched_spawn_process((void *) shellModuleAddress);
-	
-	//uint64_t other2 = (uint64_t) pseudo_main2;
-	//sched_spawn_process((void *) other2);
 	
 	/* Drop to environment */
 

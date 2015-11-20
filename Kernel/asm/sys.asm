@@ -25,24 +25,22 @@ SECTION .text
 _int_sys_handler:
 	cli
     PUSHA
-
-    mov     r15,     rsp                    ; Store proc stack
-    mov     r12,     rax                    ; Store syscall idx
-
-    PUSH_PARAMS
+    mov     r12,    rax                     ; Store syscall idx
+    mov     r15,    rsp                     ; Store process stack
+    mov     r14,    rdi                     ; Save rdi
     mov     rdi,    rsp                     ; Save process stack
-;    call    sched_switch_to_kernel_stack    ; Get kernel stack
-;    mov     rsp,    rax                     ; Switch stacks
+    PUSH_PARAMS
+    call    sched_switch_to_kernel_stack    ; Get kernel stack
     POP_PARAMS
-
+    mov     rdi,    r14                     ; Restore the original rdi
+    mov     rsp,    rax                     ; Switch stacks
     mov     rax,    r12                     ; Restore syscall idx
 
     call    sys_handler                     ; Do the syscall thing
-;    SET_SYSCALL_RET r15, rax                ; Step rax at stack
-
-;    call    sched_pick_process              ; Get new process stack
-;    mov     rsp,    rax                     ; Switch stacks
-
+    SET_SYSCALL_RET r15, rax                ; Step rax at stack
+    call    sched_pick_process              ; Get new process stack
+    mov     rsp,    rax                     ; Switch stacks
+    
     POPA
     sti
 	iretq

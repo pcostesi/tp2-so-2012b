@@ -47,8 +47,9 @@
     push    0        ;save gs
 %endmacro
 
+; First param must point to gs @ PUSHA / INITPROC
 %macro SET_SYSCALL_RET 2
-    mov     [%1 + (8 * 17)], %2
+    mov     [%1 + (8 * 16)], %2
 %endmacro
 
 

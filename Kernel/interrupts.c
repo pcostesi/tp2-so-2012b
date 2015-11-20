@@ -20,7 +20,7 @@
 #define IDTE_SW			(IDTE_PRESENT | IDTE_DPL_SW | IDTE_T_GATE)
 #define INT_SYS 		0x80
 #define INT_MEM			0x0E
-
+#define IDT_SELECTOR	0x08
 
 /* The following structs are packed to reflect the arch registers. 
  * zX fields MUST BE SET TO 0 OR... FIRE AND BRIMSTONE,
@@ -141,7 +141,7 @@ static void install_IDT_entry(struct IDT_Entry * table, unsigned int idx,
 	entry->z2 = 0;
 
 	entry->type = flags;
-	entry->selector = 8; // GDT Entry.
+	entry->selector = IDT_SELECTOR; // GDT Entry.
 
 	entry->offset_l = (((uint64_t) handler) & 0xFFFF);
 	entry->offset_m = (((uint64_t) handler) >> 16) & 0xFFFF;
@@ -164,7 +164,7 @@ void install_interrupts(void)
 	table = (struct IDT_Entry *) idtr->offset;
 
 	/* override int80h entry */
-	install_IDT_entry(table, INT_SYS, 		&_int_sys_handler, IDTE_SW);
+	install_IDT_entry(table, INT_SYS, 		&_int_sys_handler, IDTE_HW);
 	install_IDT_entry(table, INT_MEM, 		&_int_mem_handler, IDTE_HW);
 
 	/* override Master HW ints with our own */
