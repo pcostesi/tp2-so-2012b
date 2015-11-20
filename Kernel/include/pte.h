@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 enum TABLE_MASK {
  
 	MASK_PRESENT			=	1,		    	//0000000000000000000000000000001
@@ -19,6 +21,6 @@ typedef uint64_t entry;
 void pte_set_frame (entry * e, void * phys_addr, int level);
 void pte_add_attrib (entry * e, uint64_t attrib);
 void pte_del_attrib (entry * e, uint64_t attrib);
-bool pte_is_present (entry e);
-bool pte_is_writable (entry e);
-void * pte_frame_pointer (entry e);
+int pte_is_present (entry e);
+int pte_is_writable (entry e);
+void * pte_pfn (entry e);

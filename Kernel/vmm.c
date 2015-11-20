@@ -1,22 +1,15 @@
-// architecture defines 512 entries per table (9 bits)
-#define PAGES_TO_INDENTITY_MAP 13
-#define PAGE_SIZE 4096
- 
-// tables structure
-struct table {
- 	entry entries[ENTRIES_PER_TABLE];
-};
+#include <vmm.h>
 
 int vmm_alloc_page (entry* e) {
  
 	// allocate a free physical block
-	void * p = pmmngr_alloc_block ();
+	void* p = pmmngr_alloc_block();
 	if (!p){
 		return 0;
 	}
  
 	// map it to the page
-	pte_set_frame (e, p);
+	pte_set_frame (e, p, 0);
 	pte_add_attrib (e, MASK_PRESENT);
  
 	return 1;
@@ -33,14 +26,14 @@ void vmm_free_page (entry* e) {
 	}
  
  	// page no longer present
-	pt_pte_del_attrib (e, MASK_PRESENT);
+	pte_del_attrib (e, MASK_PRESENT);
 }
 
 entry* vmm_lookup_entry (table* table, void* virt_addr, int level) {
  
 	if (table){
 		// get table position from virtual address
-		int table_pos = (((uint64_t)virt_addr) & (MASK_TABLE << (level*9+12)) >> (level*9+12);
+		int table_pos = (((uint64_t)virt_addr) & (MASK_TABLE << (level*9+12))) >> (level*9+12);
 		return &table->entries[table_pos];
 	}
 	return 0;
@@ -50,7 +43,7 @@ entry* vmm_lookup_entry (table* table, void* virt_addr, int level) {
 void vmm_map_page (void* phys_addr, void* virt_addr) {
 
 	// get current cr3 addr
-	table* cur_table = get_cr3();
+	table* cur_table = (table*)read_cr3();
 
 	// verify tables are allocated and is present
 	for (int level = 3; level > 0; level--){
@@ -60,7 +53,7 @@ void vmm_map_page (void* phys_addr, void* virt_addr) {
 		}
 
 		// get corresponding entry and check if it is present
-		entry* e = lookup_entry(cur_table, virt_addr, level);
+		entry* e = vmm_lookup_entry(cur_table, virt_addr, level);
 
 		if ((*e & MASK_PRESENT) != MASK_PRESENT) {
 			// since table isnt present we must allocate it
@@ -74,18 +67,18 @@ void vmm_map_page (void* phys_addr, void* virt_addr) {
 
       		// make the entry point to the new table and set attributes
 			pte_add_attrib (e, MASK_PRESENT);
-      		pte_add_attrib (e, MASK_WRITABLE);
-      		pte_set_frame (e, (void*)table);
+      		pte_add_attrib (e, MASK_WRITEABLE);
+      		pte_set_frame (e, (void*)alloc_table, level);
 		}
 
 		// get next table
-		table* cur_table = (table*)pte_frame_pointer(*e);
+		cur_table = (table*)pte_pfn(*e);
 	}
 
 	// im at the 4th table so I need to get the entry and map it
-	entry* page_entry = lookup_entry(cur_table, virt_addr, 0);
+	entry* page_entry = vmm_lookup_entry(cur_table, virt_addr, 0);
 
-	pte_set_frame(page_entry, phys_addr);
+	pte_set_frame(page_entry, phys_addr, 0);
 	pte_add_attrib(page_entry, MASK_PRESENT);
 }
 
@@ -93,22 +86,22 @@ void vmm_initialize() {
 
 	// allocate tables for the identity mapping
 	table* pml4_table = (table*)pmmngr_alloc_block();
-	if (!table) {
+	if (!pml4_table) {
 		return;
 	}
  
 	table* directory_ptr_table = (table*)pmmngr_alloc_block();
-	if (!system_table) {
+	if (!directory_ptr_table) {
 		return;
 	}
 
 	table* directory_table = (table*)pmmngr_alloc_block();
-	if (!system_table) {
+	if (!directory_table) {
 		return;
 	}
 
 	table* page_table = (table*)pmmngr_alloc_block();
-	if (!system_table) {
+	if (!page_table) {
 		return;
 	}
 
@@ -118,7 +111,7 @@ void vmm_initialize() {
 		// create a new page
 		entry page = 0;
 		pte_add_attrib (&page, MASK_PRESENT);
- 		pte_set_frame (&page, frame);
+ 		pte_set_frame (&page, (void*)frame, 0);
 
  		// add it to the page table
 		page_table->entries[i] = page;
@@ -127,17 +120,17 @@ void vmm_initialize() {
 	// lets add the first entries to the directories that point to such table
 	entry first_directory_entry = 0;
 	pte_add_attrib (&first_directory_entry, MASK_PRESENT);
- 	pte_set_frame (&first_directory_entry, page_table);
+ 	pte_set_frame (&first_directory_entry, page_table, 1);
  	directory_table->entries[0] = first_directory_entry;
 
  	entry first_direc_ptr_entry = 0;
 	pte_add_attrib (&first_direc_ptr_entry, MASK_PRESENT);
- 	pte_set_frame (&first_direc_ptr_entry, directory_table);
+ 	pte_set_frame (&first_direc_ptr_entry, directory_table, 2);
  	directory_ptr_table->entries[0] = first_direc_ptr_entry;
 
  	entry first_pml4_entry = 0;
 	pte_add_attrib (&first_pml4_entry, MASK_PRESENT);
- 	pte_set_frame (&first_pml4_entry, directory_ptr_table);
+ 	pte_set_frame (&first_pml4_entry, directory_ptr_table, 3);
  	pml4_table->entries[0] = first_pml4_entry;
 	
  	// write_cr3, read_cr3, write_cr0, and read_cr0 all come from the asm functions
