@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-int main(unsigned int pcount, char * pgname[], void * pgptrs[]) {
+int main(void) {
 	init_shell();
 
 	while (1) {

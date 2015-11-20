@@ -2,7 +2,7 @@
 #define __SCHED 1
 
 #include <stdint.h>
-#define SCHED_MAX_PROC (16)
+#define SCHED_MAX_PROC (4)
 
 typedef uint64_t pid_t;
 typedef enum {
