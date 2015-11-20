@@ -10,7 +10,7 @@
 char shell_buffer[SHELL_BUFFER_SIZE];
 int curr_pos =0;
 
-cmd_entry cmd_table[15];
+cmd_entry cmd_table[14];
 int cmd_count = (sizeof(cmd_table) / sizeof(cmd_entry));
 
 void init_shell()
@@ -34,19 +34,21 @@ void print_shell_error()
 	fprintf(STDERR, "We are sorry, \"%s\" command does not exist. \nFor full list of commands please type: \"commands\"\n", shell_buffer);
 }
 
-void update_shell()
+int update_shell()
 {
 	char key;
 	key = getc();
 
 	if(key == 0) {
-		return;
+		return 0;
 	}
 
 	if(key == '\n') {
 		putc('\n');
 		shell_buffer[curr_pos] = 0;
-		excecute_command(shell_buffer);
+		if (excecute_command(shell_buffer) == -1) {
+			return 0;
+		}
 		print_shell_text();
 		clean_buffer();
 
@@ -64,16 +66,17 @@ void update_shell()
 	} else if(curr_pos >= SHELL_BUFFER_SIZE-2) {
 		//sound beep
 		beep();
-		return;
+		return 0;
 
 	} else {
 		putc(key);
 		shell_buffer[curr_pos] = key;
 		curr_pos++;
 	}
+	return 1;
 }
 
-void excecute_command(char* buffer)
+int excecute_command(char* buffer)
 {
 	int argc,
 		cmd_len;
@@ -83,12 +86,12 @@ void excecute_command(char* buffer)
 	if( cmd_no == -1)
 	{
 		print_shell_error();
-		return;
+		return 0;
 	}
 
 	cmd_len = strlen(cmd_table[cmd_no].name);
 	argc = get_arguments(buffer + cmd_len, args);
-	cmd_table[cmd_no].func(args, argc);
+	return cmd_table[cmd_no].func(args, argc);
 }
 
 int parse_command(char* buffer)
@@ -219,7 +222,6 @@ void initialize_cmd_table()
 	cmd_table[11].name = "commands";
 	cmd_table[12].name = "printascii";
 	cmd_table[13].name = "setcolor";
-	cmd_table[14].name = "scdelay";
 	
 	cmd_table[0].func = &echo;
 	cmd_table[1].func = &clear;
@@ -235,7 +237,6 @@ void initialize_cmd_table()
 	cmd_table[11].func = &commands;
 	cmd_table[12].func = &print_ascii_table;
 	cmd_table[13].func = &setcolor;
-	cmd_table[14].func = &screen_saver_delay;
 
 	cmd_table[0].help = "Echo repeats the input string following echo statement \n example: \"echo Hello I am using echo\"";
 	cmd_table[1].help = "Clears the screen, uses no arguments, therefore will ignore any ones received\n";
@@ -251,5 +252,4 @@ void initialize_cmd_table()
 	cmd_table[11].help = "Displays list of available commands\n";
 	cmd_table[12].help = "Prints entire list of ascii characters in order\n";
 	cmd_table[13].help = "Sets the console color (duh)\n";
-	cmd_table[14].help = "Sets the time interval that must pass before screen saver is activated. Format must be:  ss:mm:hh; Example: \"scdelay 23:23:23\"\n";
 }

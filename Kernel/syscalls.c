@@ -5,6 +5,7 @@
 #include <interrupts.h>
 #include <keyboard.h>
 #include <rtc-driver.h>
+#include <sched.h>
 #define STDIN  0
 #define STDOUT 1
 #define STDERR 2
@@ -17,9 +18,11 @@ static enum VID_COLOR colors[] = {LIGHT_GRAY, BLACK, RED, BLACK};
 
 void syscall_halt(void)
 {
+	static const char msg[] = "System offline.";
+	int msg_size = sizeof(msg) / sizeof(msg[0]);
 	vid_clr();
-	vid_cursor(12, 34);
-	vid_print("Halted X'(", 11);
+	vid_cursor(VID_ROWS / 2, (VID_COLS - msg_size) / 2);
+	vid_print(msg, msg_size);
 	_halt();
 }
 
@@ -142,6 +145,10 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 
 		case SYSCALL_BEEP: /* sys_beep */
 		beep();
+		break;
+
+		case SYSCALL_EXIT:
+		sched_kill_current_process((unsigned short) RDI);
 		break;
 
 		case SYSCALL_GETTIME:

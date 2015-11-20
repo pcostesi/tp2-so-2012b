@@ -16,33 +16,24 @@ extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
-extern void _cli(void);
-extern void _sti(void);
-extern void _halt(void);
-extern void _drool(void);
-
-
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
-
-typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[]);
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase()
+void * getStackBase(void)
 {
 	return (void*)(
-		//(uint64_t)&endOfKernel
-		(uint64_t)&bss
+		(uint64_t)&endOfKernel
 		+ PageSize * 8				//The size of the stack itself, 32KiB
 		- sizeof(uint64_t)			//Begin at the top of the stack
 	);
 }
 
-void * initializeKernelBinary()
+void * initializeKernelBinary(void)
 {
 	/* THIS HAS TO BE IN THE SAME ORDER THE PACKER PACKS IT OR
 	 * IT BREAKS, LIKE, *REALLY* BAD.
@@ -68,7 +59,7 @@ void kbrd_irq_with_activity(int irq)
 	kbrd_irq(irq);
 }
 
-int main()
+int main(void)
 {	
 	_cli();
 	sched_init();
@@ -83,11 +74,13 @@ int main()
 	kbrd_install();
 	vid_clr();
 
-	/* Drop to environment */
-	_sti();
-	
 	sched_spawn_process((void *) shellModuleAddress);
 	
+	/* Drop to environment */
+
+	sched_drop_to_user();
+	_sti();
+
     while (1) _drool();
     syscall_halt();
 	return 0;

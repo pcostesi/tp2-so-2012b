@@ -9,12 +9,12 @@
 typedef struct cmd_entry {
 	char* name;
 	char* help;
-	void (*func)(char** argv, int argc);
+	int (*func)(char** argv, int argc);
 } cmd_entry;
 
 void init_shell(void);
-void update_shell(void);
-void excecute_command(char*);
+int update_shell(void);
+int excecute_command(char*);
 int parse_command(char*);
 void clean_buffer(void);
 void prnt_welcome_msg(void);
