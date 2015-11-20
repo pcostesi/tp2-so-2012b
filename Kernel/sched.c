@@ -1,7 +1,6 @@
 #include <sched.h>
 #include <lib.h>
-
-extern uint64_t bss2;
+#include <syscalls.h>
 
 extern void _drool(void);
 extern void _halt(void);
@@ -10,9 +9,15 @@ static struct sched_process idle_process = {0};
 static struct sched_process processes[SCHED_MAX_PROC] = {{0}};
 static volatile int current_process_idx = 0;
 
+typedef uint8_t page_t[4096];
+
 extern uint64_t _sched_init_stack(void * stack, void * symbol);
-extern uint8_t idle_stack;
-extern uint8_t idle_kernel_stack;
+
+static page_t idle_stack;
+static page_t idle_kernel_stack;
+
+static page_t process_stacks[SCHED_MAX_PROC];
+static page_t kernel_stacks[SCHED_MAX_PROC];
 
 volatile pid_t max_pid = 0;
 static volatile int idle_active = 1;
@@ -50,9 +55,10 @@ uint64_t sched_init_process(struct sched_process * process, void * symbol, void 
 
 uint64_t sched_spawn_process(void * symbol)
 {
-	struct sched_process * process = &processes[max_pid++ % SCHED_MAX_PROC];
-	void * stack = (&bss2 + 4096 * max_pid - sizeof(uint64_t));
-	void * kernel_stack = (&bss2 + 4096 * max_pid * 2 - sizeof(uint64_t));
+	struct sched_process * process = &processes[max_pid % SCHED_MAX_PROC];
+	void * stack = get_stack_base(process_stacks[max_pid]);
+	void * kernel_stack = get_stack_base(kernel_stacks[max_pid]);
+	max_pid += 1;
 	return sched_init_process(process, symbol, stack, kernel_stack);
 }
 
@@ -68,16 +74,13 @@ uint64_t sched_switch_to_kernel_stack(uint64_t stack)
 	return (uint64_t) process->kernel_stack;
 }
 
-uint64_t sched_switch_from_kernel_stack(uint64_t kernel_stack)
+uint64_t _sched_get_current_process_entry(void)
 {
 	struct sched_process * process = &processes[current_process_idx];
 	if (idle_active) {
-		idle_process.kernel_stack = (void *) kernel_stack;
-		return (uint64_t) idle_process.stack;
+		return (uint64_t) idle_process.symbol;
 	}
-
-	process->kernel_stack = (void *) kernel_stack;
-	return (uint64_t) process->stack;
+	return (uint64_t) process->symbol;
 }
 
 uint64_t sched_pick_process(void)
@@ -87,6 +90,7 @@ uint64_t sched_pick_process(void)
 	struct sched_process * process;
 	struct sched_process * current = &processes[current_process_idx];
 
+	//idle_active ? syscall_write(2, "@", 1) : syscall_write(2, "-", 1);
 	idle_active = 1;
 
 	if (current->status == ACTIVE) {

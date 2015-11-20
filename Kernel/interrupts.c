@@ -168,7 +168,7 @@ void install_interrupts(void)
 	install_IDT_entry(table, INT_MEM, 		&_int_mem_handler, IDTE_HW);
 
 	/* override Master HW ints with our own */
-	install_IDT_entry(table, INT_PIT, 		&_int_pit_handler, IDTE_HW);
+	install_IDT_entry(table, INT_PIT, 		&_irq_20h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_KEYB, 		&_irq_21h_handler, IDTE_HW);
 	/*						 cascade interrupt (not triggered) */
 	install_IDT_entry(table, INT_COM2, 		&_irq_23h_handler, IDTE_HW);

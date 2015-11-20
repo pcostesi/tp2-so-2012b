@@ -28,11 +28,12 @@ struct sched_process {
 
 
 uint64_t sched_switch_to_kernel_stack(uint64_t stack);
-uint64_t sched_switch_from_kernel_stack(uint64_t stack);
 uint64_t sched_spawn_process(void * symbol);
 uint64_t sched_pick_process(void);
+uint64_t _sched_get_current_process_entry(void);
 uint64_t sched_init_process(struct sched_process * process, void * symbol, void * stack, void * kernel_stack);
 uint64_t sched_init(void);
 
+extern void sched_drop_to_user(void);
 
 #endif

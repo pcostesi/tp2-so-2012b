@@ -25,8 +25,6 @@ extern void _drool(void);
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
 
-typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[]);
-
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
 	memset(bssAddress, 0, bssSize);
@@ -68,6 +66,32 @@ void kbrd_irq_with_activity(int irq)
 	kbrd_irq(irq);
 }
 
+int pseudo_main(int argc, char * argv)
+{
+	syscall_write(2, "hey ", 4);
+	syscall_write(1, "hey ", 4);
+	syscall_write(2, "hey ", 4);
+	syscall_write(1, "hey ", 4);
+	syscall_write(2, "hey ", 4);
+	syscall_write(1, "hey ", 4);
+	syscall_write(2, "hey ", 4);
+	while (1) _drool();
+	return 0;
+}
+
+int pseudo_main2(int argc, char * argv)
+{
+	syscall_write(1, "=== ", 4);
+	syscall_write(2, "=== ", 4);
+	syscall_write(1, "=== ", 4);
+	syscall_write(2, "=== ", 4);
+	syscall_write(1, "=== ", 4);
+	syscall_write(2, "=== ", 4);
+	syscall_write(1, "=== ", 4);
+	while (1) _drool();
+	return 0;
+}
+
 int main()
 {	
 	_cli();
@@ -83,11 +107,19 @@ int main()
 	kbrd_install();
 	vid_clr();
 
-	/* Drop to environment */
-	_sti();
-	
+	//uint64_t other = (uint64_t) pseudo_main;
+	//sched_spawn_process((void *) other);
+
 	sched_spawn_process((void *) shellModuleAddress);
 	
+	//uint64_t other2 = (uint64_t) pseudo_main2;
+	//sched_spawn_process((void *) other2);
+	
+	/* Drop to environment */
+
+	sched_drop_to_user();
+	_sti();
+
     while (1) _drool();
     syscall_halt();
 	return 0;
