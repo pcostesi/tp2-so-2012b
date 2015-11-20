@@ -11,6 +11,7 @@ typedef enum {
 	FREE,
 	ACTIVE,
 	WAITING,
+	SLEEPING,
 	TERMINATED,
 } pstat_t;
 
