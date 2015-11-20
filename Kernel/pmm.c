@@ -10,16 +10,21 @@
 
 /*262144 Blocks for 4kb blocks and 1 GB total memory*/
 #define PMM_TOTAL_BLOCKS (PMM_TOTAL_MEMORY/ PMM_BLOCK_SIZE)
-  
- #define RESERVED_PAGES 15
+
+/*Kernel and PMM reserved memory*/
+static uint64_t _reserved_pages;
+
+
 /*! memory map bit array. Each bit represents a memory block*/
-static	uint64_t* _pmm_map = (void *)(PMM_BLOCK_SIZE*(RESERVED_PAGES-1);
+static	uint64_t* _pmm_map;
 
 
 /*Magic is a LIE*/
-static uint64_t* _mem_stack = (void *)(PMM_BLOCK_SIZE* (RESERVED_PAGES -2) ); /*Leaving first 9 pages for kernel, 1 for bitmap and the 11th for mem stack*/
+static uint64_t* _mem_stack;
 
-static uint64_t _free_blocks = PMM_TOTAL_BLOCKS - RESERVED_PAGES;
+static uint64_t _free_blocks;
+
+
 
 
 /*TODO checks de rango*/
@@ -105,21 +110,25 @@ int fmem(void* addr)
 
 
 
-void init_mem()
+void init_mem(int reserve)
 {
 
+	_reserved_pages = reserve/PMM_BLOCK_SIZE + 3;
+	_pmm_map = (uint64_t *)(PMM_BLOCK_SIZE * (_reserved_pages - 1) );
+	_mem_stack = (uint64_t *)(PMM_BLOCK_SIZE* (_reserved_pages -2) );
+	_free_blocks = PMM_TOTAL_BLOCKS - _reserved_pages;
 
 	uint64_t indx;
-	for(indx = _pmm_map; indx < _pmm_map + PMM_TOTAL_BLOCKS/8 +1 ; indx ++){
-		*indx = 0;
+	for(indx = (uint64_t)_pmm_map; indx < (uint64_t)_pmm_map + PMM_TOTAL_BLOCKS/64 +1 ; indx ++){
+		*((uint64_t *)(indx)) = 0;
 	}
 
-	for (indx = 0 ; indx < RESERVED_PAGES ; index++){
+	for (indx = 0 ; indx < _reserved_pages ; indx++){
 		mmap_alloc(indx*PMM_BLOCK_SIZE);
 	}
 
-	for( indx = RESERVED_PAGES; indx < PMM_TOTAL_BLOCKS; indx++ ){
-		*(_mem_stack + indx - RESERVED_PAGES) = indx * PMM_BLOCK_SIZE;
+	for( indx = _reserved_pages; indx < PMM_TOTAL_BLOCKS; indx++ ){
+		*(_mem_stack + indx - _reserved_pages) = indx * PMM_BLOCK_SIZE;
 	}
 	return;
 }
