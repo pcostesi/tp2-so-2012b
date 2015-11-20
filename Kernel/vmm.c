@@ -3,7 +3,7 @@
 int vmm_alloc_page (entry* e) {
  
 	// allocate a free physical block
-	void* p = pmmngr_alloc_block();
+	void* p = gmem();
 	if (!p){
 		return 0;
 	}
@@ -22,7 +22,7 @@ void vmm_free_page (entry* e) {
 
 	// free physical block
 	if (p){
-		pmmngr_free_block (p);
+		fmem(p);
 	}
  
  	// page no longer present
@@ -57,7 +57,7 @@ void vmm_map_page (void* phys_addr, void* virt_addr) {
 
 		if ((*e & MASK_PRESENT) != MASK_PRESENT) {
 			// since table isnt present we must allocate it
-			table* alloc_table = (table*)pmmngr_alloc_block();
+			table* alloc_table = (table*)gmem();
 			if (!alloc_table) {
 				return;
 			}
@@ -85,22 +85,22 @@ void vmm_map_page (void* phys_addr, void* virt_addr) {
 void vmm_initialize() {
 
 	// allocate tables for the identity mapping
-	table* pml4_table = (table*)pmmngr_alloc_block();
+	table* pml4_table = (table*)gmem();
 	if (!pml4_table) {
 		return;
 	}
  
-	table* directory_ptr_table = (table*)pmmngr_alloc_block();
+	table* directory_ptr_table = (table*)gmem();
 	if (!directory_ptr_table) {
 		return;
 	}
 
-	table* directory_table = (table*)pmmngr_alloc_block();
+	table* directory_table = (table*)gmem();
 	if (!directory_table) {
 		return;
 	}
 
-	table* page_table = (table*)pmmngr_alloc_block();
+	table* page_table = (table*)gmem();
 	if (!page_table) {
 		return;
 	}

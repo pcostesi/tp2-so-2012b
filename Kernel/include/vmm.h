@@ -17,6 +17,14 @@ typedef struct table_struct {
  	entry entries[ENTRIES_PER_TABLE];
 } table;
 
+typedef struct page_alloc_node_struct {
+	page_alloc_node* prev;
+	page_alloc_node* next;
+	void* page_addr;
+	int free;
+
+} page_alloc_node;
+
 int vmm_alloc_page (entry* e);
 void vmm_free_page (entry* e);
 entry* vmm_lookup_entry (table* table, void* virt_addr, int level);
