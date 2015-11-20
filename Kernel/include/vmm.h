@@ -7,6 +7,11 @@
 #define ENTRIES_PER_TABLE 512
 #define PAGE_SIZE 4096
  
+extern void _write_cr3(uint64_t addr);
+extern uint64_t _read_cr3(void);
+extern void _write_cr0(uint64_t addr);
+extern uint64_t _read_cr0(void);
+
 // tables structure
 typedef struct table_struct {
  	entry entries[ENTRIES_PER_TABLE];

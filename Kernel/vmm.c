@@ -43,7 +43,7 @@ entry* vmm_lookup_entry (table* table, void* virt_addr, int level) {
 void vmm_map_page (void* phys_addr, void* virt_addr) {
 
 	// get current cr3 addr
-	table* cur_table = (table*)read_cr3();
+	table* cur_table = (table*)_read_cr3();
 
 	// verify tables are allocated and is present
 	for (int level = 3; level > 0; level--){
@@ -134,6 +134,6 @@ void vmm_initialize() {
  	pml4_table->entries[0] = first_pml4_entry;
 	
  	// write_cr3, read_cr3, write_cr0, and read_cr0 all come from the asm functions
-	write_cr3(pml4_table); // put that pml4 address into CR3
-	write_cr0(read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
+	_write_cr3((uint64_t)pml4_table); // put that pml4 address into CR3
+	_write_cr0(_read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
 }
