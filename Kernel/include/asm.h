@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define CPU_VENDOR_BUFFER_SIZE 10
+
 extern char * cpu_vendor(char * result);
 extern uint32_t get_memory_size(void);
 
