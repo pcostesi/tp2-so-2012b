@@ -55,7 +55,6 @@ void pit_irq(int irq)
 
 void kbrd_irq_with_activity(int irq)
 {
-	syscall_wake();
 	kbrd_irq(irq);
 }
 
