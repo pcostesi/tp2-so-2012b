@@ -6,8 +6,12 @@ extern void _drool(void);
 extern void _halt(void);
 
 static struct sched_process idle_process;
+static struct sched_process * current_process = NULL;
+static struct sched_process * terminated = NULL;
+
 static struct sched_process processes[SCHED_MAX_PROC];
 static volatile int current_process_idx = 0;
+
 
 typedef uint8_t page_t[4096];
 
@@ -20,6 +24,7 @@ static page_t process_stacks[SCHED_MAX_PROC];
 static page_t kernel_stacks[SCHED_MAX_PROC];
 
 volatile pid_t max_pid = 0;
+volatile pid_t fg_pid = 0;
 static volatile int idle_active = 1;
 
 static uint64_t _sched_idle_process(void)

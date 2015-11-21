@@ -29,7 +29,7 @@ struct sched_process {
 
 	struct sched_process * parent;
 	struct sched_process * children;
-	struct sched_process * next_sibling;
+	struct sched_process * next;
 };
 
 
