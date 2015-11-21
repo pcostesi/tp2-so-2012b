@@ -6,32 +6,51 @@ extern void _drool(void);
 extern void _halt(void);
 
 static struct sched_process idle_process;
-static struct sched_process * current_process = NULL;
+static struct sched_process * active = NULL;
 static struct sched_process * terminated = NULL;
-
-static struct sched_process processes[SCHED_MAX_PROC];
-static volatile int current_process_idx = 0;
-
 
 typedef uint8_t page_t[4096];
 
 extern uint64_t _sched_init_stack(void * stack, void * symbol);
 
-static page_t idle_stack;
-static page_t idle_kernel_stack;
-
-static page_t process_stacks[SCHED_MAX_PROC];
-static page_t kernel_stacks[SCHED_MAX_PROC];
-
 volatile pid_t max_pid = 0;
 volatile pid_t fg_pid = 0;
 static volatile int idle_active = 1;
+
+static page_t idle_stack = {0};
+static page_t idle_kstack = {0};
 
 static uint64_t _sched_idle_process(void)
 {
     while (1) _drool();
 	return 0;
 }
+
+static struct sched_process * _sched_alloc_process(void)
+{
+	static struct sched_process processes[SCHED_MAX_PROC] = {{0}};
+	static int idx = 0;
+	return &processes[idx++];
+}
+
+void _sched_free_process(struct sched_process * process)
+{
+
+}
+
+static page_t * _sched_alloc_pages(void * base, uint64_t size)
+{
+	static page_t pages[SCHED_MAX_PROC * 2] = {{0}};
+	static int idx = 0;
+	return &pages[idx++];
+}
+
+static void _sched_free_pages(void * base, uint64_t size)
+{
+
+}
+
+
 
 static void * get_stack_base(void * stack_base)
 {
@@ -42,87 +61,104 @@ static void * get_stack_base(void * stack_base)
 	);
 }
 
+
+static uint64_t _sched_init_process(struct sched_process * process, void * symbol, void * stack, void * kernel_stack, int pages)
+{
+	process->symbol = symbol;
+	process->stack = (void *) _sched_init_stack(stack, symbol);
+	process->kernel_stack = kernel_stack;
+	process->page_count = pages;
+	return 0;
+}
+
+
 uint64_t sched_init(void)
 {
 	uint64_t symbol = (uint64_t) &_sched_idle_process;
-	sched_init_process(&idle_process, (void *) symbol, get_stack_base(&idle_stack), get_stack_base(&idle_kernel_stack));
+	_sched_init_process(&idle_process,
+					   (void *) symbol,
+					   get_stack_base(&idle_stack),
+					   get_stack_base(&idle_kstack),
+					   sizeof(page_t));
 	return 0;
 }
 
-uint64_t sched_init_process(struct sched_process * process, void * symbol, void * stack, void * kernel_stack)
-{
-	process->symbol = symbol;
-	process->status = WAITING;
-	process->stack = (void *) _sched_init_stack(stack, symbol);
-	process->kernel_stack = kernel_stack;
-	return 0;
-}
 
 uint64_t sched_spawn_process(void * symbol)
 {
-	struct sched_process * process = &processes[max_pid % SCHED_MAX_PROC];
-	void * stack = get_stack_base(process_stacks[max_pid]);
-	void * kernel_stack = get_stack_base(kernel_stacks[max_pid]);
-	sched_init_process(process, symbol, stack, kernel_stack);
-	return max_pid++;
+	struct sched_process * process = _sched_alloc_process();
+	void * stack = get_stack_base(_sched_alloc_pages(NULL, 1));
+	void * kernel_stack = get_stack_base(_sched_alloc_pages(NULL, 1));
+	_sched_init_process(process, symbol, stack, kernel_stack, 1);
+
+	process->pid = ++max_pid;
+	if (!active) {
+		active = process;
+	} else {
+		process->next = active->next;
+	}
+
+	active->next = process;
+	return process->pid;
 }
 
 uint64_t sched_switch_to_kernel_stack(uint64_t stack)
 {
-	struct sched_process * process = &processes[current_process_idx];
-	if (idle_active) {
+	if (!active) {
 		idle_process.stack = (void *) stack;
 		return (uint64_t) idle_process.kernel_stack;
 	}
 
-	process->stack = (void *) stack;
-	return (uint64_t) process->kernel_stack;
+	active->stack = (void *) stack;
+	return (uint64_t) active->kernel_stack;
 }
 
 uint64_t _sched_get_current_process_entry(void)
 {
-	struct sched_process * process = &processes[current_process_idx];
-	if (idle_active) {
+	if (!active) {
 		return (uint64_t) idle_process.symbol;
 	}
-	return (uint64_t) process->symbol;
+	return (uint64_t) active->symbol;
 }
 
-uint64_t sched_kill_current_process(unsigned short RDI)
+pid_t sched_getpid(void)
 {
-	struct sched_process * process = &processes[current_process_idx];
-	if (process->status != ACTIVE && process->status != WAITING) {
-		return -1;
-	}
-	process->status = TERMINATED;
-	process->code	= RDI;
-	return RDI;
+	return active ? active->pid : 0;
 }
+
+static struct sched_process * _sched_terminate_process(struct sched_process * defunct, unsigned short code)
+{
+	struct sched_process * next = defunct->next;
+	defunct->code	= code;
+	defunct->next 	= terminated;
+	terminated 		= defunct;
+	_sched_free_pages(defunct->stack, defunct->page_count);
+	_sched_free_pages(defunct->kernel_stack, 1);
+	return next;
+}
+
+uint64_t sched_terminate_process(pid_t pid, unsigned short retval)
+{
+	struct sched_process * process = NULL;
+	if (active && active->pid == pid) {
+		active = _sched_terminate_process(active, retval);
+		return 0;
+	}
+	
+	for (process = active->next; process != active; process = process->next) {
+		if (process->next->pid != pid) continue;
+		process->next = _sched_terminate_process(process->next, retval);
+		return 0;
+	}
+
+	return -1;
+}
+
 
 
 uint64_t sched_pick_process(void)
 {
-	int idx;
-	int next;
-	struct sched_process * process;
-	struct sched_process * current = &processes[current_process_idx];
-
-	idle_active = 1;
-	if (current->status == ACTIVE) {
-		current->status = WAITING;
-	}
-
-	for (idx = 1; idx < SCHED_MAX_PROC + 1; idx++) {
-		next = (current_process_idx + idx) % SCHED_MAX_PROC;
-		process = &processes[next];
-
-		if (process->status == WAITING) {
-			current->status = WAITING;
-			process->status = ACTIVE;
-			current_process_idx = next;
-			idle_active = 0;
-			return (uint64_t) process->stack;
-		}
-	}
-	return (uint64_t) idle_process.stack;
+	if (!active) return (uint64_t) idle_process.stack;	
+	active = active->next;
+	return (uint64_t) active->stack;
 }
