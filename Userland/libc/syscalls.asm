@@ -3,8 +3,6 @@ SECTION .text
 ; see https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
 %macro PUSHALL 0
     push    RBX
-    push    RDI
-    push    RSI
     push    RSP
     push    R12
     push    R13
@@ -18,8 +16,7 @@ SECTION .text
     pop     R13
     pop     R12
     pop     RSP
-    pop     RSI
-    pop     RDI
+    pop     RSP
     pop     RBX
 %endmacro
 

@@ -5,34 +5,23 @@
 #define SCHED_MAX_PROC (16)
 
 typedef uint64_t pid_t;
-typedef enum {
-	FREE,
-	ACTIVE,
-	WAITING,
-	TERMINATED,
-} pstat_t;
+typedef uint64_t size_t;
 
-struct sched_process {
-	volatile pid_t pid;
-	void * symbol;
-	void * stack;
-	void * pagetable;
-	void * kernel_stack;
-
-	pstat_t status;
-
-	struct sched_process * parent;
-	struct sched_process * children;
-	struct sched_process * next_sibling;
+enum sched_sleeping {
+	IO,
+	WAIT,
+	TIME
 };
 
-
 uint64_t sched_switch_to_kernel_stack(uint64_t stack);
-uint64_t sched_switch_from_kernel_stack(uint64_t stack);
 uint64_t sched_spawn_process(void * symbol);
 uint64_t sched_pick_process(void);
-uint64_t sched_init_process(struct sched_process * process, void * symbol, void * stack, void * kernel_stack);
+uint64_t _sched_get_current_process_entry(void);
 uint64_t sched_init(void);
+uint64_t sched_terminate_process(pid_t pid, unsigned short retval);
+pid_t sched_getpid(void);
 
+extern void sched_drop_to_user(void);
+extern void sched_step_syscall_rax(void * stack, uint64_t value);
 
 #endif

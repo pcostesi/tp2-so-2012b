@@ -3,18 +3,18 @@
 #include <command.h>
 
 #define SHELL_BUFFER_SIZE 128
-#define SHELL_TEXT "Shell> "
-#define WELCOME_TEXT "\n\n***Welcome to Barely Compiles OS***\n\n"
+#define SHELL_TEXT "# "
+#define WELCOME_TEXT "\n\n Prompt ready. Type \"commands\" for a list of commands (duh).\n\n"
 
 typedef struct cmd_entry {
 	char* name;
 	char* help;
-	void (*func)(char** argv, int argc);
+	int (*func)(char** argv, int argc);
 } cmd_entry;
 
 void init_shell(void);
-void update_shell(void);
-void excecute_command(char*);
+int update_shell(void);
+int excecute_command(char*);
 int parse_command(char*);
 void clean_buffer(void);
 void prnt_welcome_msg(void);

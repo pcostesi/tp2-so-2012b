@@ -12,8 +12,8 @@
 		<stdarg.h>, <stdbool.h>, <stddef.h>, <stdint.h>, and <stdnoreturn.h>.
 */
 
-void putc(char c);
-void fputc(int fd, char c);
+int putc(char c);
+int fputc(int fd, char c);
 
 int puts(char *);
 int fputs(int fd, char *);

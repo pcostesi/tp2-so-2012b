@@ -2,6 +2,7 @@
 
 GLOBAL _sched_init_stack
 GLOBAL sched_drop_to_user
+GLOBAL sched_step_syscall_rax
 
 EXTERN _sched_get_current_process_entry
 EXTERN sched_pick_process
@@ -46,6 +47,11 @@ _sched_init_stack:
     mov     rsp,    r10
     LEAVE
 
+sched_step_syscall_rax:
+    ENTER
+    SET_SYSCALL_RET rdi, rsi                ; Step rax at stack
+    LEAVE
+
 ; Force a scheduler step
 ; then jump to userspace
 sched_drop_to_user:
@@ -57,6 +63,9 @@ sched_drop_to_user:
 	call _sched_get_current_process_entry
 	mov 	rsp, 	r15
 	
+    LOADPROC rsp
+    add     rsp,    8 * 17
+    pop     rax
 	sti
 	jmp 	rax
 	LEAVE
