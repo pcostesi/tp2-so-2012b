@@ -32,6 +32,7 @@ int syscall_ioctl(unsigned int fd, unsigned long request, void * params);
 void syscall_pause(void);
 void syscall_halt(void);
 int syscall_exit(unsigned int code);
+int syscall_getpid(void);
 
 
 uint64_t int80h(uint64_t sysno,

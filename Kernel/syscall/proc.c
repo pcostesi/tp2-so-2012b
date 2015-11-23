@@ -10,3 +10,8 @@ int syscall_exit(unsigned int code)
 {
 	return (int) sched_terminate_process(sched_getpid(), code);
 }
+
+int syscall_getpid(void)
+{
+	return (int) sched_getpid();
+}

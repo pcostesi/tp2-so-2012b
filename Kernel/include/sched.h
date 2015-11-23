@@ -13,27 +13,6 @@ enum sched_sleeping {
 	TIME
 };
 
-struct sched_process {
-	volatile pid_t pid;
-	void * symbol;
-	void * stack;
-	size_t page_count;
-	void * pagetable;
-	void * kernel_stack;
-	unsigned short code;
-
-	enum sched_sleeping sleeping;
-	union {
-		uint64_t epoch;
-		pid_t pid;
-	} reason;
-
-	struct sched_process * parent;
-	struct sched_process * children;
-	struct sched_process * next;
-};
-
-
 uint64_t sched_switch_to_kernel_stack(uint64_t stack);
 uint64_t sched_spawn_process(void * symbol);
 uint64_t sched_pick_process(void);
@@ -43,5 +22,6 @@ uint64_t sched_terminate_process(pid_t pid, unsigned short retval);
 pid_t sched_getpid(void);
 
 extern void sched_drop_to_user(void);
+extern void sched_step_syscall_rax(void * stack, uint64_t value);
 
 #endif

@@ -171,14 +171,16 @@ void install_interrupts(void)
 	install_IDT_entry(table, INT_PIT, 		&_irq_20h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_KEYB, 		&_irq_21h_handler, IDTE_HW);
 	/*						 cascade interrupt (not triggered) */
+	/*
 	install_IDT_entry(table, INT_COM2, 		&_irq_23h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_COM1, 		&_irq_24h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_LPT2, 		&_irq_25h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_FLOPPY, 	&_irq_26h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_LPT1, 		&_irq_27h_handler, IDTE_HW);
-	
+	*/
 
 	/* override Slave HW ints with our own */
+	/*
 	install_IDT_entry(table, INT_CMOS, 		&_irq_70h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_SCSI1, 	&_irq_71h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_SCSI2, 	&_irq_72h_handler, IDTE_HW);
@@ -187,6 +189,7 @@ void install_interrupts(void)
 	install_IDT_entry(table, INT_FPU, 		&_irq_75h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_ATA1, 		&_irq_76h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_ATA2, 		&_irq_77h_handler, IDTE_HW);
+	*/
 	
 	_lidt(idtr);
 }

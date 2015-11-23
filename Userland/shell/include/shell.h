@@ -3,8 +3,8 @@
 #include <command.h>
 
 #define SHELL_BUFFER_SIZE 128
-#define SHELL_TEXT "Shell> "
-#define WELCOME_TEXT "\n\n***Welcome to Barely Compiles OS***\n\n"
+#define SHELL_TEXT "# "
+#define WELCOME_TEXT "\n\n Prompt ready. Type \"commands\" for a list of commands (duh).\n\n"
 
 typedef struct cmd_entry {
 	char* name;

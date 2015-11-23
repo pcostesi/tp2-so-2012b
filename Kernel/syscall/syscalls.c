@@ -31,12 +31,16 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 		syscall_halt();
 		break;
 
+		case SYSCALL_GETPID:
+		return syscall_getpid();
+		break;
+
 		case SYSCALL_BEEP: /* sys_beep */
 		beep();
 		break;
 
 		case SYSCALL_EXIT:
-		syscall_exit((unsigned short) RDI);
+		syscall_exit((unsigned char) RDI);
 		break;
 
 		case SYSCALL_GETTIME:
