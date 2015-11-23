@@ -1,0 +1,26 @@
+#include <stdint.h>
+
+enum TABLE_MASK {
+ 
+	MASK_PRESENT			=	1,		    	//0000000000000000000000000000001
+	MASK_WRITEABLE			=	2,		    	//0000000000000000000000000000010
+	MASK_USER				=	4,		        //0000000000000000000000000000100
+	MASK_WRITETHOUGH		=	8,		    	//0000000000000000000000000001000
+	MASK_NOT_CACHEABLE		=	0x10,			//0000000000000000000000000010000
+	MASK_ACCESSED			=	0x20,		    //0000000000000000000000000100000
+	MASK_DIRTY				=	0x40,			//0000000000000000000000001000000
+	MASK_PAT				=	0x80,		    //0000000000000000000000010000000
+	MASK_GLOBAL				=	0x100,		    //0000000000000000000000100000000
+	MASK_IGN				=	0xE00,		    //0000000000000000000111000000000
+   	MASK_FRAME				=	0x7FFFF000, 	//1111111111111111111000000000000
+   	MASK_TABLE 				= 	0x1ff			//0000000000000000000000111111111
+};
+
+typedef uint64_t entry;
+
+void pte_set_frame (entry * e, void * phys_addr, int level);
+void pte_add_attrib (entry * e, uint64_t attrib);
+void pte_del_attrib (entry * e, uint64_t attrib);
+int pte_is_present (entry e);
+int pte_is_writable (entry e);
+void * pte_pfn (entry e);
