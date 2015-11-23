@@ -18,7 +18,7 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
-static const void * test2 = (void*)0x600000;
+static const void * test2 = (void*)0x800000;
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
@@ -75,8 +75,8 @@ int main(void)
 	kbrd_install();
 	vid_clr();
 
-	sched_spawn_process((void *) shellModuleAddress);
 	//sched_spawn_process((void *) test2);
+	sched_spawn_process((void *) shellModuleAddress);
 	
 	/* Drop to environment */
 

@@ -1,4 +1,4 @@
-all:	libc shell 
+all:	libc shell test2
 
 libc:
 	@cd libc; make

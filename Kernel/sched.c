@@ -1,5 +1,6 @@
 #include <sched.h>
 #include <lib.h>
+#include <stdio.h>
 #include <syscalls.h>
 
 
@@ -65,7 +66,9 @@ void _sched_free_process(struct sched_process * process)
 
 static page_t * _sched_alloc_pages(void * base, uint64_t size)
 {
-	return &pages[pidx++];
+	page_t * ptr = &pages[pidx];
+	pidx += size;
+	return ptr;
 }
 
 static void _sched_free_pages(void * base, uint64_t size)
@@ -78,7 +81,7 @@ static void * get_stack_base(void * stack_base)
 {
 	return (void *)(
 		(uint64_t) stack_base
-		+ 4096 					//The size of the stack itself, 4KiB
+		+ sizeof(page_t) 		//The size of the stack itself, 4KiB
 		- sizeof(uint64_t)		//Begin at the top of the stack
 	);
 }
@@ -88,8 +91,8 @@ static uint64_t _sched_init_process(struct sched_process * process, void * symbo
 {
 	process->symbol = symbol;
 	process->stack_base = stack;
-	process->stack = (void *) _sched_init_stack(stack, symbol);
-	process->kernel_stack = kernel_stack;
+	process->stack = (void *) _sched_init_stack(get_stack_base(stack), symbol);
+	process->kernel_stack = get_stack_base(kernel_stack);
 	process->page_count = pages;
 	return 0;
 }
@@ -100,26 +103,38 @@ uint64_t sched_init(void)
 	uint64_t symbol = (uint64_t) &_sched_idle_process;
 	_sched_init_process(&idle_process,
 					   (void *) symbol,
-					   get_stack_base(&idle_stack),
-					   get_stack_base(&idle_kstack),
-					   sizeof(page_t));
+					   &idle_stack,
+					   &idle_kstack,
+					   1);
 	return 0;
 }
 
+void print_proc()
+{
+	struct sched_process * process;
+	for (process = active; process != NULL; process = process->next) {
+		printf("%d->", process->pid);
+		if (process == last) break;
+	}
+}
 
 uint64_t sched_spawn_process(void * symbol)
 {
 	struct sched_process * process = _sched_alloc_process();
-	void * stack = get_stack_base(_sched_alloc_pages(NULL, 1));
-	void * kernel_stack = get_stack_base(_sched_alloc_pages(NULL, 1));
+	void * stack = _sched_alloc_pages(NULL, 1);
+	void * kernel_stack = _sched_alloc_pages(NULL, 1);
 	_sched_init_process(process, symbol, stack, kernel_stack, 1);
 	process->pid = ++max_pid;
 	
-	if (!last || !active) {
-		last = active = process;
+	if (!last) {
+		last = process;
+	}
+	if (!active) {
+		active = process;
 	}
 	process->next = active;
 	last->next = process;
+	last = process;
 	return process->pid;
 }
 
@@ -151,31 +166,33 @@ pid_t sched_getpid(void)
 }
 
 
-static struct sched_process * _sched_terminate_process(struct sched_process * defunct, unsigned short code)
+static void _sched_terminate_process(struct sched_process * defunct, unsigned short code)
 {
-	struct sched_process * next = defunct->next;
 	defunct->code	= code;
 	defunct->next 	= terminated;
 	terminated 		= defunct;
 	_sched_free_pages(defunct->stack_base, defunct->page_count);
 	_sched_free_pages(defunct->kernel_stack, 1);
-	return next == defunct ? NULL : next;
 }
 
 
 uint64_t sched_terminate_process(pid_t pid, unsigned short retval)
 {
-	struct sched_process * process = NULL;
+	struct sched_process * process = active;
 	struct sched_process * next = NULL;
-	struct sched_process * prev = NULL;
+	struct sched_process * prev = last;
 
-	active = NULL;
 	if (!active) return -1;
 	
-	for (prev = process = active; process != NULL; process = process->next) {
-		prev = process;
+	for (process = active; process != NULL; process = process->next) {
+		if (active == last) {
+			_sched_terminate_process(process, retval);
+			active = last = NULL;
+			return 0;
+		}
 		if (process->pid == pid) {
-			next = _sched_terminate_process(process, retval);
+			next = process->next;
+			_sched_terminate_process(process, retval);
 			prev->next = next;
 			if (process == active) {
 				active = next;
@@ -184,9 +201,9 @@ uint64_t sched_terminate_process(pid_t pid, unsigned short retval)
 				last = next;
 			}
 			return 0;
-		} 
+		}
+		prev = process;
 	}
-
 	return -1;
 }
 
@@ -206,6 +223,9 @@ uint64_t sched_forkexec(pid_t parent_pid, void * new_symbol)
 	child->kernel_stack = _sched_alloc_pages(parent->stack_base, parent->page_count);
 	child->stack = parent->stack;
 	child->page_count = parent->page_count;
+	child->next = active;
+	last->next = child;
+	last = child;
 	sched_step_syscall_rax(child->stack, 0); //the parent will get it normally
 	return child->pid;
 }
@@ -228,7 +248,9 @@ uint64_t sched_add_page_to_current_process(void)
 
 uint64_t sched_pick_process(void)
 {
-	if (!active) return (uint64_t) idle_process.stack;	
+	if (!active) {
+		return (uint64_t) idle_process.stack;
+	}
 	active = active->next;
 	last = last->next;
 	return (uint64_t) active->stack;
