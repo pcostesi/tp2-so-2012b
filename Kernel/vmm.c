@@ -1,4 +1,5 @@
 #include <vmm.h>
+#include <pmm.h>
 
 #define VMM_TOTAL_DIRECTORIES 134217728
 #define VMM_DIR_SIZE 2097152
@@ -80,7 +81,7 @@ entry* page_is_free(void* virt_addr) {
 	}
 }
 
-uint64_t vmm_mappable_from(uint64_t cur_addr, uint64_t last_addr) {
+uint64_t vmm_mappable_from(uint64_t cur_addr, uint64_t last_addr, int supervisor) {
 
 	if (cur_addr > last_addr){
 		return last_addr;
@@ -89,10 +90,10 @@ uint64_t vmm_mappable_from(uint64_t cur_addr, uint64_t last_addr) {
 	// check if the entry doesnt exist and try mapping it
 	entry* e = page_is_free((void*) cur_addr);
 	if (!e) {
-		uint64_t result = vmm_mappable_from(cur_addr + PAGE_SIZE, last_addr);
+		uint64_t result = vmm_mappable_from(cur_addr + PAGE_SIZE, last_addr, supervisor);
 		if (result == last_addr) {
 			// make the actual phys block, map it and update page entry
-			if (!vmm_alloc_page(e, cur_addr)){
+			if (!vmm_alloc_page(e, cur_addr, supervisor)){
 				return 0;
 			} else {
 				return result;
@@ -103,7 +104,7 @@ uint64_t vmm_mappable_from(uint64_t cur_addr, uint64_t last_addr) {
 	return cur_addr + PAGE_SIZE;
 }
 
-uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int needed_pages) {
+uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int needed_pages, int supervisor) {
 
 	// if it made it to the end of the directories there is no space available
 	if (dir_offset > VMM_TOTAL_DIRECTORIES) {
@@ -112,7 +113,7 @@ uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int neede
 
 	// the cur dir has no more space
 	if (vmm_dir_is_complete(dir_offset)){
-		return try_allocing_pages(dir_offset + 1, 0, needed_pages);
+		return try_allocing_pages(dir_offset + 1, 0, needed_pages, supervisor);
 	}
 
 	uint64_t dir_addr = dir_offset * VMM_DIR_SIZE + page_offset * VMM_PAGE_SIZE;
@@ -122,7 +123,7 @@ uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int neede
 	if (!vmm_lookup_dir((void*) dir_addr)){
 		// calculate address to hold such pages
 		uint64_t finish_addr = cur_addr + (needed_pages * PAGE_SIZE);
-		uint64_t last_addr = vmm_mappable_from(dir_addr, finish_addr);
+		uint64_t last_addr = vmm_mappable_from(dir_addr, finish_addr, supervisor);
 		if (!last_addr) {
 			return 0;
 		}
@@ -135,7 +136,7 @@ uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int neede
 			// not enough pages, start searching again from another directory
 			int last_addr_dir = last_addr / VMM_DIR_SIZE;
 			uint64_t page_offset = last_addr % VMM_PAGE_SIZE;
-			return try_allocing_pages(last_addr_dir, page_offset, needed_pages);		
+			return try_allocing_pages(last_addr_dir, page_offset, needed_pages, supervisor);		
 		}	
 	} else {
 		int dir_incomplete = 0;
@@ -145,7 +146,7 @@ uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int neede
 			if (page_is_free((void*) cur_addr)) {
 				// calculate address to hold such pages
 				uint64_t finish_addr = cur_addr + (needed_pages * VMM_PAGE_SIZE);
-				uint64_t last_addr = vmm_mappable_from(cur_addr, finish_addr);
+				uint64_t last_addr = vmm_mappable_from(cur_addr, finish_addr, supervisor);
 				if (!last_addr) {
 					return 0;
 				}
@@ -158,7 +159,7 @@ uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int neede
 					int last_addr_dir = last_addr % VMM_DIR_SIZE;
 					if (dir_offset != last_addr_dir){
 						uint64_t page_offset = last_addr % VMM_PAGE_SIZE;
-						return try_allocing_pages(last_addr_dir, page_offset, needed_pages);
+						return try_allocing_pages(last_addr_dir, page_offset, needed_pages, supervisor);
 					} else {
 						// if it failed, lets point to the next page in this directory
 						cur_addr = last_addr - PAGE_SIZE;
@@ -172,10 +173,10 @@ uint64_t try_allocing_pages(uint64_t dir_offset, uint64_t page_offset, int neede
 		}
 	}
 	// not enough starting from this directorie, lets try with the next one
-	return try_allocing_pages(dir_offset + 1, 0, needed_pages);	
+	return try_allocing_pages(dir_offset + 1, 0, needed_pages, supervisor);	
 }
 
-void* vmm_alloc_pages (uint64_t size) {
+void* vmm_alloc_pages (uint64_t size, int supervisor) {
 
 	// calculate necessary pages
 	int needed_pages;
@@ -186,10 +187,10 @@ void* vmm_alloc_pages (uint64_t size) {
 	}
 
 	// recursively traverse directories until we find enough free pages
-	return (void*) try_allocing_pages(0, 0, needed_pages);
+	return (void*) try_allocing_pages(0, 0, needed_pages, supervisor);
 }
 
-int vmm_alloc_page(entry* e, uint64_t virt_addr) {
+int vmm_alloc_page(entry* e, uint64_t virt_addr, int supervisor) {
 
 	// get the phys block
 	void* phys_addr = gmem();
@@ -206,7 +207,9 @@ int vmm_alloc_page(entry* e, uint64_t virt_addr) {
 	// we know the entry now exists
 	pte_set_frame (e, phys_addr, 0);
 	pte_add_attrib (e, MASK_PRESENT);
-	pte_add_attrib (e, MASK_USER);
+	if (!supervisor) {
+		pte_add_attrib (e, MASK_USER);
+	}
 	return 1;
 }
 
