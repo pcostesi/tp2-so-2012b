@@ -2,6 +2,7 @@ SECTION .text
 
 EXTERN main
 EXTERN exit
+EXTERN halt
 
 ; see https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
 %macro PUSHCALL 0

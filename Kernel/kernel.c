@@ -18,6 +18,7 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
+static const void * test2 = (void*)0x600000;
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
@@ -40,7 +41,8 @@ void * initializeKernelBinary(void)
 	 */
 
 	void * moduleAddresses[] = {
-	    (void *) shellModuleAddress
+	    (void *) shellModuleAddress,
+	    (void *) test2,
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
@@ -74,6 +76,7 @@ int main(void)
 	vid_clr();
 
 	sched_spawn_process((void *) shellModuleAddress);
+	//sched_spawn_process((void *) test2);
 	
 	/* Drop to environment */
 
