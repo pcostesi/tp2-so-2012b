@@ -1,4 +1,4 @@
-all:  clean toolchain bootloader kernel userland image raw
+all:  toolchain bootloader kernel userland image raw
 
 deps:
 	sudo apt-get install -q nasm qemu=2.0.0+dfsg-2ubuntu1.12 gcc make
@@ -15,7 +15,8 @@ kernel:	bootloader
 userland:	kernel toolchain
 	cd Userland; make all
 
-image: clean kernel bootloader userland
+image: kernel bootloader userland
+	cd Image; make clean
 	cd Image; make all
 
 run:	image

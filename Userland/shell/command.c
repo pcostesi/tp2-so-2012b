@@ -4,10 +4,15 @@
 #include <stdio.h>
 #include <libc.h>
 
+struct ps_list{
+	char *name;
+	int pid;
+	char status;  /*check*/
+};
+
 /*****Commands functions*****/
 
-
-void help(char *argv[], int argc) 
+int help(char *argv[], int argc) 
 {
 	int cmd_index;
 	cmd_entry* table = get_command_table();
@@ -21,10 +26,11 @@ void help(char *argv[], int argc)
 	} else if (argc == 0) {
 		help_error_print(table);
 	}
+
+	return 0;
 }
 
-
-void echo(char** args, int argc)
+int echo(char** args, int argc)
 {
 	int i;
 	for(i = 0; i < argc; i++)
@@ -32,22 +38,22 @@ void echo(char** args, int argc)
 		printf("%s ", args[i]);
 	}
 	putc('\n');
+	return 0;
 }
-
-void clear(char** args, int argc)
+int clear(char** args, int argc)
 {
     ioctl(STDOUT, IOCTL_CLR,    (void *) 0);
     ioctl(STDOUT, IOCTL_MOVE,   (void *) 0);
+	return 0;
 }
-
-void commands(char** args, int argc)
+int commands(char** args, int argc)
 {
 	printf("Available commands are: \n");
 	print_commands();
+	return 0;
 }
 
-
-void date(char** args, int argc)
+int date(char** args, int argc)
 {
 	struct rtc_time time_struct;
 	gettime(&time_struct);
@@ -56,9 +62,9 @@ void date(char** args, int argc)
 		time_struct.mon,
 		time_struct.year
 	);
+	return 0;
 }
-
-void time(char** args, int argc)
+int time(char** args, int argc)
 {
 	struct rtc_time time_struct;
 	gettime(&time_struct);
@@ -67,9 +73,9 @@ void time(char** args, int argc)
 		time_struct.min,
 		time_struct.sec
 	);
+	return 0;
 }
-
-void set_date(char** args, int argc)
+int set_date(char** args, int argc)
 {
 	struct rtc_time time_struct;
 	int days, months, years;
@@ -77,21 +83,21 @@ void set_date(char** args, int argc)
 	gettime(&time_struct);
 	if(argc <1){
 		fprintf(STDERR, INVALID_DATE);
-		return;
+		return 0;
 	}
 	if(!parse_date(args[0], &days, &months, &years)){
 		fprintf(STDERR, INVALID_DATE);
-		return;
+		return 0;
 
 	}
 	time_struct.year = years;
 	time_struct.mon = months;
 	time_struct.day = days;
 
-	settime(&time_struct);
-}
+		return 0;settime(&time_struct);
 
-void set_time(char** args, int argc)
+}
+int set_time(char** args, int argc)
 {
 	struct rtc_time time_struct;
 	int seconds, minutes, hours;
@@ -99,11 +105,11 @@ void set_time(char** args, int argc)
 	gettime(&time_struct);
 	if(argc < 1){
 		fprintf(STDERR, INVALID_TIME);
-		return;
+		return 0;
 	}	
 	if(!parse_time(args[0], &seconds, &minutes, &hours)){
 		fprintf(STDERR, INVALID_TIME);
-		return;
+		return 0;
 	}
 
 
@@ -112,15 +118,15 @@ void set_time(char** args, int argc)
 	time_struct.hour = hours;
 
 	settime(&time_struct);
+	return 0;
 
 }
- 
-void halt_system(char** args, int argc)
+ int halt_system(char** args, int argc)
 {
 	halt();
+	return 0;
 }
-
-void print_ascii_table(char** args, int argc)
+int print_ascii_table(char** args, int argc)
 {
 	int i;
 
@@ -134,11 +140,12 @@ void print_ascii_table(char** args, int argc)
     	}
 	}
 
-    putc('\n');
+    i = putc('\n');
+    printf("last call to putc returned %d\n", i);
+	return 0;
 }
 
-
-void setcolor(char** args, int argc)
+int setcolor(char** args, int argc)
 {
 	int fore, back;
 	if (argc != 2) {
@@ -155,48 +162,63 @@ void setcolor(char** args, int argc)
 		printf("\tbrown:     6 | yellow:      14\n");
 		printf("\tgray 1:    7 | white:       15\n");
 		printf("\nnote: you might not choose two of the same.\n");
-		return;
+		return 0;
 	}
 
 	fore = atoi(args[0]);
 	back = atoi(args[1]);
 
+	if (fore == 42) {
+		fprintf(STDERR, "Halting\n");
+		return -1;
+	}
+
 	if (fore == back) {
 		fprintf(STDERR, "Aaaand you chose two of the same...\n Nope.\n");
-		return;
+		return 0;
 	}
 
 	if (fore >= 16 || back >= 16 || fore < 0 || back < 0) {
 		fprintf(STDERR, "Invalid parameter: %d, %d\n", fore, back);
-		return;
+		return 0;
 	}
 
 	ioctl(STDOUT, IOCTL_SET_COLOR, IOCTL_COLOR(fore, back));
 	clear(args, argc);
+	return 0;
 }
 
-
-void screen_saver_delay(char** args, int argc)
+int kill_cmd(char** args, int argc)
 {
-	int seconds, minutes, hours;
-	uint64_t delay;
-	if(argc < 1){
-		fprintf(STDERR, INVALID_SCREEN_SAVER_TIME);
-		return;
-	}	
-	if(!parse_time(args[0], &seconds, &minutes, &hours)){
-		fprintf(STDERR, INVALID_SCREEN_SAVER_TIME);
-		return;
+	if (argc != 1){
+		printf(KILL_ERROR);
+		return 0;
 	}
-	delay = seconds + minutes * 60 + hours * 3600;
-	if(delay > 86400 || delay < 5 ){
-		fprintf(STDERR, INVALID_SCREEN_SAVER_TIME);
-		return;
+
+	int pid = s_to_i(args[0]);
+	if(pid == -1){
+		printf(KILL_ERROR);
+		return 0;
 	}
-	//set screensaver delay.
-	int result = ioctl(STDIN, IOCTL_INACTIVE, (void *) delay);
-	printf("set to %d seconds.\n", result);
-	return;
+	//if(syso kill(pid)){
+	//	printf("Killed pid: %d", pid);
+	//}
+	//else{
+	//	printf("No process with pid: %d found", pid);	
+	//}
+	return 0;
+}
+
+int ps_cmd(char** args, int argc)
+{
+	int count, indx;
+	static struct ps_list processes[19]; //19 ain't magic! maximum lines in terminal
+	printf("Name\tPID\tStatus\n");
+	//count = syso get processes()		
+	for (indx = 0; indx < count; indx++){
+		printf("%s\t%d\t%c\n", processes[indx].name, processes[indx].pid, processes[indx].status);
+	}
+	return 0;
 }
 
 
@@ -240,6 +262,7 @@ int parse_date(char* date_string, int* days, int*months, int*years)
 	*months = ((int)date_string[3]-'0' )*10+(int)(date_string[4]-'0');
 	*years = ((int)date_string[6]-'0' )*10+(int)(date_string[7]-'0'); 	
 	return valid_date(*days, *months, *years);
+	return 0;
 
 }
 
@@ -274,6 +297,7 @@ int parse_time(char* time_string, int* seconds, int*minutes, int*hours)
 	*minutes = (time_string[3]-'0')*10 + (time_string[4]-'0');
 	*hours = (time_string[6]-'0')*10 + (time_string[7]-'0');
 	return valid_time(*seconds, *minutes, *hours);
+	return 0;
 }
 
 
@@ -283,6 +307,7 @@ int is_num(char c)
 	{
 		return 1;
 	}
+	return 0;
 	return 0;
 }
 
@@ -296,6 +321,7 @@ int valid_time(int sec, int min, int hrs)
 		return 0;
 	}
 	return 1;
+	return 0;
 
 }
 
@@ -313,6 +339,7 @@ int valid_date(int day, int month, int year)
 		return 0;
 	}
 	return 1;
+	return 0;
 }
 
 int is_leap_year(int year)
@@ -320,24 +347,23 @@ int is_leap_year(int year)
 	return ((!(year%4) && (year%100)) || !(year%400));
 }	
 
-
-void getchar_cmd(char *argv[], int argc) 
+int getchar_cmd(char *argv[], int argc) 
 {
 	printf("Please type in a character\n");
 	char c = getc();
 	printf("You pressed: %c\n", c);
+	return 0;
 }
-
-void printf_cmd(char *argv[], int argc) 
+int printf_cmd(char *argv[], int argc) 
 {
 	printf("Testing printf...\n\n");
 	printf("Printing an integer: %d\n", 99);
 	printf("Printing a string: %s\n", "This is a real cool string!");
 	printf("Printing in uppercase hexadecimal notation: %x\n", 0x55fa);
 	printf("Printing a single char: %c\n", 'z');
+	return 0;
 }
-
-void scanf_cmd(char *argv[], int argc) 
+int scanf_cmd(char *argv[], int argc) 
 {
 	int n;
 	char vec[SCANF_MAX_STR_BUFFER];
@@ -368,24 +394,40 @@ void scanf_cmd(char *argv[], int argc)
 	scanf("%s", vec);
 	printf("\nYour fake card data was: %s\n\n", vec);
 	reset_vect(vec);
+	return 0;
 }
-
-void reset_vect(char vec[])
+int reset_vect(char vec[])
 {
 	int i;
 	for(i=0; i<50; i++ )
 	{
 		vec[i] = 0;
 	}
+	return 0;
 }
 
-/*TODO EPIC ASCII STAR*/
-//TODO EVIL MUSIC 
 
-
-void help_error_print()
+int help_error_print()
 {
 	printf("\nInvoke help as follows: \"help \"command_name\"\".\nTo see list of available commands type \"commands\"");	
+	return 0;
 }
 
 
+int s_to_i(char *string)
+{
+	int aux = strlen(string);
+	int resp = 0;
+	int multiplier = 1;
+	if(aux == 0 || aux > 19 ){
+		return -1;
+	}
+	for(aux = 0; aux > 0; aux--){
+		if(string[aux-1] < 48 || string[aux-1] > 57){
+			return -1;
+		}
+		resp += ((int)string[aux-1] - 48) * multiplier;
+		multiplier *= 10;
+	}
+	return resp;
+}

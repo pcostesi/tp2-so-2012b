@@ -7,6 +7,7 @@
 #include <keyboard.h>
 #include <rtc-driver.h>
 #include <syscalls.h>
+#include <sched.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -17,15 +18,14 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
-
-typedef int (*EntryPoint)(unsigned int pcount, char * pgname[], void * pgptrs[]);
+static const void * test2 = (void*)0x600000;
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase()
+void * getStackBase(void)
 {
 	return (void*)(
 		(uint64_t)&endOfKernel
@@ -34,23 +34,20 @@ void * getStackBase()
 	);
 }
 
-void * initializeKernelBinary()
+void * initializeKernelBinary(void)
 {
 	/* THIS HAS TO BE IN THE SAME ORDER THE PACKER PACKS IT OR
 	 * IT BREAKS, LIKE, *REALLY* BAD.
 	 */
+
 	void * moduleAddresses[] = {
-	    (void *) shellModuleAddress
+	    (void *) shellModuleAddress,
+	    (void *) test2,
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
 	clearBSS(&bss, &endOfKernel - &bss);
 	return getStackBase();
-}
-
-void wake_up(void)
-{
-	syscall_wake();
 }
 
 void pit_irq(int irq)
@@ -60,13 +57,13 @@ void pit_irq(int irq)
 
 void kbrd_irq_with_activity(int irq)
 {
-	wake_up();
 	kbrd_irq(irq);
 }
 
-int main()
+int main(void)
 {	
-	EntryPoint init = (EntryPoint) *((EntryPoint *) &shellModuleAddress);
+	_cli();
+	sched_init();
 
 	/* set up IDTs & int80h */
 	install_syscall_handler((IntSysHandler) &int80h);
@@ -78,9 +75,15 @@ int main()
 	kbrd_install();
 	vid_clr();
 
+	sched_spawn_process((void *) shellModuleAddress);
+	//sched_spawn_process((void *) test2);
+	
 	/* Drop to environment */
-    ((EntryPoint) init)(0, (char **) 0, (void *) 0);
 
+	sched_drop_to_user();
+	_sti();
+
+    while (1) _drool();
     syscall_halt();
 	return 0;
 }

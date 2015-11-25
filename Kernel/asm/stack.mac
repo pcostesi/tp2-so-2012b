@@ -1,0 +1,148 @@
+; Stack handling macros. Things like stackframes
+; and stack init.
+
+; see https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
+%macro PUSHCALL 0
+    push    RBX
+    push    RDI
+    push    RSI
+    push    RSP
+    push    R12
+    push    R13
+    push    R14
+    push    R15
+%endmacro
+
+%macro POPCALL 0
+    pop     R15
+    pop     R14
+    pop     R13
+    pop     R12
+    pop     RSP
+    pop     RSI
+    pop     RDI
+    pop     RBX
+%endmacro
+
+
+; This macro will set a pristine process stack
+; with 
+%macro INITPROC 3
+    push    0        ;save current rax
+    push    0        ;save current rbx
+    push    0        ;save current rcx
+    push    0        ;save current rdx
+    push    %1       ;save current rbp
+    push    %2       ;save current rdi
+    push    %3       ;save current rsi
+    push    0        ;save current r8
+    push    0        ;save current r9
+    push    0        ;save current r10
+    push    0        ;save current r11
+    push    0        ;save current r12
+    push    0        ;save current r13
+    push    0        ;save current r14
+    push    0        ;save current r15
+    push    0        ;save fs
+    push    0        ;save gs
+%endmacro
+
+%macro LOADPROC 1
+    mov     rbx,    [%1 + (8 * 15)]
+    mov     rcx,    [%1 + (8 * 14)]
+    mov     rdx,    [%1 + (8 * 13)]
+    mov     rbp,    [%1 + (8 * 12)]
+    mov     rdi,    [%1 + (8 * 11)]
+    mov     rsi,    [%1 + (8 * 10)]
+    mov     r8,     [%1 + (8 * 09)]
+    mov     r9,     [%1 + (8 * 08)]
+    mov     r10,    [%1 + (8 * 07)]
+    mov     r11,    [%1 + (8 * 06)]
+    mov     r12,    [%1 + (8 * 05)]
+    mov     r13,    [%1 + (8 * 04)]
+    mov     r14,    [%1 + (8 * 03)]
+    mov     r15,    [%1 + (8 * 02)]
+    mov     fs,     [%1 + (8 * 01)]
+    mov     gs,     [%1 + (8 * 00)]
+%endmacro
+
+; First param must point to gs @ PUSHA / INITPROC
+%macro SET_SYSCALL_RET 2
+    mov     [%1 + (8 * 16)], %2
+%endmacro
+
+
+%macro PUSH_PARAMS 0
+    push    rdi
+    push    rsi
+    push    rdx
+    push    rcx
+    push    r8
+    push    r9
+%endmacro
+
+%macro POP_PARAMS 0
+    pop     r9
+    pop     r8
+    pop     rcx
+    pop     rdx
+    pop     rsi
+    pop     rdi
+%endmacro
+
+
+; This macro will save the current process state into
+; the stack. It does not, however, set the trap frame.
+; See _sched_init_stack for that
+%macro PUSHA 0
+    push    rax      ;save current rax
+    push    rbx      ;save current rbx
+    push    rcx      ;save current rcx
+    push    rdx      ;save current rdx
+    push    rbp      ;save current rbp
+    push    rdi      ;save current rdi
+    push    rsi      ;save current rsi
+    push    r8       ;save current r8
+    push    r9       ;save current r9
+    push    r10      ;save current r10
+    push    r11      ;save current r11
+    push    r12      ;save current r12
+    push    r13      ;save current r13
+    push    r14      ;save current r14
+    push    r15      ;save current r15
+    push    fs       ;save fs
+    push    gs       ;save gs
+%endmacro
+
+%macro POPA 0
+    pop     gs
+    pop     fs
+    pop     r15      ;set r15
+    pop     r14      ;set r14
+    pop     r13      ;set r13
+    pop     r12      ;set r12
+    pop     r11      ;set r11
+    pop     r10      ;set r10
+    pop     r9       ;set r9
+    pop     r8       ;set r8
+    pop     rsi      ;set rsi
+    pop     rdi      ;set rdi
+    pop     rbp      ;set rbp
+    pop     rdx      ;set rdx
+    pop     rcx      ;set rcx
+    pop     rbx      ;set rbx
+    pop     rax      ;set rax
+%endmacro
+
+%macro ENTER 0
+    push    rbp
+    mov     rbp,    rsp
+    PUSHCALL
+%endmacro
+
+%macro LEAVE 0
+    POPCALL
+    mov     rsp,    rbp
+    pop     rbp
+    ret
+%endmacro
