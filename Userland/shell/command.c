@@ -200,7 +200,13 @@ int kill_cmd(char** args, int argc)
 		printf(KILL_ERROR);
 		return 0;
 	}
-	//return  syso kill(pid)
+	//if(syso kill(pid)){
+	//	printf("Killed pid: %d", pid);
+	//}
+	//else{
+	//	printf("No process with pid: %d found", pid);	
+	//}
+	return 0;
 }
 
 int ps_cmd(char** args, int argc)
