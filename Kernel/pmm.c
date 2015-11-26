@@ -114,8 +114,8 @@ int fmem(void* addr)
 int init_mem(int reserve)
 {
 	int bitmap_size = (PMM_TOTAL_BLOCKS/PMM_BLOCK_SIZE); /*Amount of pages needed for the bitmap*/
-	int stack_size = (PMM_TOTAL_BLOCKS*size_of(int *)/PMM_BLOCK_SIZE);/*Amount of pages needed for the stack*/
-	_reserved_pages = reserve/PMM_BLOCK_SIZE + 1 + bitmap_size + stack_size);
+	int stack_size = (PMM_TOTAL_BLOCKS*sizeof(int *)/PMM_BLOCK_SIZE);/*Amount of pages needed for the stack*/
+	_reserved_pages = (reserve/PMM_BLOCK_SIZE) + 1 + bitmap_size + stack_size;
 	_pmm_map = (uint64_t *)(PMM_BLOCK_SIZE * (_reserved_pages - bitmap_size) );
 	_mem_stack = (uint64_t *)(PMM_BLOCK_SIZE* (_reserved_pages - bitmap_size - stack_size) );
 	_free_blocks = PMM_TOTAL_BLOCKS - _reserved_pages;
