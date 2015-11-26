@@ -30,7 +30,7 @@ void clearBSS(void * bssAddress, uint64_t bssSize)
 void * getStackBase(void)
 {
 	return (void*)(
-		(uint64_t)&endOfKernel
+		(uint64_t)&bss
 		+ PageSize * 8				//The size of the stack itself, 32KiB
 		- sizeof(uint64_t)			//Begin at the top of the stack
 	);
@@ -90,7 +90,15 @@ int main(void)
 	
 	/* Drop to environment */
 
-	printf("dropping to userland\n");
+	printf("This might be useful:\n");
+	printf("- Stack base: %x\n", (uint64_t)getStackBase() + sizeof(uint64_t));
+	printf("- text: %x\n", &text);
+	printf("- rodata: %x\n", &rodata);
+	printf("- data: %x\n", &data);
+	printf("- bss: %x\n", &bss);
+	printf("- endOfKernelBinary: %x\n", &endOfKernelBinary);
+	printf("- endOfKernel: %x\n", &endOfKernel);
+	printf("Dropping to userland\n");
 	sched_drop_to_user();
 	_sti();
 
