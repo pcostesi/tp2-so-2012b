@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <libc.h>
 
+struct ps_list{
+	char *name;
+	int pid;
+	char status;  /*check*/
+};
+
 /*****Commands functions*****/
 
 int help(char *argv[], int argc) 
@@ -181,6 +187,40 @@ int setcolor(char** args, int argc)
 	clear(args, argc);
 	return 0;
 }
+
+int kill_cmd(char** args, int argc)
+{
+	if (argc != 1){
+		printf(KILL_ERROR);
+		return 0;
+	}
+
+	int pid = s_to_i(args[0]);
+	if(pid == -1){
+		printf(KILL_ERROR);
+		return 0;
+	}
+	//if(syso kill(pid)){
+	//	printf("Killed pid: %d", pid);
+	//}
+	//else{
+	//	printf("No process with pid: %d found", pid);	
+	//}
+	return 0;
+}
+
+int ps_cmd(char** args, int argc)
+{
+	int count, indx;
+	static struct ps_list processes[19]; //19 ain't magic! maximum lines in terminal
+	printf("Name\tPID\tStatus\n");
+	//count = syso get processes()		
+	for (indx = 0; indx < count; indx++){
+		printf("%s\t%d\t%c\n", processes[indx].name, processes[indx].pid, processes[indx].status);
+	}
+	return 0;
+}
+
 
 
 /*****Auxiliary functions for commands*****/
@@ -366,8 +406,6 @@ int reset_vect(char vec[])
 	return 0;
 }
 
-/*TODO EPIC ASCII STAR*/
-//TODO EVIL MUSIC 
 
 int help_error_print()
 {
@@ -376,3 +414,20 @@ int help_error_print()
 }
 
 
+int s_to_i(char *string)
+{
+	int aux = strlen(string);
+	int resp = 0;
+	int multiplier = 1;
+	if(aux == 0 || aux > 19 ){
+		return -1;
+	}
+	for(aux = 0; aux > 0; aux--){
+		if(string[aux-1] < 48 || string[aux-1] > 57){
+			return -1;
+		}
+		resp += ((int)string[aux-1] - 48) * multiplier;
+		multiplier *= 10;
+	}
+	return resp;
+}
