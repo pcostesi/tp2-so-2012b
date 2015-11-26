@@ -8,6 +8,7 @@
 #include <rtc-driver.h>
 #include <syscalls.h>
 #include <sched.h>
+#include <vmm.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -63,7 +64,7 @@ void kbrd_irq_with_activity(int irq)
 int main(void)
 {	
 	_cli();
-	sched_init();
+	//sched_init();
 
 	/* set up IDTs & int80h */
 	install_syscall_handler((IntSysHandler) &int80h);
@@ -75,15 +76,35 @@ int main(void)
 	kbrd_install();
 	vid_clr();
 
+	// init vmm with 13 identity mapped pages
+	vmm_initialize(13);
+
+	// -------- TEST -----------
+
+	void* dirs[3];
+	for (int i = 0; i < 4; i++) {
+		dirs[i] = vmm_alloc_pages(512*4096, 1);
+	}
+
+	//vmm_print_bitmap(5);
+	vmm_free_pages(dirs[1], 512*4096);
+	//vmm_print_bitmap(5);
+
+	vmm_alloc_pages(1, 1);
+	//vmm_print_bitmap(5);
+
+	// ------ TEST END ---------
+
 	//sched_spawn_process((void *) test2);
-	sched_spawn_process((void *) shellModuleAddress);
+	//sched_spawn_process((void *) shellModuleAddress);
 	
 	/* Drop to environment */
 
-	sched_drop_to_user();
+	//sched_drop_to_user();
 	_sti();
 
-    while (1) _drool();
-    syscall_halt();
+    while (1) 
+    	//_drool();
+    //syscall_halt();
 	return 0;
 }

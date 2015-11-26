@@ -1,9 +1,14 @@
 #include <vmm.h>
 #include <pmm.h>
 
-#define VMM_TOTAL_DIRECTORIES 134217728
+#include <video.h>
+
+// 4KB bits of directories (65 GB of virtual memory)
+#define VMM_TOTAL_DIRECTORIES 32768
+
 #define VMM_DIR_SIZE 2097152
 #define VMM_PAGE_SIZE 4096
+#define VMM_TABLE_SIZE 4096
 
 static	uint64_t* dir_bitmap;
 
@@ -13,7 +18,6 @@ void vmm_dir_complete (uint64_t bit) {
 }
 
 void vmm_dir_incomplete (uint64_t bit) {
-
   dir_bitmap[bit / 64] &= ~(1 << (bit % 64));
 }
 
@@ -25,13 +29,6 @@ int vmm_dir_is_complete(uint64_t bit) {
 	else{
 		return 0;
 	}
-}
-
-void vmm_init_bitmap(uint64_t* dir_bitmap_pos) {
-
-	// initiliaze directories as incomplete
-	dir_bitmap = dir_bitmap_pos;
-	memset(dir_bitmap, 0, VMM_TOTAL_DIRECTORIES/64);
 }
 
 entry* vmm_lookup_entry_from_table(table* table, void* virt_addr, int level) {
@@ -367,27 +364,33 @@ entry* vmm_map_page (void* phys_addr, void* virt_addr) {
 	return page_entry;
 }
 
-void vmm_initialize(void* bitmap_position, uint64_t pages_to_identity_map) {
+void vmm_initialize(uint64_t pages_to_identity_map) {
 
-	vmm_init_bitmap(bitmap_position);
+	// initialize bitmap
+	dir_bitmap = (uint64_t*)gmem();
+	memset(dir_bitmap, 0, VMM_TOTAL_DIRECTORIES/64);
 
-	// allocate tables for the identity mapping
+	// allocate tables for the identity mapping and clean them
 	table* pml4_table = (table*)gmem();
+	memset(pml4_table, 0, VMM_TABLE_SIZE);
 	if (!pml4_table) {
 		return;
 	}
  
 	table* directory_ptr_table = (table*)gmem();
+	memset(pml4_table, 0, VMM_TABLE_SIZE);
 	if (!directory_ptr_table) {
 		return;
 	}
 
 	table* directory_table = (table*)gmem();
+	memset(pml4_table, 0, VMM_TABLE_SIZE);
 	if (!directory_table) {
 		return;
 	}
 
 	table* page_table = (table*)gmem();
+	memset(pml4_table, 0, VMM_TABLE_SIZE);
 	if (!page_table) {
 		return;
 	}
@@ -425,4 +428,11 @@ void vmm_initialize(void* bitmap_position, uint64_t pages_to_identity_map) {
  	// write_cr3, read_cr3, write_cr0, and read_cr0 all come from the asm functions
 	_write_cr3((uint64_t)pml4_table); // put that pml4 address into CR3
 	_write_cr0(_read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
+}
+
+void vmm_print_bitmap(uint64_t bits_to_print){
+
+	for (int i = 0; i < bits_to_print; i++) {
+		//video_raw_print(itoa(vmm_dir_is_complete(i)), 1);
+	}
 }

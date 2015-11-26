@@ -35,4 +35,4 @@ entry* vmm_lookup_entry (void* virt_addr);
 entry* vmm_lookup_entry_from_table (table* table, void* virt_addr, int level);
 int vmm_lookup_dir (void* virt_addr);
 entry* vmm_map_page (void* phys_addr, void* virt_addr);
-void vmm_initialize(void* bitmap_position, uint64_t pages_to_identity_map);
+void vmm_initialize(uint64_t pages_to_identity_map);
