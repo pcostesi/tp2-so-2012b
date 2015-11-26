@@ -26,14 +26,19 @@ enum VID_COLOR
 	WHITE,
 };
 
-void vid_putc(const char c);
-void * vid_cursor(const unsigned int row, const unsigned int col);
-void * vid_raw_cursor(const unsigned int row, const unsigned int col);
-void vid_raw_putc(const char c, const enum VID_COLOR);
-char vid_color(const enum VID_COLOR, const enum VID_COLOR);
-void vid_print(const char * str, unsigned int n);
-void vid_raw_print(const char * str, unsigned int n);
-void vid_clr(void);
-void vid_flip_buffer(void);
+enum vid_term {
+	VID_PROC,
+	VID_SYSLOG,
+};
+
+void vid_show(enum vid_term term);
+void vid_update(void);
+void vid_putc(enum vid_term term, const char c);
+int  vid_cursor(enum vid_term term, const unsigned int row, const unsigned int col);
+void vid_raw_putc(enum vid_term term, const char c, const enum VID_COLOR);
+char vid_color(enum vid_term term, const enum VID_COLOR, const enum VID_COLOR);
+void vid_print(enum vid_term term, const char * str, unsigned int n);
+void vid_raw_print(enum vid_term term, const char * str, unsigned int n);
+void vid_clr(enum vid_term term);
 
 #endif

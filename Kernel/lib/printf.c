@@ -14,7 +14,7 @@ int printf(char * fmt, ...)
 	int written;
 	
 	va_start(ap, fmt);
-	written = vfprintf(STDOUT, fmt, ap);
+	written = vfprintf(SYSLOG, fmt, ap);
 	va_end(ap);
 	return written;
 }

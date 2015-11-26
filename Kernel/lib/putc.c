@@ -9,7 +9,7 @@ int fputc(int fd, char c)
 
 int putc(char c)
 {
-	return fputc(STDOUT, c);
+	return fputc(SYSLOG, c);
 }
 
 int fputsn(int fd, char * c, int n)
@@ -24,5 +24,5 @@ int fputs(int fd, char * c)
 
 int puts(char * c)
 {
-	return fputs(STDOUT, c);
+	return fputs(SYSLOG, c);
 }

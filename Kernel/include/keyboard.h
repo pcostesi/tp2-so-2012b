@@ -2,6 +2,7 @@
 #define __keyboard 1
 
 #include <stdint.h>
+#include <stddef.h>
 
 #define KEY_BUFFER_SIZE  64
 
@@ -175,6 +176,8 @@ uint8_t kbrd_get_shift ();
 // returns last scan code, last keystroke
 enum KEYCODE	kbrd_get_last_key ();
 
+typedef void (*kbd_esc)(void);
+
 // updates LEDs
 void kbrd_set_leds (uint8_t num, uint8_t caps, uint8_t scroll);
 
@@ -190,7 +193,7 @@ uint8_t kbrd_is_disabled ();
 void kbrd_reset_system ();
 
 // install keyboard
-void kbrd_install ();
+void kbrd_install (kbd_esc esc);
 
 // buffer functions
 void key_buffer_init();

@@ -8,6 +8,7 @@
 #include <rtc-driver.h>
 #include <syscalls.h>
 #include <sched.h>
+#include <stdio.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -19,6 +20,7 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
 static const void * test2 = (void*)0x800000;
+static enum vid_term active_term = VID_PROC;
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
@@ -60,6 +62,12 @@ void kbrd_irq_with_activity(int irq)
 	kbrd_irq(irq);
 }
 
+void handle_esc(void) {
+	active_term = (active_term + 1) % 2;
+	vid_show(active_term);
+	vid_update();
+}
+
 int main(void)
 {	
 	_cli();
@@ -72,14 +80,17 @@ int main(void)
 	install_interrupts();
 
 	/* driver initialization */
-	kbrd_install();
-	vid_clr();
+	kbrd_install(&handle_esc);
+	vid_clr(VID_PROC);
+	vid_color(VID_SYSLOG, WHITE, BLUE);
+	vid_clr(VID_SYSLOG);
 
 	//sched_spawn_process((void *) test2);
 	sched_spawn_process((void *) shellModuleAddress);
 	
 	/* Drop to environment */
 
+	printf("dropping to userland\n");
 	sched_drop_to_user();
 	_sti();
 
