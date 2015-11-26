@@ -1,7 +1,7 @@
 #include <vmm.h>
 #include <pmm.h>
 
-#include <video.h>
+#include <stdio.h>
 
 // 4KB bits of directories (65 GB of virtual memory)
 #define VMM_TOTAL_DIRECTORIES 32768
@@ -425,9 +425,15 @@ void vmm_initialize(uint64_t pages_to_identity_map) {
  	pte_set_frame (&first_pml4_entry, directory_ptr_table, 3);
  	pml4_table->entries[0] = first_pml4_entry;
 
+
  	// write_cr3, read_cr3, write_cr0, and read_cr0 all come from the asm functions
-	_write_cr3((uint64_t)pml4_table); // put that pml4 address into CR3
-	_write_cr0(_read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
+ 	//_write_cr0(_read_cr0() & ~(0x80000000));
+	_write_cr3(((uint64_t)pml4_table << 12) | 0x8); // put that pml4 address into CR3
+	while(1);
+
+	//_write_cr0(_read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
+	
+
 }
 
 void vmm_print_bitmap(uint64_t bits_to_print){

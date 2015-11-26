@@ -214,7 +214,8 @@ int ps_cmd(char** args, int argc)
 	int count, indx;
 	static struct ps_list processes[19]; //19 ain't magic! maximum lines in terminal
 	printf("Name\tPID\tStatus\n");
-	//count = syso get processes()		
+	//count = syso get processes()	
+	count = 0;	
 	for (indx = 0; indx < count; indx++){
 		printf("%s\t%d\t%c\n", processes[indx].name, processes[indx].pid, processes[indx].status);
 	}

@@ -21,13 +21,19 @@ _write_cr0:
 
 
 _read_cr3:
-    ENTER
+    push rbp
+    mov rbp, rsp
     mov rax, cr3
-    LEAVE
+    mov rsp, rbp
+    pop rbp
+    ret
 
 
 _write_cr3:
-    ENTER
+    push rbp
+    mov rbp, rsp
     mov rax, rdi
     mov cr3, rax
-    LEAVE
+    mov rsp, rbp
+    pop rbp
+    ret
