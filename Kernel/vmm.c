@@ -370,65 +370,9 @@ void vmm_initialize(uint64_t pages_to_identity_map) {
 	dir_bitmap = (uint64_t*)gmem();
 	memset(dir_bitmap, 0, VMM_TOTAL_DIRECTORIES/64);
 
-	// allocate tables for the identity mapping and clean them
-	table* pml4_table = (table*)gmem();
-	memset(pml4_table, 0, VMM_TABLE_SIZE);
-	if (!pml4_table) {
-		return;
-	}
- 
-	table* directory_ptr_table = (table*)gmem();
-	memset(directory_ptr_table, 0, VMM_TABLE_SIZE);
-	if (!directory_ptr_table) {
-		return;
-	}
-
-	table* directory_table = (table*)gmem();
-	memset(directory_table, 0, VMM_TABLE_SIZE);
-	if (!directory_table) {
-		return;
-	}
-
-	table* page_table = (table*)gmem();
-	memset(page_table, 0, VMM_TABLE_SIZE);
-	if (!page_table) {
-		return;
-	}
-
-	uint64_t frame=0x0;
-
-	//FIX PAGE TABLES AMOUNT!!!!!!!!!!!
-
-	// identity map the first pages_to_identity_map pages
-	for(uint64_t i=0; i < pages_to_identity_map; i++, frame += PAGE_SIZE) {
-		
-		// create a new page
-		entry page = 0;
-		pte_add_attrib (&page, MASK_PRESENT);
- 		pte_set_frame (&page, (void*)frame);
-
- 		// add it to the page table
-		page_table->entries[i] = page;
-	};
-
-	// lets add the first entries to the directories that point to such table
-	entry first_directory_entry = 0;
-	pte_add_attrib (&first_directory_entry, MASK_PRESENT);
- 	pte_set_frame (&first_directory_entry, page_table);
- 	directory_table->entries[0] = first_directory_entry;
-
- 	entry first_direc_ptr_entry = 0;
-	pte_add_attrib (&first_direc_ptr_entry, MASK_PRESENT);
- 	pte_set_frame (&first_direc_ptr_entry, directory_table);
- 	directory_ptr_table->entries[0] = first_direc_ptr_entry;
-
- 	entry first_pml4_entry = 0;
-	pte_add_attrib (&first_pml4_entry, MASK_PRESENT);
- 	pte_set_frame (&first_pml4_entry, directory_ptr_table);
- 	pml4_table->entries[0] = first_pml4_entry;
-
- 	printf("%x\n", &pml4_table->entries[0]);
- 	printf("%x\n", pml4_table);
+	// identity map the pages asked
+	int cur_page = 0;
+	void* pml4_table = (void*) vmm_identity_page(3, &cur_page, pages_to_identity_map);
 
  	// clean rsv bits to 0 and then clean offset bits, finally add wt bit
  	uint64_t cr3_frame = (((uint64_t)pml4_table << 16) >> 28) << 12; 	
@@ -436,9 +380,39 @@ void vmm_initialize(uint64_t pages_to_identity_map) {
 
  	// put that pml4 address into CR3
 	_write_cr3(new_cr3); 
- 	while(1);
 
+	// NO SE SI HAY QUE VOLVER A TOCAR CR0 <---- preguntar
 	//_write_cr0(_read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
+}
+
+uint64_t vmm_identity_page(int level, int* cur_page_ptr, int needed_pages){
+
+	if (level == -1) {
+		// update the cur pages pointer and return corresponding identity frame
+		*cur_page_ptr += 1;
+		return (*cur_page_ptr - 1) * PAGE_SIZE;
+	}
+	// create new table
+	table* new_table = (table*)gmem();
+	memset(new_table, 0, VMM_TABLE_SIZE);
+	if (!new_table) {
+		return NULL;
+	}
+	// fill the new table
+	int cur_entry = 0;
+	while (cur_entry < ENTRIES_PER_TABLE && *cur_page_ptr < needed_pages){
+		void* next_frame = (void*) vmm_identity_page(level-1, cur_page_ptr, needed_pages);
+		entry new_entry = 0;
+		pte_add_attrib (&new_entry, MASK_PRESENT);
+ 		pte_set_frame (&new_entry, next_frame);
+ 		new_table->entries[cur_entry] = new_entry;
+		cur_entry++;
+	}
+	// if 1 pml4 wasnt enough make more pml4s but return the first one
+	if (level == 3 && *cur_page_ptr < needed_pages) {
+		vmm_identity_page(level, cur_page_ptr, needed_pages);
+	}
+	return (uint64_t) new_table;
 }
 
 void vmm_print_bitmap(uint64_t bits_to_print){
