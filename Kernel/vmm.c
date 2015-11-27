@@ -378,27 +378,29 @@ void vmm_initialize(uint64_t pages_to_identity_map) {
 	}
  
 	table* directory_ptr_table = (table*)gmem();
-	memset(pml4_table, 0, VMM_TABLE_SIZE);
+	memset(directory_ptr_table, 0, VMM_TABLE_SIZE);
 	if (!directory_ptr_table) {
 		return;
 	}
 
 	table* directory_table = (table*)gmem();
-	memset(pml4_table, 0, VMM_TABLE_SIZE);
+	memset(directory_table, 0, VMM_TABLE_SIZE);
 	if (!directory_table) {
 		return;
 	}
 
 	table* page_table = (table*)gmem();
-	memset(pml4_table, 0, VMM_TABLE_SIZE);
+	memset(page_table, 0, VMM_TABLE_SIZE);
 	if (!page_table) {
 		return;
 	}
 
 	uint64_t frame=0x0;
 
+	//FIX PAGE TABLES AMOUNT!!!!!!!!!!!
+
 	// identity map the first pages_to_identity_map pages
-	for(uint64_t i=0; i < pages_to_identity_map; i++, frame+=PAGE_SIZE)	{
+	for(uint64_t i=0; i < pages_to_identity_map; i++, frame += PAGE_SIZE) {
 		
 		// create a new page
 		entry page = 0;
