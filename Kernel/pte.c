@@ -3,19 +3,19 @@
 
 void pte_add_attrib (entry * e, uint64_t attrib)
 {
-	*e |= 1 << attrib;
+	*e |= attrib;
 }
 
 void pte_del_attrib (entry * e, uint64_t attrib)
 {
-	*e &= ~(1 << attrib);
+	*e &= ~attrib;
 }
 
-void pte_set_frame (entry * e, void * phys_addr, int level)
+void pte_set_frame (entry * e, void * phys_addr)
 {
-	// do i have to cast phys addr to int???
-	uint64_t mask = MASK_TABLE << (level * 9 + 12);
-	*e |= ((uint64_t)phys_addr & mask) >> (level * 9);
+	uint64_t attributes = *e & (~MASK_FRAME);
+	uint64_t frame_addr = (uint64_t)phys_addr & MASK_FRAME;
+	*e = attributes | frame_addr;
 }
 
 int pte_is_present (entry e)

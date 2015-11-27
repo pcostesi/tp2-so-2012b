@@ -1,3 +1,3 @@
 #!/bin/bash
 FMT=${1:-qcow2}
-qemu-system-x86_64 -soundhw pcspk -snapshot -hda Image/x64BareBonesImage.${FMT} -m 1024
+qemu-system-x86_64 -soundhw pcspk -snapshot -hda Image/x64BareBonesImage.${FMT} -m 1024 -no-kvm

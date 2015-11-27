@@ -202,7 +202,7 @@ int vmm_alloc_page(entry* e, uint64_t virt_addr, int supervisor) {
 	}
 
 	// we know the entry now exists
-	pte_set_frame (e, phys_addr, 0);
+	pte_set_frame (e, phys_addr);
 	pte_add_attrib (e, MASK_PRESENT);
 	if (!supervisor) {
 		pte_add_attrib (e, MASK_USER);
@@ -348,7 +348,7 @@ entry* vmm_map_page (void* phys_addr, void* virt_addr) {
       		// make the entry point to the new table and set attributes
 			pte_add_attrib (e, MASK_PRESENT);
       		pte_add_attrib (e, MASK_WRITEABLE);
-      		pte_set_frame (e, (void*)alloc_table, level);
+      		pte_set_frame (e, (void*)alloc_table);
 		}
 
 		// get next table
@@ -358,7 +358,7 @@ entry* vmm_map_page (void* phys_addr, void* virt_addr) {
 	// im at the 4th table so I need to get the entry and map it
 	entry* page_entry = vmm_lookup_entry_from_table(cur_table, virt_addr, 0);
 
-	pte_set_frame(page_entry, phys_addr, 0);
+	pte_set_frame(page_entry, phys_addr);
 	pte_add_attrib(page_entry, MASK_PRESENT);
 
 	return page_entry;
@@ -403,7 +403,7 @@ void vmm_initialize(uint64_t pages_to_identity_map) {
 		// create a new page
 		entry page = 0;
 		pte_add_attrib (&page, MASK_PRESENT);
- 		pte_set_frame (&page, (void*)frame, 0);
+ 		pte_set_frame (&page, (void*)frame);
 
  		// add it to the page table
 		page_table->entries[i] = page;
@@ -412,33 +412,37 @@ void vmm_initialize(uint64_t pages_to_identity_map) {
 	// lets add the first entries to the directories that point to such table
 	entry first_directory_entry = 0;
 	pte_add_attrib (&first_directory_entry, MASK_PRESENT);
- 	pte_set_frame (&first_directory_entry, page_table, 1);
+ 	pte_set_frame (&first_directory_entry, page_table);
  	directory_table->entries[0] = first_directory_entry;
 
  	entry first_direc_ptr_entry = 0;
 	pte_add_attrib (&first_direc_ptr_entry, MASK_PRESENT);
- 	pte_set_frame (&first_direc_ptr_entry, directory_table, 2);
+ 	pte_set_frame (&first_direc_ptr_entry, directory_table);
  	directory_ptr_table->entries[0] = first_direc_ptr_entry;
 
  	entry first_pml4_entry = 0;
 	pte_add_attrib (&first_pml4_entry, MASK_PRESENT);
- 	pte_set_frame (&first_pml4_entry, directory_ptr_table, 3);
+ 	pte_set_frame (&first_pml4_entry, directory_ptr_table);
  	pml4_table->entries[0] = first_pml4_entry;
 
+ 	printf("%x\n", &pml4_table->entries[0]);
+ 	printf("%x\n", pml4_table);
 
- 	// write_cr3, read_cr3, write_cr0, and read_cr0 all come from the asm functions
- 	//_write_cr0(_read_cr0() & ~(0x80000000));
-	_write_cr3(((uint64_t)pml4_table << 12) | 0x8); // put that pml4 address into CR3
-	while(1);
+ 	// clean rsv bits to 0 and then clean offset bits, finally add wt bit
+ 	uint64_t cr3_frame = (((uint64_t)pml4_table << 16) >> 28) << 12; 	
+ 	uint64_t new_cr3 = cr3_frame | 0x8;
+
+ 	// put that pml4 address into CR3
+	_write_cr3(new_cr3); 
+ 	while(1);
 
 	//_write_cr0(_read_cr0() | 0x80000000); // set the paging bit in CR0 to 1
-	
-
 }
 
 void vmm_print_bitmap(uint64_t bits_to_print){
 
 	for (int i = 0; i < bits_to_print; i++) {
-		//video_raw_print(itoa(vmm_dir_is_complete(i)), 1);
+		printf("%d", vmm_dir_is_complete(i));
 	}
+	printf("\n");
 }
