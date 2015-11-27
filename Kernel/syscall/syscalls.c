@@ -34,7 +34,7 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 		break;
 
 		case SYSCALL_GETPID:
-		return syscall_getpid();
+		exitno = syscall_getpid();
 		break;
 
 		case SYSCALL_BEEP: /* sys_beep */
@@ -42,7 +42,11 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 		break;
 
 		case SYSCALL_EXIT:
-		syscall_exit((unsigned char) RDI);
+		exitno = syscall_exit((unsigned char) RDI);
+		break;
+
+		case SYSCALL_KILL:
+		exitno = syscall_kill((int) RDI, (int) RSI);
 		break;
 
 		case SYSCALL_GETTIME:
