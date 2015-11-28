@@ -6,7 +6,6 @@
 // 4KB bits of directories (65 GB of virtual memory)
 #define VMM_TOTAL_PTS 32768
 
-#define VMM_DIR_SIZE 2097152
 #define VMM_PT_SIZE 2097152
 #define VMM_PAGE_SIZE 4096
 #define VMM_TABLE_SIZE 4096
@@ -301,6 +300,7 @@ entry* map_page(void* phys_addr, void* virt_addr, int attributes) {
 
       		// make the entry point to the new table and set attributes
       		pte_set_frame (e, (void*)alloc_table);
+      		pte_add_attrib (e, MASK_PRESENT);
 			pte_add_attrib (e, attributes);
 		}
 
@@ -312,6 +312,7 @@ entry* map_page(void* phys_addr, void* virt_addr, int attributes) {
 	entry* page_entry = get_entry_from_table(cur_table, virt_addr, 0);
 
 	pte_set_frame(page_entry, phys_addr);
+	pte_add_attrib (page_entry, MASK_PRESENT);
 	pte_add_attrib(page_entry, attributes);
 
 	return page_entry;
@@ -385,9 +386,9 @@ uint64_t identity_paging(int level, int* cur_page_ptr, int needed_pages){
 	return (uint64_t) new_table;
 }
 
-void vmm_print_bitmap(uint64_t bits_to_print){
+void vmm_print_bitmap(uint64_t from, uint64_t to){
 
-	for (int i = 0; i < bits_to_print; i++) {
+	for (int i = from; i <= to; i++) {
 		printf("%d", pt_is_complete(i));
 	}
 	printf("\n");

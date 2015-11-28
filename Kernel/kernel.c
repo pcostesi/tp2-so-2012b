@@ -87,19 +87,19 @@ int main(void)
 	// -------- TEST -----------
 
 	void* dirs[3];
-	for (int i = 0; i < 4; i++) {
-	 	dirs[i] = vmm_alloc_pages(512*4096, 1);	 	
+	for (int i = 0; i < 3; i++) {
+	 	dirs[i] = vmm_alloc_pages(512*4096, MASK_WRITEABLE);
 	}
 	
-
-	vmm_print_bitmap(5);
-	vmm_free_pages(dirs[1], 512*4096);
-	vmm_print_bitmap(5);
-
-	vmm_alloc_pages(1, 1);
-	vmm_print_bitmap(5);
 	
+	
+	vmm_print_bitmap(520, 1000);
+	
+	vmm_free_pages(dirs[0], 2);
+	vmm_print_bitmap(520, 1000);
 
+	vmm_alloc_pages(1, MASK_WRITEABLE);
+	vmm_print_bitmap(520, 1000);
 	// ------ TEST END ---------
 
 	//sched_spawn_process((void *) test2);

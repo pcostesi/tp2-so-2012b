@@ -22,7 +22,7 @@ typedef struct table_struct {
 uint64_t* vmm_initialize_kernel(uint64_t pages_to_identity_map);
 void* vmm_alloc_pages (uint64_t size, int attributes);
 void vmm_free_pages(void* start_addr, uint64_t size);
-void vmm_print_bitmap(uint64_t bits_to_print);
+void vmm_print_bitmap(uint64_t from, uint64_t to);
 
 void pt_complete (uint64_t bit);
 void pt_incomplete (uint64_t bit);
