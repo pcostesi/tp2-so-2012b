@@ -78,22 +78,27 @@ int main(void)
 	kbrd_install();
 	vid_clr();
 
-	// init vmm with 13 identity mapped pages
-	vmm_initialize(init_mem((uint64_t)getStackBase() * 2+ sizeof(uint64_t))/4096);
+	// init pmm
+	init_mem((uint64_t)getStackBase() * 2+ sizeof(uint64_t));
+	
+	// init vmm with 1GB worth of vmm for the kernel
+	vmm_initialize_kernel(262144);
 
 	// -------- TEST -----------
 
-	// void* dirs[3];
-	// for (int i = 0; i < 4; i++) {
-	// 	dirs[i] = vmm_alloc_pages(512*4096, 1);
-	// }
+	void* dirs[3];
+	for (int i = 0; i < 4; i++) {
+	 	dirs[i] = vmm_alloc_pages(512*4096, 1);	 	
+	}
+	
 
-	//vmm_print_bitmap(5);
-	// vmm_free_pages(dirs[1], 512*4096);
-	//vmm_print_bitmap(5);
+	vmm_print_bitmap(5);
+	vmm_free_pages(dirs[1], 512*4096);
+	vmm_print_bitmap(5);
 
-	// vmm_alloc_pages(1, 1);
-	//vmm_print_bitmap(5);
+	vmm_alloc_pages(1, 1);
+	vmm_print_bitmap(5);
+	
 
 	// ------ TEST END ---------
 

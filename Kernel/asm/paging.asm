@@ -29,6 +29,7 @@ _read_cr3:
     push rbp
     mov rbp, rsp
     mov rax, cr3
+    and rax, 0xFFFFFFFFF000
     mov rsp, rbp
     pop rbp
     ret
