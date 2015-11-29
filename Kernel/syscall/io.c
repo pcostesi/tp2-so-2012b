@@ -7,6 +7,7 @@ static enum VID_COLOR colors[] = {LIGHT_GRAY, BLACK, RED, BLACK};
 
 int syscall_ioctl(unsigned int fd, unsigned long request, void * params)
 {
+	enum vid_term term = VID_PROC;
 	int exitno = -1;
 	if (fd == STDOUT || fd == STDERR || fd == STDRAW || fd == STDIN) {
 		char high = ((uint64_t) params >> 8) & 0xFF;
@@ -14,17 +15,17 @@ int syscall_ioctl(unsigned int fd, unsigned long request, void * params)
 			
 		switch (request) {
 			case 0: /* move cursor */
-			vid_cursor(high, low);
+			vid_cursor(term, high, low);
 			return 0;
 			break;
 
 			case 1: /* clear screen */
-			vid_clr();
+			vid_clr(term);
 			return 0;
 			break;
 
 			case 2: /* change color */
-			vid_color(high, low);
+			vid_color(term, high, low);
 			if (fd == STDOUT || fd == STDERR) {
 				colors[fd - 1] = high;
 				colors[fd] = low;
@@ -43,22 +44,29 @@ int syscall_ioctl(unsigned int fd, unsigned long request, void * params)
 
 int syscall_write(unsigned int fd, char *str, unsigned int size)
 {
+	enum vid_term term = VID_PROC;
 	switch (fd) {
 		case STDOUT:
-		vid_color(colors[0], colors[1]);
+		vid_color(term, colors[0], colors[1]);
 		break;
 		case STDERR:
-		vid_color(colors[2], colors[3]);
+		vid_color(term, colors[2], colors[3]);
 		break;
 		
 		case STDRAW:
-		vid_raw_print(str, size);
+		vid_raw_print(term, str, size);
 		return size;
+
+		case SYSLOG:
+		term = VID_SYSLOG;
+		vid_color(term, WHITE, BLUE);
+		break;
 
 		default:
 		return -1;
 	}
-	vid_print(str, size);
+	vid_print(term, str, size);
+	vid_update();
 	return size;
 }
 

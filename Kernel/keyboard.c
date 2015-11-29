@@ -12,6 +12,7 @@ enum KYBRD_ENCODER_IO {
 	KYBRD_ENC_CMD_REG	=	0x60
 };
 
+kbd_esc esc_fn = NULL;
 
 enum KBRD_CTRL_STATS_MASK 
 {
@@ -468,7 +469,6 @@ void kbrd_irq ()
 				int key = kbrdscancode_std [code];
 				// test if a special key has been released & set it
 				switch (key) {
-
 					case KEY_LCTRL:
 					case KEY_RCTRL:
 						ctrl_hold = false;
@@ -494,6 +494,11 @@ void kbrd_irq ()
 
 				// test if user is holding down any special keys & set it
 				switch (key) {
+					case KEY_ESCAPE:
+						if (esc_fn) {
+							esc_fn();
+						}
+						break;
 
 					case KEY_LCTRL:
 					case KEY_RCTRL:
@@ -533,7 +538,7 @@ void kbrd_irq ()
 
 /*****Initialization & Reset functions*****/
 // prepares driver for use
-void kbrd_install () 
+void kbrd_install (kbd_esc esc) 
 {
 	scancode = 0;
 
@@ -544,6 +549,7 @@ void kbrd_install ()
 
 	// shift, ctrl, and alt keys
 	shift_hold = alt_hold = ctrl_hold = false;
+	esc_fn = esc;
 }
 
 // sets leds
