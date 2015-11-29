@@ -8,6 +8,8 @@
 #include <rtc-driver.h>
 #include <syscalls.h>
 #include <sched.h>
+#include <vmm.h>
+#include <pmm.h>
 #include <stdio.h>
 
 extern uint8_t text;
@@ -85,6 +87,48 @@ int main(void)
 	vid_color(VID_SYSLOG, WHITE, BLUE);
 	vid_clr(VID_SYSLOG);
 
+	// init pmm
+	init_mem((uint64_t)getStackBase() * 2+ sizeof(uint64_t));
+	
+	// init vmm with 1GB worth of vmm for the kernel
+	void* bitmap;
+	vmm_initialize(262144, &bitmap);
+	
+	// -------- TEST -----------
+
+	 vmm_print_bitmap(513, 520);
+
+	void* result;
+	void* result2;
+
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result2);
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
+
+	vmm_print_bitmap(513, 520);
+	
+	vmm_free_pages(result2, 512*4096);
+
+	vmm_print_bitmap(513, 520);
+
+	// vmm_print_pt(513);
+	// vmm_print_pt(514);
+
+	vmm_alloc_pages(511*4096, MASK_WRITEABLE, &result);
+	
+	vmm_print_bitmap(513, 520);
+	
+	vmm_alloc_pages(1*4096, MASK_WRITEABLE, &result);
+	
+	vmm_print_bitmap(513, 520);
+
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
+
+	vmm_print_bitmap(513, 520);
+	
+	while(1);
+	// ------ TEST END ---------
+
 	//sched_spawn_process((void *) test2);
 	sched_spawn_process((void *) shellModuleAddress);
 	
@@ -102,7 +146,8 @@ int main(void)
 	sched_drop_to_user();
 	_sti();
 
-    while (1) _drool();
+    while (1) 
+    	_drool();
     syscall_halt();
 	return 0;
 }

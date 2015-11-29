@@ -8,26 +8,37 @@ GLOBAL _write_cr3
 SECTION .text
 
 _read_cr0:
-    ENTER
+    push rbp
+    mov rbp, rsp
     mov rax, cr0
-    LEAVE
+    mov rsp, rbp
+    pop rbp
+    ret
 
 
 _write_cr0:
-    ENTER
-    mov rax, rdi
-    mov cr0,  rax
-    LEAVE
+    push rbp
+    mov rbp, rsp
+    mov cr0, rdi
+    mov rsp, rbp
+    pop rbp
+    ret
 
 
 _read_cr3:
-    ENTER
+    push rbp
+    mov rbp, rsp
     mov rax, cr3
-    LEAVE
+    and rax, 0xFFFFFFFFF000
+    mov rsp, rbp
+    pop rbp
+    ret
 
 
 _write_cr3:
-    ENTER
-    mov rax, rdi
-    mov cr3, rax
-    LEAVE
+    push rbp
+    mov rbp, rsp
+    mov cr3, rdi
+    mov rsp, rbp
+    pop rbp
+    ret

@@ -43,4 +43,8 @@
 # Mac sucks
 .DS_Store
 
+#Anjuta
+*.anjuta
+.anjuta*
+
 Toolchain.inc

@@ -4,6 +4,7 @@
 
 #define INVALID_DATE "Invalid date inserted, please respect dd/mm/yy format & insert a valid date.\n"
 #define INVALID_TIME "No arguments were sent to command settime format musut be ss:mm:hh \n"
+#define KILL_ERROR "The id of the process to be killed must be inserted. Format: \"kill id\".\n"
 
 int echo(char**, int);
 int clear(char**, int);
@@ -27,4 +28,7 @@ int halt_system(char** args, int argc);
 int commands(char** args, int argc);
 int print_ascii_table(char** args, int argc);
 int setcolor(char** args, int argc);
+int kill_cmd(char** args, int argc);
+int ps_cmd(char** args, int argc);
+int s_to_i(char *string);
 #endif
