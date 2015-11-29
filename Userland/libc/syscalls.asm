@@ -64,6 +64,7 @@ _int80h shutdown, 48
 _int80h fork, 57
 _int80h execv, 59
 _int80h exit, 60
+_int80h kill, 62
 
 _int80h gettime, 228
 _int80h settime, 227

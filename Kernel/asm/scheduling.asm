@@ -59,7 +59,7 @@ sched_drop_to_user:
 	ENTER
 	call sched_pick_process
 	mov 	r15, 	rax
-	
+
 	call _sched_get_current_process_entry
 	mov 	rsp, 	r15
 	
