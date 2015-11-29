@@ -20,12 +20,12 @@ void pte_set_frame (entry * e, void * phys_addr)
 
 int pte_is_present (entry e)
 {
-	return (e & MASK_PRESENT) > 0;
+	return e & MASK_PRESENT;
 }
 
 int pte_is_writable (entry e)
 {
-	return (e & MASK_WRITEABLE) > 0;
+	return e & MASK_WRITEABLE;
 }
 
 void * pte_pfn (entry e)
