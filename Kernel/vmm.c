@@ -204,10 +204,12 @@ int alloc_page(uint64_t virt_addr, int attributes) {
 
 void update_bitmap(uint64_t start_addr, uint64_t finish_addr, int incomplete) {
 
+
 	// check dirs used completely
 	uint64_t from = start_addr / VMM_PT_SIZE;
 	uint64_t to = finish_addr / VMM_PT_SIZE;
-	for (uint64_t cur_bit = from; cur_bit < to; cur_bit++) {
+	for (uint64_t cur_bit = from; cur_bit <= to; cur_bit++) {
+		//printf("updating bit %x\n")
 		pt_complete(cur_bit);
 	}
 
@@ -217,34 +219,34 @@ void update_bitmap(uint64_t start_addr, uint64_t finish_addr, int incomplete) {
 	}
 
 	// check if last bit is complete
-	if (!is_pt_complete(to)) {
+	if (is_pt_incomplete(to)) {
 		pt_incomplete(to);
 	}	
 }
 
-int is_pt_complete(uint64_t pt_num) {
+int is_pt_incomplete(uint64_t pt_num) {
 
 	// where the cur dir ends starting from from_addr
-	uint64_t from = pt_num * VMM_PT_SIZE;
-	uint64_t finish_addr = from = (pt_num+1) * VMM_PT_SIZE;
+	uint64_t from_addr = pt_num * VMM_PT_SIZE;
+	uint64_t finish_addr = (pt_num+1) * VMM_PT_SIZE;
 
 	// recursively check if every page left in the dir is present or exists already
-	return is_pt_range_complete(from, finish_addr);
+	return is_pt_range_incomplete(from_addr, finish_addr);
 }
 
-int is_pt_range_complete(uint64_t from_addr, uint64_t finish_addr) {
+int is_pt_range_incomplete(uint64_t from_addr, uint64_t finish_addr) {
 
 	if (from_addr == finish_addr) {
-		return 1;
+		return 0;
 	}
 
 	// if its present keep making sure the rest of the pages are as well
-	entry *e;
+	entry* e;
 	int found_entry = get_entry(from_addr, &e);
-	if (found_entry && pte_is_present(*e)) {
-		return is_pt_range_complete(from_addr + VMM_PAGE_SIZE, finish_addr);
+	if (!found_entry || !pte_is_present(*e)) {
+		return 1;
 	} else {
-		return 0;
+		return is_pt_range_incomplete(from_addr + VMM_PAGE_SIZE, finish_addr);
 	}
 }
 
@@ -351,7 +353,6 @@ int vmm_initialize(uint64_t pages_to_identity_map, void** new_bitmap_addr) {
  	// tables have been set up properly
 	_write_cr3(new_cr3);
 
-
 	// map bitmap, clean it and mark the used pages so far
 	uint64_t virt_bitmap_add = cur_page * VMM_PAGE_SIZE;
 	uint64_t phys_bitmap_add = (uint64_t)gmem();
@@ -373,7 +374,6 @@ int vmm_initialize(uint64_t pages_to_identity_map, void** new_bitmap_addr) {
 	// mark used bits + 1 because of the bitmap page
 	mark_bits(0, pages_to_identity_map / ENTRIES_PER_TABLE + 1);
 
-	
 	return 1; 
 }
 

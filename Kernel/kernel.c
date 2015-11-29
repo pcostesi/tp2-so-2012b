@@ -87,29 +87,37 @@ int main(void)
 	
 	// -------- TEST -----------
 
-	// vmm_print_bitmap(513, 520);
+	 vmm_print_bitmap(513, 520);
 
-	// void* result;
-	// void* result2;
+	void* result;
+	void* result2;
 
-	// vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
-	// vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result2);
-	// vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result2);
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
 
-	// vmm_print_bitmap(513, 520);
+	vmm_print_bitmap(513, 520);
 	
-	// vmm_free_pages(result2, 512*4096);
+	vmm_free_pages(result2, 512*4096);
 
-	// vmm_print_bitmap(513, 520);
+	vmm_print_bitmap(513, 520);
 
-	// vmm_alloc_pages(511*4096, MASK_WRITEABLE, &result);
+	// vmm_print_pt(513);
+	// vmm_print_pt(514);
+
+	vmm_alloc_pages(511*4096, MASK_WRITEABLE, &result);
 	
-	// vmm_print_bitmap(513, 520);
+	vmm_print_bitmap(513, 520);
 	
-	// vmm_alloc_pages(1*4096, MASK_WRITEABLE, &result);
+	vmm_alloc_pages(1*4096, MASK_WRITEABLE, &result);
 	
-	// vmm_print_bitmap(513, 520);
+	vmm_print_bitmap(513, 520);
+
+	vmm_alloc_pages(512*4096, MASK_WRITEABLE, &result);
+
+	vmm_print_bitmap(513, 520);
 	
+	while(1);
 	// ------ TEST END ---------
 
 	//sched_spawn_process((void *) test2);

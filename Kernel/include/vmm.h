@@ -41,8 +41,8 @@ int identity_paging(int level, int* cur_page_ptr, int needed_pages, uint64_t* fr
 void mark_bits(int from, int to);
 int map_page(void* phys_addr, void* virt_addr, int attributes, entry** entry);
 void free_page(entry* e);
-int is_pt_complete(uint64_t pt_num);
-int is_pt_range_complete(uint64_t from_addr, uint64_t finish_addr);
+int is_pt_incomplete(uint64_t pt_num);
+int is_pt_range_incomplete(uint64_t from_addr, uint64_t finish_addr);
 void update_bitmap(uint64_t start_addr, uint64_t finish_addr, int incomplete);
 int alloc_page(uint64_t virt_addr, int attributes);
 int get_entry_from_table(table* table, void* virt_addr, int level, entry** e);
