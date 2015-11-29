@@ -48,5 +48,6 @@ uint64_t int80h(uint64_t sysno,
 #define STDOUT 1
 #define STDERR 2
 #define STDRAW 3
+#define SYSLOG 4
 
 #endif

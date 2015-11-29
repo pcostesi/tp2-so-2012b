@@ -22,6 +22,7 @@ extern uint8_t endOfKernel;
 static const uint64_t PageSize = 0x4000;
 static const void * shellModuleAddress = (void*)0x400000;
 static const void * test2 = (void*)0x800000;
+static enum vid_term active_term = VID_PROC;
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
@@ -31,7 +32,7 @@ void clearBSS(void * bssAddress, uint64_t bssSize)
 void * getStackBase(void)
 {
 	return (void*)(
-		(uint64_t)&endOfKernel
+		(uint64_t)&bss
 		+ PageSize * 8				//The size of the stack itself, 32KiB
 		- sizeof(uint64_t)			//Begin at the top of the stack
 	);
@@ -63,6 +64,12 @@ void kbrd_irq_with_activity(int irq)
 	kbrd_irq(irq);
 }
 
+void handle_esc(void) {
+	active_term = (active_term + 1) % 2;
+	vid_show(active_term);
+	vid_update();
+}
+
 int main(void)
 {	
 	_cli();
@@ -75,8 +82,10 @@ int main(void)
 	install_interrupts();
 
 	/* driver initialization */
-	kbrd_install();
-	vid_clr();
+	kbrd_install(&handle_esc);
+	vid_clr(VID_PROC);
+	vid_color(VID_SYSLOG, WHITE, BLUE);
+	vid_clr(VID_SYSLOG);
 
 	// init pmm
 	init_mem((uint64_t)getStackBase() * 2+ sizeof(uint64_t));
@@ -125,6 +134,15 @@ int main(void)
 	
 	/* Drop to environment */
 
+	printf("This might be useful:\n");
+	printf("- Stack base: %x\n", (uint64_t)getStackBase() + sizeof(uint64_t));
+	printf("- text: %x\n", &text);
+	printf("- rodata: %x\n", &rodata);
+	printf("- data: %x\n", &data);
+	printf("- bss: %x\n", &bss);
+	printf("- endOfKernelBinary: %x\n", &endOfKernelBinary);
+	printf("- endOfKernel: %x\n", &endOfKernel);
+	printf("Dropping to userland\n");
 	sched_drop_to_user();
 	_sti();
 
