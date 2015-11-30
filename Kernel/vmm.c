@@ -34,8 +34,8 @@ int vmm_alloc_pages_from (void* from, uint64_t size, int attributes, void** resu
 		needed_pages = size / VMM_PAGE_SIZE + 1;
 	}
 
-	uint64_t pt_num = ((uint64_t)from) / VMM_PT_SIZE;
-	uint64_t pt_offset = (((uint64_t)from) % VMM_PT_SIZE) >> 12;
+	uint64_t pt_num = ((uint64_t)from) >> 21;
+	uint64_t pt_offset = (((uint64_t)from) << 43) >> 55;
 
 	return alloc_pages(pt_num, pt_offset, needed_pages, attributes, result);
 }
