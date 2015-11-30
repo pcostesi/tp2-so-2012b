@@ -331,10 +331,8 @@ int map_page(void* phys_addr, void* virt_addr, int attributes, entry** e) {
 }
 
 void vmm_switch_process(void* cr3, void* bitmap) {
-	uint64_t cr3_frame = (uint64_t)cr3) << 12; 	
- 	uint64_t new_cr3 = cr3_frame | 0x8;
 	cur_bitmap = bitmap;
-	_write_cr3(new_cr3);
+	_write_cr3((uint64_t)cr3 | 0x8);
 }
 
 void vmm_shutdown_process(void* cr3, void* bitmap) {
