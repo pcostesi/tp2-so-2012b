@@ -331,6 +331,7 @@ int map_page(void* phys_addr, void* virt_addr, int attributes, entry** e) {
 }
 
 void vmm_switch_process(void* cr3, void* bitmap) {
+
 	cur_bitmap = bitmap;
 	_write_cr3((uint64_t)cr3 | 0x8);
 }
@@ -393,8 +394,7 @@ int vmm_initialize(void** new_bitmap_addr) {
 		return 0;
 	}
 
-	// update bitmap addr
-	*new_bitmap_addr = (void*)phys_bitmap_add;
+	cur_bitmap = (uint64_t*)phys_bitmap_add;
 
 	// clean the bitmap
 	for (int i=0; i < VMM_PAGE_SIZE; i++) {
@@ -403,6 +403,9 @@ int vmm_initialize(void** new_bitmap_addr) {
 
 	// mark used bits + 1 because of the bitmap page
 	mark_bits(0, pages_to_identity_map / ENTRIES_PER_TABLE);
+	
+	// update bitmap addr
+	*new_bitmap_addr = (void*)phys_bitmap_add;
 
 	return 1; 
 }
@@ -475,6 +478,15 @@ void vmm_print_pt(uint64_t pt_number) {
 		} else {
 			printf("%d", 0);
 		}		
+	}
+	printf("\n");
+}
+
+void vmm_print_bitmap_addr(void* addr, uint64_t from, uint64_t to) {
+
+	uint64_t* cast_addr = (uint64_t *)addr;
+	for (int i = from; i <= to; i++) {
+		printf("%d", cast_addr[i / 64] & (1 << (i % 64)) );
 	}
 	printf("\n");
 }

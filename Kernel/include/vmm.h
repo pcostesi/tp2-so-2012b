@@ -55,3 +55,4 @@ uint64_t get_free_page_in_pt(uint64_t start_addr, uint64_t max_addr);
 int alloc_pages(uint64_t pt_number, uint64_t pt_entry_offset, int needed_pages, int attributes, void** result);
 void recursively_destroy_tables(void* table_addr, int level);
 void vmm_shutdown_process(void* cr3, void* bitmap);
+void vmm_print_bitmap_addr(void* addr, uint64_t from, uint64_t to);
