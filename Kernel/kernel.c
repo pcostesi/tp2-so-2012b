@@ -62,8 +62,7 @@ void * initializeKernelBinary(void)
 void panic(char * msg)
 {
 	puts("\nKERNEL PANIC\n");
-	printf(msg);
-	puts("\n");
+	printf("Achtung! %s\n", msg);
 	vid_show(VID_SYSLOG);
 	vid_update();
 	syscall_halt();
@@ -142,12 +141,12 @@ int main(void)
 
 	print_log();
 
-	if (0 && !ldr_module_load(get_module_zone(), INIT, &init)) {
+	if (!ldr_module_load(get_module_zone(), INIT, &init)) {
 		panic("Failed to load INIT. Halting.");
 	}
 
 
-	printf("Dropping to userland\n");
+	printf("Dropping to userland.\n");
 	sched_spawn_module(&init);
 	/* Drop to environment */
 
