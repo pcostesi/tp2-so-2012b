@@ -48,7 +48,7 @@ uint8_t * get_module_zone(void)
 
 uint8_t * get_safe_zone(void)
 {
-	return ALIGN4K(&endOfKernel + ldr_module_section_size(get_module_zone()));
+	return ALIGN4K((uint64_t) get_module_zone() + ldr_module_section_size(get_module_zone()));
 }
 
 
