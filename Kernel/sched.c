@@ -6,6 +6,7 @@
 
 
 #define PROC_BASE_ADDR ((void *) 0x40000000)
+#define OK_OR_PANIC(A, B) do { if (!(A)) panic(B); } while (0)
 
 struct sched_process {
 	volatile pid_t pid;
@@ -114,14 +115,15 @@ uint64_t sched_init(void * pagetable)
 
 static void _sched_load_module(struct module_entry * entry, struct sched_process * proc)
 {
-	vmm_initialize(&proc->pagetable);
+	int res = 0;
+	OK_OR_PANIC(vmm_initialize(&proc->pagetable), "Failed to start page dir");
 	// create a new page table
 	printf("Loading %s <%d bytes> into %x\n", entry->name, entry->size, PROC_BASE_ADDR);
-	vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
+	res = vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
+	OK_OR_PANIC(res, "Failed to alloc pages");
 	memcpy(PROC_BASE_ADDR, entry->start, entry->size);
 	printf("Loaded %s into %x\n", entry->name, proc->symbol);
 	proc->cr3 = _read_cr3();
-
 }
 
 uint64_t sched_spawn_module(struct module_entry * entry)

@@ -119,14 +119,14 @@ int main(void)
 	struct module_entry init;
 
 	_cli();
+	vid_init();
+	print_log();
 
 	// init pmm
 	init_mem((uint64_t) get_safe_zone());
 	
 	// init vmm with 1GB worth of vmm for the kernel
-	vmm_initialize(&bitmap);
-
-	vid_init();
+	if (!vmm_initialize(&bitmap)) panic("Failed to start vmm.");
 
 	sched_init(bitmap);
 
@@ -138,8 +138,6 @@ int main(void)
 
 	/* driver initialization */
 	kbrd_install(&handle_esc);
-
-	print_log();
 
 	if (!ldr_module_load(get_module_zone(), INIT, &init)) {
 		panic("Failed to load INIT. Halting.");
