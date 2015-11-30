@@ -57,6 +57,10 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 		syscall_set_time((struct rtc_time *) RDI);
 		break;
 
+		case SYSCALL_MMAP:
+		return (uint64_t) syscall_mmap((void *) RDI, (uint64_t) RSI);
+		break;
+
 		default:
 		return -1;
 	}

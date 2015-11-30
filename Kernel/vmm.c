@@ -335,7 +335,41 @@ void vmm_switch_process(void* cr3, void* bitmap) {
 	_write_cr3((uint64_t)cr3);
 }
 
-int vmm_initialize(uint64_t pages_to_identity_map, void** new_bitmap_addr) {
+void vmm_shutdown_process(void* cr3, void* bitmap) {
+
+	// addrese for the start and end of vm frees
+	uint64_t one_gb_addr = VMM_PAGE_SIZE * (uint64_t)ONE_GB_OF_PAGES;
+	uint64_t end_of_vm_addr = VMM_PAGE_SIZE * (uint64_t)(MAX_PAGES - 1);
+
+	// free from 1gb onwards
+	for (uint64_t cur_addr = one_gb_addr; cur_addr < end_of_vm_addr; cur_addr += VMM_PAGE_SIZE) {
+		vmm_free_pages((void*)cur_addr, VMM_PAGE_SIZE);
+	}
+
+	// destroy tables
+	recursively_destroy_tables(cr3, 3);
+}
+
+void recursively_destroy_tables(void* table_addr, int level) {
+	if (level == 0){
+		return;
+	}
+	int cur_entry = 0;
+	while (cur_entry < ENTRIES_PER_TABLE) {
+		// get next table and go deep enough
+		entry e = ((table*)table_addr)->entries[cur_entry];
+		if (pte_is_present(e)) {
+			void* next_table = pte_pfn(e);
+	 		recursively_destroy_tables(next_table, level-1);
+	 		fmem(next_table);
+		}
+		cur_entry++;
+	}
+}
+
+int vmm_initialize(void** new_bitmap_addr) {
+
+	uint64_t pages_to_identity_map = ONE_GB_OF_PAGES;
 
 	// identity map the pages asked
 	int cur_page = 0;

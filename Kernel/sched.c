@@ -114,11 +114,14 @@ uint64_t sched_init(void * pagetable)
 
 static void _sched_load_module(struct module_entry * entry, struct sched_process * proc)
 {
-	vmm_initialize(262144, &proc->pagetable);
+	vmm_initialize(&proc->pagetable);
 	// create a new page table
+	printf("Loading %s <%d bytes> into %x\n", entry->name, entry->size, PROC_BASE_ADDR);
 	vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
 	memcpy(PROC_BASE_ADDR, entry->start, entry->size);
+	printf("Loaded %s into %x\n", entry->name, proc->symbol);
 	proc->cr3 = _read_cr3();
+
 }
 
 uint64_t sched_spawn_module(struct module_entry * entry)
