@@ -48,3 +48,20 @@ void * memcpy(void * destination, const void * source, uint64_t length)
 
 	return destination;
 }
+
+
+void * memmove(void * destination, const void * source, uint64_t length)
+{
+	uint64_t i;
+	int direction 	= source < destination ? 1 : -1;
+	int base 		= source < destination ? 0 : length - 1;
+
+	uint8_t * d = (uint8_t*)destination;
+	const uint8_t * s = (const uint8_t*)source;
+
+	for (i = 0; i < length; i++)
+		d[base + i * direction] = s[base + i * direction];
+
+
+	return destination;
+}

@@ -14,7 +14,7 @@ enum sched_sleeping {
 };
 
 uint64_t sched_switch_to_kernel_stack(uint64_t stack);
-uint64_t sched_spawn_process(void * symbol);
+uint64_t sched_spawn_process(void * symbol, int size);
 uint64_t sched_pick_process(void);
 uint64_t _sched_get_current_process_entry(void);
 uint64_t sched_init(void);

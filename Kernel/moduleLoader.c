@@ -1,9 +1,52 @@
 #include <stdint.h>
 #include <lib.h>
+#include <string.h>
+#include <stdio.h>
 #include <moduleLoader.h>
 
 static void loadModule(uint8_t ** module, void * targetModuleAddress);
 static uint32_t readUint32(uint8_t ** address);
+
+uint64_t ldr_module_section_size(void * module_section_start)
+{
+	int i;
+	uint32_t moduleSectionSize = sizeof(uint8_t);
+	uint8_t * currentModule = (uint8_t*)module_section_start;
+	uint32_t moduleCount = readUint32(&currentModule);
+	uint32_t moduleSize;
+
+	for (i = 0; i < moduleCount; i++) {
+		moduleSize = readUint32(&currentModule);
+		currentModule += (moduleSize + MODULE_NAME_SIZE);
+		moduleSectionSize += moduleSize + MODULE_NAME_SIZE + sizeof(uint32_t);
+	}
+	return moduleSectionSize;
+}
+
+void * ldr_module_load(void * module_section_start, char * module_name, struct module_entry * entry)
+{
+	int i;
+	char buffer[MODULE_NAME_SIZE] = {0};
+	uint8_t * currentModule = (uint8_t*)module_section_start;
+	uint32_t moduleCount = readUint32(&currentModule);
+	uint32_t moduleSize;
+
+	for (i = 0; i < moduleCount; i++) {
+		moduleSize = readUint32(&currentModule);
+		memset(buffer, 0, MODULE_NAME_SIZE);
+		memcpy(buffer, currentModule, MODULE_NAME_SIZE);
+		currentModule += sizeof(buffer);
+		if (strcmp(buffer, module_name) == 0) {
+			entry->start = currentModule;
+			entry->size = moduleSize;
+			memcpy(entry->name, buffer, sizeof(buffer));
+			return currentModule;
+		}
+		currentModule += moduleSize;
+	}
+	return NULL;
+}
+
 
 uint8_t loadModules(void * payloadStart, void ** targetModuleAddress)
 {
