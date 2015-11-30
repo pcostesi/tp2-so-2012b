@@ -148,7 +148,7 @@ int main(void)
 	sched_spawn_module(&init);
 	/* Drop to environment */
 
-	//sched_drop_to_user();
+	sched_drop_to_user();
 	_sti();
 
     while (1) 

@@ -5,7 +5,7 @@
 #include <vmm.h>
 
 
-#define PROC_BASE_ADDR ((void *) 0x40000000)
+#define PROC_BASE_ADDR ((void *) 0x60000000)
 #define OK_OR_PANIC(A, B) do { if (!(A)) panic(B); } while (0)
 
 struct sched_process {
@@ -120,21 +120,23 @@ static void _sched_load_module(struct module_entry * entry, struct sched_process
 	// create a new page table
 	printf("Loading %s <%d bytes> into %x\n", entry->name, entry->size, PROC_BASE_ADDR);
 	res = vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
+	proc->symbol = PROC_BASE_ADDR;
 	OK_OR_PANIC(res, "Failed to alloc pages");
-	memcpy(PROC_BASE_ADDR, entry->start, entry->size);
+	memcpy(PROC_BASE_ADDR, entry->start, 4096);
 	printf("Loaded %s into %x\n", entry->name, proc->symbol);
 	proc->cr3 = _read_cr3();
+	printf("CR3 is %x, bitmap is %x\n", proc->cr3, proc->pagetable);
 }
 
 uint64_t sched_spawn_module(struct module_entry * entry)
 {
 	struct sched_process * process = _sched_alloc_process();
 	_sched_load_module(entry, process);
-	void * stack = _sched_alloc_pages(NULL, 1);
 	void * kernel_stack = _sched_alloc_pages(NULL, 1);
+	void * stack = _sched_alloc_pages(NULL, 1);
 	_sched_init_process(process, PROC_BASE_ADDR, stack, kernel_stack, 1);
 	process->pid = ++max_pid;
-	
+
 	if (active) {
 		vmm_switch_process((void *) active->cr3, active->pagetable);
 	} else {
