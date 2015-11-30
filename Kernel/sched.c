@@ -2,6 +2,7 @@
 #include <lib.h>
 #include <stdio.h>
 #include <syscalls.h>
+#include <vmm.h>
 
 
 #define PROC_BASE_ADDR ((void *) 0x40000000)
@@ -12,7 +13,8 @@ struct sched_process {
 	void * stack;
 	void * stack_base;
 	size_t page_count;
-	void * pagetable;
+	void * pagetable; //the bitmap
+	uint64_t cr3; //the cr3
 	void * kernel_stack;
 	unsigned short code;
 
@@ -45,8 +47,6 @@ static volatile int idle_active = 1;
 static page_t idle_stack = {{0}};
 static page_t idle_kstack = {{0}};
 
-static page_t pages[SCHED_MAX_PROC * 2];
-static int pidx = 0;
 static struct sched_process processes[SCHED_MAX_PROC];
 static int proc_idx = 0;
 
@@ -68,9 +68,9 @@ void _sched_free_process(struct sched_process * process)
 
 static page_t * _sched_alloc_pages(void * base, uint64_t size)
 {
-	page_t * ptr = &pages[pidx];
-	pidx += size;
-	return ptr;
+	void * page;
+	vmm_alloc_pages(sizeof(page_t) * size, MASK_USER | MASK_WRITEABLE, &page);
+	return (page_t *) page;
 }
 
 static void _sched_free_pages(void * base, uint64_t size)
@@ -89,18 +89,17 @@ static void * get_stack_base(void * stack_base)
 }
 
 
-static uint64_t _sched_init_process(struct sched_process * process, void * symbol, void * stack, void * kernel_stack, int pages)
+static void _sched_init_process(struct sched_process * process, void * symbol, void * stack, void * kernel_stack, int pages)
 {
 	process->symbol = symbol;
 	process->stack_base = stack;
 	process->stack = (void *) _sched_init_stack(get_stack_base(stack), symbol);
 	process->kernel_stack = get_stack_base(kernel_stack);
 	process->page_count = pages;
-	return 0;
 }
 
 
-uint64_t sched_init(void)
+uint64_t sched_init(void * pagetable)
 {
 	uint64_t symbol = (uint64_t) &_sched_idle_process;
 	_sched_init_process(&idle_process,
@@ -108,26 +107,35 @@ uint64_t sched_init(void)
 					   &idle_stack,
 					   &idle_kstack,
 					   1);
+	idle_process.cr3 = _read_cr3();
+	idle_process.pagetable = pagetable;
 	return 0;
 }
 
-void print_proc()
+static void _sched_load_module(struct module_entry * entry, struct sched_process * proc)
 {
-	struct sched_process * process;
-	for (process = active; process != NULL; process = process->next) {
-		printf("%d->", process->pid);
-		if (process == last) break;
-	}
+	vmm_initialize(262144, &proc->pagetable);
+	// create a new page table
+	vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
+	memcpy(PROC_BASE_ADDR, entry->start, entry->size);
+	proc->cr3 = _read_cr3();
 }
 
-uint64_t sched_spawn_process(void * symbol, int size)
+uint64_t sched_spawn_module(struct module_entry * entry)
 {
 	struct sched_process * process = _sched_alloc_process();
+	_sched_load_module(entry, process);
 	void * stack = _sched_alloc_pages(NULL, 1);
 	void * kernel_stack = _sched_alloc_pages(NULL, 1);
-	_sched_init_process(process, symbol, stack, kernel_stack, 1);
+	_sched_init_process(process, PROC_BASE_ADDR, stack, kernel_stack, 1);
 	process->pid = ++max_pid;
 	
+	if (active) {
+		vmm_switch_process((void *) active->cr3, active->pagetable);
+	} else {
+		vmm_switch_process((void *) idle_process.cr3, idle_process.pagetable);
+	}
+
 	if (!last) {
 		last = process;
 	}
@@ -137,6 +145,7 @@ uint64_t sched_spawn_process(void * symbol, int size)
 	process->next = active;
 	last->next = process;
 	last = process;
+	
 	return process->pid;
 }
 
@@ -251,9 +260,11 @@ uint64_t sched_add_page_to_current_process(void)
 uint64_t sched_pick_process(void)
 {
 	if (!active) {
+		vmm_switch_process((void *) idle_process.cr3, idle_process.pagetable);
 		return (uint64_t) idle_process.stack;
 	}
 	active = active->next;
 	last = last->next;
+	vmm_switch_process((void *) active->cr3, active->pagetable);
 	return (uint64_t) active->stack;
 }

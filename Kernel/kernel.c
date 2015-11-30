@@ -11,6 +11,7 @@
 #include <vmm.h>
 #include <pmm.h>
 #include <stdio.h>
+#include <motd.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -18,8 +19,10 @@ extern uint8_t data;
 extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
+void * bitmap = NULL;
 
-#define STACK_SIZE (0x4000)
+#define STACK_SIZE (0x4000 * 8)
+#define INIT "shell.bin"
 #define ALIGN4K(A) (void *)((((uint64_t)(A) >> 12) + 1) << 12)
 
 static enum vid_term active_term = VID_PROC;
@@ -84,12 +87,21 @@ void * get_entry_point(char * name)
 	return module.start;
 }
 
+void vid_init(void)
+{
+	vid_color(VID_SYSLOG, GRAY, BLACK);
+	vid_clr(VID_PROC);
+	vid_color(VID_SYSLOG, WHITE, BLUE);
+	vid_clr(VID_SYSLOG);
+	motd();
+}
+
 
 void print_log(void)
 {
 	printf("This might be useful:\n");
 	printf("- Detected memory size: %d Mb\n", get_memory_size());
-	printf("- Stack base: %x\n", (uint64_t)getStackBase());
+	printf("- base: %x\n", (uint64_t)getStackBase());
 	printf("- text: %x\n", &text);
 	printf("- rodata: %x\n", &rodata);
 	printf("- data: %x\n", &data);
@@ -105,7 +117,8 @@ void print_log(void)
 
 int main(void)
 {	
-	void * bitmap;
+	struct module_entry init;
+
 	_cli();
 
 	// init pmm
@@ -114,7 +127,9 @@ int main(void)
 	// init vmm with 1GB worth of vmm for the kernel
 	vmm_initialize(262144, &bitmap);
 
-	sched_init();
+	vid_init();
+
+	sched_init(bitmap);
 
 	/* set up IDTs & int80h */
 	install_syscall_handler((IntSysHandler) &int80h);
@@ -125,14 +140,15 @@ int main(void)
 	/* driver initialization */
 	kbrd_install(&handle_esc);
 
-	vid_clr(VID_PROC);
-	vid_color(VID_SYSLOG, WHITE, BLUE);
-	vid_clr(VID_SYSLOG);
-
 	print_log();
 
+	if (0 && !ldr_module_load(get_module_zone(), INIT, &init)) {
+		panic("Failed to load INIT. Halting.");
+	}
+
+
 	printf("Dropping to userland\n");
-	//sched_spawn_process(get_entry_point("shell.bin"));	
+	//sched_spawn_module(&init);
 	/* Drop to environment */
 
 	sched_drop_to_user();

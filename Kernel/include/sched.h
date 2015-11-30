@@ -2,6 +2,7 @@
 #define __SCHED 1
 
 #include <stdint.h>
+#include <moduleLoader.h>
 #define SCHED_MAX_PROC (256)
 
 typedef uint64_t pid_t;
@@ -14,10 +15,10 @@ enum sched_sleeping {
 };
 
 uint64_t sched_switch_to_kernel_stack(uint64_t stack);
-uint64_t sched_spawn_process(void * symbol, int size);
+uint64_t sched_spawn_module(struct module_entry * entry);
 uint64_t sched_pick_process(void);
 uint64_t _sched_get_current_process_entry(void);
-uint64_t sched_init(void);
+uint64_t sched_init(void * pagetable);
 uint64_t sched_terminate_process(pid_t pid, unsigned short retval);
 pid_t sched_getpid(void);
 

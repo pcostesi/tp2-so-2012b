@@ -39,7 +39,7 @@ void * ldr_module_load(void * module_section_start, char * module_name, struct m
 		if (strcmp(buffer, module_name) == 0) {
 			entry->start = currentModule;
 			entry->size = moduleSize;
-			memcpy(entry->name, buffer, sizeof(buffer));
+			memcpy(entry->name, buffer, MODULE_NAME_SIZE);
 			return currentModule;
 		}
 		currentModule += moduleSize;
