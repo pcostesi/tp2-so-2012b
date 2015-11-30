@@ -34,6 +34,8 @@ int buildImage(array_t fileArray, char *output_file);
 
 int write_size(FILE *target, char *filename);
 
+int write_name(FILE *target, char *filename);
+
 int write_file(FILE *target, FILE *source);
 
 int checkFiles(array_t fileArray);

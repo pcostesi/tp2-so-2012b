@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <libgen.h>
+#include <string.h>
 #include <argp.h>
 
 #include "modulePacker.h"
@@ -63,7 +66,7 @@ int buildImage(array_t fileArray, char *output_file) {
 	write_file(target, source);
 
 	//Write how many extra binaries we got.
-	int extraBinaries = fileArray.length - 1;
+	uint32_t extraBinaries = fileArray.length - 1;
 	fwrite(&extraBinaries, sizeof(extraBinaries), 1, target);	
 	fclose(source);
 
@@ -74,12 +77,15 @@ int buildImage(array_t fileArray, char *output_file) {
 		//Write the file size;
 		write_size(target, fileArray.array[i]);
 
+		//Write program name
+		write_name(target, fileArray.array[i]);
+
 		//Write the binary
 		write_file(target, source);
 
 		fclose(source);
 
-	} 
+	}
 	fclose(target);
 	return TRUE;
 }
@@ -105,6 +111,11 @@ int write_size(FILE *target, char *filename) {
 	fwrite(&size, sizeof(uint32_t), 1, target);
 }
 
+int write_name(FILE *target, char *filename) {
+	char buffer[128] = {0};
+	strncpy(buffer, filename, sizeof(buffer));
+	fwrite(basename(buffer), sizeof(buffer), 1, target);
+}
 
 int write_file(FILE *target, FILE *source) {
 	char buffer[BUFFER_SIZE];

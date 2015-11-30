@@ -1,12 +1,12 @@
 #include <stdint.h>
-
+#include <asm.h>
 
 
 /*! block size (4k)*/
 #define PMM_BLOCK_SIZE 4096
 
 /*1GB Total Memory*/
-#define PMM_TOTAL_MEMORY 1073741824
+#define PMM_TOTAL_MEMORY (get_memory_size() * 1024 * 1024)
 
 /*262144 Blocks for 4kb blocks and 1 GB total memory*/
 #define PMM_TOTAL_BLOCKS (PMM_TOTAL_MEMORY/ PMM_BLOCK_SIZE)

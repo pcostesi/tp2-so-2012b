@@ -4,6 +4,8 @@
 #include <syscalls.h>
 
 
+#define PROC_BASE_ADDR ((void *) 0x40000000)
+
 struct sched_process {
 	volatile pid_t pid;
 	void * symbol;
@@ -118,7 +120,7 @@ void print_proc()
 	}
 }
 
-uint64_t sched_spawn_process(void * symbol)
+uint64_t sched_spawn_process(void * symbol, int size)
 {
 	struct sched_process * process = _sched_alloc_process();
 	void * stack = _sched_alloc_pages(NULL, 1);
