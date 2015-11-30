@@ -118,7 +118,6 @@ int main(void)
 {	
 	struct module_entry init;
 
-	_cli();
 	vid_init();
 	print_log();
 
@@ -146,11 +145,11 @@ int main(void)
 
 	printf("Dropping to userland.\n");
 	sched_spawn_module(&init);
+	sched_spawn_module(&init);
 	/* Drop to environment */
 
 	sched_drop_to_user();
-	_sti();
-
+	
     while (1) 
     	_drool();
     syscall_halt();

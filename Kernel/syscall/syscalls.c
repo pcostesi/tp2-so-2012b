@@ -6,7 +6,7 @@
 #include <keyboard.h>
 #include <rtc-driver.h>
 #include <sched.h>
-
+#include <stdio.h>
 
 uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64_t RCX,
 	uint64_t R8, uint64_t R9)
@@ -14,6 +14,7 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 	int exitno = 0;
 	switch (sysno) {
 		case SYSCALL_WRITE: /* sys_write fd buf size */
+		printf("checkpoint\n");
 		exitno = syscall_write((unsigned int) RDI, (char *) RSI, (unsigned int) RDX);
 		break;
 

@@ -6,6 +6,7 @@
 
 
 #define PROC_BASE_ADDR ((void *) 0x60000000)
+#define PROC_BASE_STACK ((void *) 0x50000000)
 #define OK_OR_PANIC(A, B) do { if (!(A)) panic(B); } while (0)
 
 struct sched_process {
@@ -70,7 +71,12 @@ void _sched_free_process(struct sched_process * process)
 static page_t * _sched_alloc_pages(void * base, uint64_t size)
 {
 	void * page;
-	vmm_alloc_pages(sizeof(page_t) * size, MASK_USER | MASK_WRITEABLE, &page);
+	size = sizeof(page_t) * size;
+	if (base)
+		vmm_alloc_pages_from(base, size, MASK_USER | MASK_WRITEABLE, &page);
+	else
+		vmm_alloc_pages(size, MASK_USER | MASK_WRITEABLE, &page);
+	printf("Allocated %x @ %x\n", size, page);
 	return (page_t *) page;
 }
 
@@ -116,13 +122,13 @@ uint64_t sched_init(void * pagetable)
 static void _sched_load_module(struct module_entry * entry, struct sched_process * proc)
 {
 	int res = 0;
+	printf("Current cr3 is %x\n", _read_cr3());
 	OK_OR_PANIC(vmm_initialize(&proc->pagetable), "Failed to start page dir");
 	// create a new page table
 	printf("Loading %s <%d bytes> into %x\n", entry->name, entry->size, PROC_BASE_ADDR);
 	res = vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
-	proc->symbol = PROC_BASE_ADDR;
 	OK_OR_PANIC(res, "Failed to alloc pages");
-	memcpy(PROC_BASE_ADDR, entry->start, 4096);
+	memcpy(proc->symbol, entry->start, entry->size);
 	printf("Loaded %s into %x\n", entry->name, proc->symbol);
 	proc->cr3 = _read_cr3();
 	printf("CR3 is %x, bitmap is %x\n", proc->cr3, proc->pagetable);
@@ -132,9 +138,9 @@ uint64_t sched_spawn_module(struct module_entry * entry)
 {
 	struct sched_process * process = _sched_alloc_process();
 	_sched_load_module(entry, process);
+	void * stack = _sched_alloc_pages(PROC_BASE_STACK, 1);
 	void * kernel_stack = _sched_alloc_pages(NULL, 1);
-	void * stack = _sched_alloc_pages(NULL, 1);
-	_sched_init_process(process, PROC_BASE_ADDR, stack, kernel_stack, 1);
+	_sched_init_process(process, process->symbol, stack, kernel_stack, 1);
 	process->pid = ++max_pid;
 
 	if (active) {
@@ -160,10 +166,12 @@ uint64_t sched_spawn_module(struct module_entry * entry)
 uint64_t sched_switch_to_kernel_stack(uint64_t stack)
 {
 	if (!active) {
+		vmm_switch_process((void *) idle_process.cr3, idle_process.pagetable);
 		idle_process.stack = (void *) stack;
 		return (uint64_t) idle_process.kernel_stack;
 	}
 
+	vmm_switch_process((void *) active->cr3, active->pagetable);
 	active->stack = (void *) stack;
 	return (uint64_t) active->kernel_stack;
 }
@@ -271,7 +279,6 @@ uint64_t sched_pick_process(void)
 		return (uint64_t) idle_process.stack;
 	}
 	active = active->next;
-	last = last->next;
-	vmm_switch_process((void *) active->cr3, active->pagetable);
+	last = last->next;	vmm_switch_process((void *) active->cr3, active->pagetable);
 	return (uint64_t) active->stack;
 }
