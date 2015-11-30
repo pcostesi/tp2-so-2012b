@@ -33,7 +33,7 @@ void syscall_pause(void);
 void syscall_halt(void);
 int syscall_exit(unsigned int code);
 int syscall_getpid(void);
-
+void* syscall_mmap(void* address, uint64_t size);
 
 uint64_t int80h(uint64_t sysno,
 	uint64_t RDI,

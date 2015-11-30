@@ -1,6 +1,6 @@
-#include <pte.h>
-#include <stdint.h>
 #include <lib.h>
+#include <stdint.h>
+#include <pte.h>
 
 // architecture defines 512 entries per table (9 bits)
 #define ENTRIES_PER_TABLE 512 

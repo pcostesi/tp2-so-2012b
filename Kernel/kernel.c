@@ -92,7 +92,7 @@ int main(void)
 	
 	// init vmm with 1GB worth of vmm for the kernel
 	void* bitmap;
-	vmm_initialize(262144, &bitmap);
+	vmm_initialize(&bitmap);
 	
 	// -------- TEST -----------
 
