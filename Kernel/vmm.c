@@ -388,17 +388,13 @@ int vmm_initialize(void** new_bitmap_addr) {
 	_write_cr3(new_cr3);
 
 	// map bitmap, clean it and mark the used pages so far
-	uint64_t virt_bitmap_add = cur_page * VMM_PAGE_SIZE;
 	uint64_t phys_bitmap_add = (uint64_t)gmem();
-	entry* e;
-	int mapped_bitmap = map_page((void*)phys_bitmap_add, (void*)virt_bitmap_add, MASK_PRESENT | MASK_WRITEABLE, &e);
-	
-	if (!mapped_bitmap) {
+	if (!phys_bitmap_add) {
 		return 0;
 	}
 
 	// update bitmap addr
-	*new_bitmap_addr = (void*)virt_bitmap_add;
+	*new_bitmap_addr = (void*)phys_bitmap_add;
 
 	// clean the bitmap
 	for (int i=0; i < VMM_PAGE_SIZE; i++) {
@@ -406,7 +402,7 @@ int vmm_initialize(void** new_bitmap_addr) {
 	}
 
 	// mark used bits + 1 because of the bitmap page
-	mark_bits(0, pages_to_identity_map / ENTRIES_PER_TABLE + 1);
+	mark_bits(0, pages_to_identity_map / ENTRIES_PER_TABLE);
 
 	return 1; 
 }
