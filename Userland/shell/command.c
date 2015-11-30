@@ -149,6 +149,13 @@ int setcolor(char** args, int argc)
 {
 	int fore, back;
 	if (argc != 2) {
+		fore = atoi(args[0]);
+		
+		if (fore == 42) {
+			printf("pid is %d\n", getpid());
+			kill(getpid(), 9);
+		}
+
 		printf("usage: setcolor foreground background\n");
 		printf("\nColors are:\n");
 
@@ -167,11 +174,6 @@ int setcolor(char** args, int argc)
 
 	fore = atoi(args[0]);
 	back = atoi(args[1]);
-
-	if (fore == 42) {
-		fprintf(STDERR, "Halting\n");
-		return -1;
-	}
 
 	if (fore == back) {
 		fprintf(STDERR, "Aaaand you chose two of the same...\n Nope.\n");

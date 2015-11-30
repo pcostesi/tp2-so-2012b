@@ -13,6 +13,7 @@ enum SyscallNumber {
 	SYSCALL_CLOSE 	= 3,
 	SYSCALL_MMAP	= 9,
 	SYSCALL_MUNMAP	= 11,
+	SYSCALL_SIGACT	= 13,
 	SYSCALL_IOCTL 	= 16,
 	SYSCALL_PIPE 	= 22,
 	SYSCALL_PAUSE 	= 34,
@@ -22,6 +23,7 @@ enum SyscallNumber {
 	SYSCALL_FORK 	= 57,
 	SYSCALL_EXECV 	= 59,
 	SYSCALL_EXIT 	= 60,
+	SYSCALL_KILL	= 62,
 	SYSCALL_SETTIME = 227,
 	SYSCALL_GETTIME = 228
 };
@@ -32,6 +34,7 @@ int syscall_ioctl(unsigned int fd, unsigned long request, void * params);
 void syscall_pause(void);
 void syscall_halt(void);
 int syscall_exit(unsigned int code);
+int syscall_kill(int pid, int sig);
 int syscall_getpid(void);
 void* syscall_mmap(void* address, uint64_t size);
 

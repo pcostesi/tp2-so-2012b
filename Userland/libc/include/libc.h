@@ -18,6 +18,8 @@ struct rtc_time
 extern void gettime(struct rtc_time *);
 extern void settime(struct rtc_time *);
 extern void exit(unsigned char code);
+extern int kill(int pid, int code);
+extern int getpid(void);
 extern int write(unsigned int fd, char * str, unsigned int size);
 extern void pause(void);
 extern int read(unsigned int fd, char * str, unsigned int size);
