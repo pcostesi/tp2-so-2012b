@@ -56,6 +56,16 @@ void * initializeKernelBinary(void)
 	return getStackBase();
 }
 
+void panic(char * msg)
+{
+	puts("\nKERNEL PANIC\n");
+	printf(msg);
+	puts("\n");
+	vid_show(VID_SYSLOG);
+	vid_update();
+	syscall_halt();
+}
+
 void pit_irq(int irq)
 {
 	tick_sound();
