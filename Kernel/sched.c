@@ -116,6 +116,8 @@ uint64_t sched_init(void * pagetable)
 static void _sched_load_module(struct module_entry * entry, struct sched_process * proc)
 {
 	int res = 0;
+	OK_OR_PANIC(vmm_initialize(&proc->pagetable), "Failed to start page dir");
+	// create a new page table
 	printf("Loading %s <%d bytes> into %x\n", entry->name, entry->size, PROC_BASE_ADDR);
 	res = vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
 	proc->symbol = PROC_BASE_ADDR;
@@ -128,8 +130,6 @@ static void _sched_load_module(struct module_entry * entry, struct sched_process
 
 uint64_t sched_spawn_module(struct module_entry * entry)
 {
-	OK_OR_PANIC(vmm_initialize(&proc->pagetable), "Failed to start page dir");
-
 	struct sched_process * process = _sched_alloc_process();
 	_sched_load_module(entry, process);
 	void * kernel_stack = _sched_alloc_pages(NULL, 1);
