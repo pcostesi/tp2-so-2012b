@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include <command.h>
+#include <stdint.h>
 #include <string.h>
 #include <shell.h>
 #include <stdio.h>
@@ -416,21 +418,61 @@ int help_error_print()
 	return 0;
 }
 
+// Malloc/free commands
 
-int s_to_i(char *string)
-{
-	int aux = strlen(string);
-	int resp = 0;
-	int multiplier = 1;
-	if(aux == 0 || aux > 19 ){
-		return -1;
-	}
-	for(aux = 0; aux > 0; aux--){
-		if(string[aux-1] < 48 || string[aux-1] > 57){
-			return -1;
-		}
-		resp += ((int)string[aux-1] - 48) * multiplier;
-		multiplier *= 10;
-	}
-	return resp;
+int exec_string_malloc(char** args, int argc){
+    
+    while (argc)
+    {
+        void * s = malloc(s_to_i(*args));
+        if (s){
+            strcpy(s, *args++);
+            printf("Malloc string \"%s\" at address %x\n", s, s); 
+        }else{
+            printf("Not enough heap for \"%s\"", *args);
+        }
+        argc--;
+    }
+    return 0;
+}
+
+int exec_malloc(char** args, int argc){
+
+	void * s = malloc(s_to_i(*args));
+    if (s){
+        printf("Malloc %d bytes at address %u\n", s_to_i(*args), s);
+    }else{
+        printf("Not enough heap for %d bytes\n", s_to_i(*args));
+    }
+    return 0;
+}
+
+int exec_print_heap(char** args, int argc){
+
+    block* cur_block = get_base_block();
+    
+    if (!cur_block){
+        printf("Heap is empty bro\n");
+        return 1;
+    }
+
+    while (cur_block){
+        printf("Block address: %x\nData address: %x\nBlock size: %d\nPrev block: %x\nNext block: %x\nFree: %d\nString: %s\n\n", cur_block, cur_block + 1, cur_block->size, cur_block->prev, cur_block->next, cur_block->free, cur_block + 1);
+        cur_block = cur_block->next;
+    }
+
+    return 0;
+}
+
+int exec_free(char** args, int argc){
+
+    while (argc)
+    {
+        void * dir = (void *)s_to_i(*args++);
+        free(dir);
+        printf("Freeing address %u\n", dir);
+        argc--;
+    }
+
+    return 0;
 }

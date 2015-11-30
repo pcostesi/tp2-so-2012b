@@ -7,5 +7,7 @@ int atoi(char s[]);
 int strlen(char * s);
 int substr(char * s1, char *s2);
 int strcmp(char * s1, char *s2);
+uint64_t s_to_i(char *string);
+char * strcpy(char *dest, const char *src);
 
 #endif

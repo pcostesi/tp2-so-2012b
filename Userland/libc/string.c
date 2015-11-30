@@ -40,6 +40,24 @@ int strlen(char * s)
      reverse(s);
  }
 
+uint64_t s_to_i(char *string)
+{
+    int aux = strlen(string);
+    int resp = 0;
+    int multiplier = 1;
+    if(aux == 0 || aux > 19 ){
+        return -1;
+    }
+    for(aux = 0; aux > 0; aux--){
+        if(string[aux-1] < 48 || string[aux-1] > 57){
+            return -1;
+        }
+        resp += ((int)string[aux-1] - 48) * multiplier;
+        multiplier *= 10;
+    }
+    return resp;
+}
+
 
 //Returns 1 if s1 is substring of s2, else it returns 0
 int substr(char * s1, char *s2)
@@ -66,5 +84,17 @@ int strcmp(char * s1, char * s2)
         s2++;
     }
     
+    return ret;
+}
+
+char *
+strcpy(char *dest, const char *src)
+{
+    char *ret = dest;
+    while (*src != '\0')
+    {
+        *dest++ = *src++; 
+    }
+    *dest = '\0';
     return ret;
 }

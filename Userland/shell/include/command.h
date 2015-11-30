@@ -30,5 +30,10 @@ int print_ascii_table(char** args, int argc);
 int setcolor(char** args, int argc);
 int kill_cmd(char** args, int argc);
 int ps_cmd(char** args, int argc);
-int s_to_i(char *string);
+
+int exec_string_malloc(char** args, int argc);
+int exec_malloc(char** args, int argc);
+int exec_free(char** args, int argc);
+int exec_print_heap(char** args, int argc);
+
 #endif

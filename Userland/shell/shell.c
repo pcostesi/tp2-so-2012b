@@ -224,6 +224,10 @@ void initialize_cmd_table()
 	cmd_table[13].name = "setcolor";
 	cmd_table[14].name = "kill";
 	cmd_table[15].name = "ps";
+	cmd_table[16].name = "String Malloc";
+	cmd_table[17].name = "Malloc";
+	cmd_table[18].name = "Free";
+	cmd_table[19].name = "PrintHeap";
 
 	cmd_table[0].func = &echo;
 	cmd_table[1].func = &clear;
@@ -241,6 +245,12 @@ void initialize_cmd_table()
 	cmd_table[13].func = &setcolor;
 	cmd_table[14].func = &kill_cmd;
 	cmd_table[15].func = &ps_cmd;
+	cmd_table[16].func = &exec_string_malloc;
+	cmd_table[17].func = &exec_malloc;
+	cmd_table[18].func = &exec_free;
+	cmd_table[19].func = &exec_print_heap;
+	
+
 
 
 	cmd_table[0].help = "Echo repeats the input string following echo statement \n example: \"echo Hello I am using echo\".\n";
@@ -259,4 +269,8 @@ void initialize_cmd_table()
 	cmd_table[13].help = "Sets the console color (duh).\n";
 	cmd_table[14].help = "Terminates process with selected id, format is: \"kill id\".\n";
 	cmd_table[15].help = "Displays list of processes, their names, id and status.\n";
+	cmd_table[15].help = "Test function to instance memory for a given string and returns the virtual address. \n";
+	cmd_table[15].help = "Receives the amount of bytes to be insanced, and return the virtual address.\n";
+	cmd_table[15].help = "Receives the virtual addresses to be freed.\n";
+	cmd_table[15].help = "Prints current heap.\n";
 }
