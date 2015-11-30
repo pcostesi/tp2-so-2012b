@@ -27,6 +27,7 @@ extern void halt(void);
 extern void shutdown(void);
 extern void beep(void);
 extern int ioctl(unsigned int fd, unsigned long request, void * params);
+extern void* mmap(void* add, uint64_t size);
 
 #define IOCTL_MOVE 0
 #define IOCTL_CLR 1

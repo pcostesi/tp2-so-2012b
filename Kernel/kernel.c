@@ -125,7 +125,7 @@ int main(void)
 	init_mem((uint64_t) get_safe_zone());
 	
 	// init vmm with 1GB worth of vmm for the kernel
-	vmm_initialize(262144, &bitmap);
+	vmm_initialize(&bitmap);
 
 	vid_init();
 
