@@ -90,7 +90,20 @@ static struct IDT_Register * idtr;
 /* TODO: replace this function with a final version before shipping */
 void mem_handler(uint64_t flag, uint64_t by)
 {
+	char * codes[] = {
+		"0  0  0 - Supervisory process tried to read a non-present page entry",
+		"0  0  1 - Supervisory process tried to read a page and caused a protection fault",
+		"0  1  0 - Supervisory process tried to write to a non-present page entry",
+		"0  1  1 - Supervisory process tried to write a page and caused a protection fault",
+		"1  0  0 - User process tried to read a non-present page entry",
+		"1  0  1 - User process tried to read a page and caused a protection fault",
+		"1  1  0 - User process tried to write to a non-present page entry",
+		"1  1  1 - User process tried to write a page and caused a protection fault",
+	};
+
 	fprintf(2, "fault @ 0x%x err %bb\n", by, flag);
+	fprintf(2, "     US RW  P - Description\n");
+	fprintf(2, "Code: %s\n", codes[flag % 8]);
 	_halt();
 	return;
 }
