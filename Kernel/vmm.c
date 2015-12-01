@@ -335,6 +335,11 @@ void vmm_switch_process(void* cr3, void* bitmap) {
 	_write_cr3((uint64_t)cr3 | 0x8);
 }
 
+void * vmm_get_cur_bitmap(void)
+{
+	return cur_bitmap;
+}
+
 void vmm_shutdown_process(void* cr3, void* bitmap) {
 
 	// addrese for the start and end of vm frees

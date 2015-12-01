@@ -32,6 +32,8 @@ void pt_complete (uint64_t bit);
 void pt_incomplete (uint64_t bit);
 int pt_is_complete(uint64_t bit);
 
+void * vmm_get_cur_bitmap(void);
+
 void vmm_print_pt(uint64_t pt_number);
 void vmm_print_bitmap(uint64_t from, uint64_t to);
 int vmm_initialize(void** new_bitmap_addr);

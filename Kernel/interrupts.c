@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <syscalls.h>
+#include <vmm.h>
 
 /*
  * See http://wiki.osdev.org/Interrupt_Descriptor_Table
@@ -101,9 +102,10 @@ void mem_handler(uint64_t flag, uint64_t by)
 		"1  1  1 - User process tried to write a page and caused a protection fault",
 	};
 
-	fprintf(2, "fault @ 0x%x err %bb\n", by, flag);
+	fprintf(2, "*** Fault @ 0x%x err %bb\n", by, flag);
 	fprintf(2, "     US RW  P - Description\n");
 	fprintf(2, "Code: %s\n", codes[flag % 8]);
+	fprintf(2, "CR3: %x Bitmap: %x\n", _read_cr3(), vmm_get_cur_bitmap());
 	_halt();
 	return;
 }

@@ -26,6 +26,7 @@ void * bitmap = NULL;
 #define ALIGN4K(A) (void *)((((uint64_t)(A) >> 12) + 1) << 12)
 
 static enum vid_term active_term = VID_PROC;
+void print_log(void);
 
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
@@ -63,6 +64,7 @@ void panic(char * msg)
 {
 	puts("\nKERNEL PANIC\n");
 	printf("Achtung! %s\n", msg);
+	print_log();
 	vid_show(VID_SYSLOG);
 	vid_update();
 	syscall_halt();
