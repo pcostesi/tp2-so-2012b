@@ -1,8 +1,31 @@
 #include <stdlib.h>
 #include <libc.h>
+#include <string.h>
+
+
+extern uint8_t bss;
+extern uint8_t endOfBinary;
+
 
 block* base_addr = NULL;
 void* last_mmap = NULL;
+
+void * memset(void * destination, int32_t c, uint64_t length)
+{
+	uint8_t chr = (uint8_t)c;
+	char * dst = (char*)destination;
+
+	while(length--)
+		dst[length] = chr;
+
+	return destination;
+}
+
+
+void clearBSS(void)
+{
+	memset(&bss, 0, &endOfBinary - &bss);
+}
 
 void * malloc(uint64_t size){
 

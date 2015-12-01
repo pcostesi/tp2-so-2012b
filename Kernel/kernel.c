@@ -145,11 +145,11 @@ int main(void)
 
 	printf("Dropping to userland.\n");
 	sched_spawn_module(&init);
-	sched_spawn_module(&init);
+	//sched_spawn_module(&init);
 	/* Drop to environment */
 
 	sched_drop_to_user();
-	
+
     while (1) 
     	_drool();
     syscall_halt();

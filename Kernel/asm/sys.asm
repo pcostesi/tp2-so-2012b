@@ -48,9 +48,11 @@ _int_sys_handler:
 _int_mem_handler:
     cli
     PUSHA
-    mov     rdi,    [rsp - 8]
+    mov     rdi,    [rsp + 8 * 17]
+    mov     rsi,    cr2
     call    mem_handler
     POPA
+    add     rsp,    8
     sti
     iretq
 

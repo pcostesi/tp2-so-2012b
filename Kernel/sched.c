@@ -73,9 +73,9 @@ static page_t * _sched_alloc_pages(void * base, uint64_t size)
 	void * page;
 	size = sizeof(page_t) * size;
 	if (base)
-		vmm_alloc_pages_from(base, size, MASK_USER | MASK_WRITEABLE, &page);
+		vmm_alloc_pages_from(base, size, MASK_WRITEABLE, &page);
 	else
-		vmm_alloc_pages(size, MASK_USER | MASK_WRITEABLE, &page);
+		vmm_alloc_pages(size, MASK_WRITEABLE, &page);
 	printf("Allocated %x @ %x\n", size, page);
 	return (page_t *) page;
 }
@@ -126,7 +126,7 @@ static void _sched_load_module(struct module_entry * entry, struct sched_process
 	OK_OR_PANIC(vmm_initialize(&proc->pagetable), "Failed to start page dir");
 	// create a new page table
 	printf("Loading %s <%d bytes> into %x\n", entry->name, entry->size, PROC_BASE_ADDR);
-	res = vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_USER | MASK_WRITEABLE, &proc->symbol);
+	res = vmm_alloc_pages_from(PROC_BASE_ADDR, entry->size, MASK_WRITEABLE, &proc->symbol);
 	OK_OR_PANIC(res, "Failed to alloc pages");
 	memcpy(proc->symbol, entry->start, entry->size);
 	printf("Loaded %s into %x\n", entry->name, proc->symbol);
@@ -196,9 +196,10 @@ static void _sched_terminate_process(struct sched_process * defunct, unsigned sh
 {
 	defunct->code	= code;
 	defunct->next 	= terminated;
-	terminated 		= defunct;
+	terminated 	= defunct;
 	_sched_free_pages(defunct->stack_base, defunct->page_count);
-	_sched_free_pages(defunct->kernel_stack, 1);
+	//XXX: BUG
+	//_sched_free_pages(defunct->kernel_stack, 1);
 }
 
 
@@ -275,10 +276,13 @@ uint64_t sched_add_page_to_current_process(void)
 uint64_t sched_pick_process(void)
 {
 	if (!active) {
+		panic("");
 		vmm_switch_process((void *) idle_process.cr3, idle_process.pagetable);
+		panic("");
 		return (uint64_t) idle_process.stack;
 	}
 	active = active->next;
-	last = last->next;	vmm_switch_process((void *) active->cr3, active->pagetable);
+	last = last->next;
+        vmm_switch_process((void *) active->cr3, active->pagetable);
 	return (uint64_t) active->stack;
 }

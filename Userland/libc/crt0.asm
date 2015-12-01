@@ -3,6 +3,7 @@ SECTION .text
 EXTERN main
 EXTERN exit
 EXTERN halt
+EXTERN clearBSS
 
 ; see https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
 %macro PUSHCALL 0
@@ -46,6 +47,12 @@ EXTERN halt
 GLOBAL _start
 _start:
     ENTER
+    push    rdi
+    push    rsi
+    call    clearBSS
+    pop     rsi
+    pop     rdi
+
     call 	main
     mov     rdi,    rax
     call    exit

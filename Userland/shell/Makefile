@@ -16,7 +16,7 @@ all: $(MODULE)
 
 
 $(MODULE):	$(ASMOBJECTS) $(COBJECTS)
-	$(LD) -T linkerScript.ld $(CRT0) $(ASMOBJECTS) $(COBJECTS) $(LIBC) -o ../$(MODULE)
+	$(LD) -T linkerScript.ld $(CRT0) $(ASMOBJECTS) $(COBJECTS) $(LIBC) -o ../$(MODULE) -M
 
 clean:
 	rm -rf *.o

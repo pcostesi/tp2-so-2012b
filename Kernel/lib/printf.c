@@ -3,6 +3,7 @@
 
 static int print_str(int fd, char * str);
 static int print_dec(int fd, uint64_t n);
+static int print_bin(int fd, uint64_t n);
 static int print_oct(int fd, uint64_t n);
 static int print_hex(int fd, uint64_t n);
 static int print_chr(int fd, int c);
@@ -49,6 +50,10 @@ int print_number(int fd, va_list ap, char c)
 
 		case 'x':
 		written = print_hex(fd, va_arg(ap, uint64_t));
+		break;
+
+		case 'b':
+		written = print_bin(fd, va_arg(ap, uint64_t));
 		break;
 
 		case 'c':
@@ -128,6 +133,15 @@ static int print_hex(int fd, uint64_t n)
 	int count;
 	char buffer[40] = {0};
 	count = print_to_base(n, buffer, 16);
+	fputsn(fd, buffer, count);
+	return count;
+}
+
+static int print_bin(int fd, uint64_t n)
+{
+	int count;
+	char buffer[64] = {0};
+	count = print_to_base(n, buffer, 2);
 	fputsn(fd, buffer, count);
 	return count;
 }
