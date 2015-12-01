@@ -276,9 +276,7 @@ uint64_t sched_add_page_to_current_process(void)
 uint64_t sched_pick_process(void)
 {
 	if (!active) {
-		panic("");
 		vmm_switch_process((void *) idle_process.cr3, idle_process.pagetable);
-		panic("");
 		return (uint64_t) idle_process.stack;
 	}
 	active = active->next;
