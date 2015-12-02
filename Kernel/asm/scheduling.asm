@@ -4,12 +4,24 @@ GLOBAL _sched_init_stack
 GLOBAL sched_drop_to_user
 GLOBAL sched_step_syscall_rax
 
+EXTERN panic
+
 EXTERN _sched_get_current_process_entry
 EXTERN sched_pick_process
 
 ; Read this before making any changes (or reviewing the code):
 ; http://stackoverflow.com/questions/9383544
 
+%macro DISARM_HOOK 1
+    pop     %1          ;load RIP
+    add     rsp,    8   ;save code segment
+    popf                ;load rflags
+%endmacro
+
+SECTION .data
+msg:    dw  'hello world'
+
+SECTION .text
 _sched_init_stack:
     ENTER
     mov     r10,    rsp
@@ -60,12 +72,5 @@ sched_drop_to_user:
 	call sched_pick_process
 	mov 	r15, 	rax
 
-	call _sched_get_current_process_entry
-	mov 	rsp, 	r15
-	
-    LOADPROC rsp
-    add     rsp,    8 * 17
-    pop     rax
-	sti
-	jmp 	rax
-	LEAVE
+    sti
+    LEAVE

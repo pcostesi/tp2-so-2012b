@@ -42,17 +42,22 @@ EXTERN clearBSS
     ret
 %endmacro
 
+SECTION .data
+greetings: dw 'hello .....as.da.sd.asd.as.d'
+
+
+SECTION .text
+
+EXTERN printf
+EXTERN halt
 
 ;kinda like crt0 but hacky
 GLOBAL _start
 _start:
     ENTER
-    push    rdi
-    push    rsi
-    call    clearBSS
-    pop     rsi
-    pop     rdi
-
+    mov     rdi, greetings
+    call    printf
+    call    halt
     call 	main
     mov     rdi,    rax
     call    exit

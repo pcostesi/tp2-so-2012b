@@ -28,42 +28,43 @@
 ; This macro will set a pristine process stack
 ; with 
 %macro INITPROC 3
-    push    0        ;save current rax
-    push    0        ;save current rbx
-    push    0        ;save current rcx
-    push    0        ;save current rdx
+    push    0x01       ;save current rax
+    push    0x02       ;save current rbx
+    push    0x03       ;save current rcx
+    push    0x04       ;save current rdx
     push    %1       ;save current rbp
     push    %2       ;save current rdi
     push    %3       ;save current rsi
-    push    0        ;save current r8
-    push    0        ;save current r9
-    push    0        ;save current r10
-    push    0        ;save current r11
-    push    0        ;save current r12
-    push    0        ;save current r13
-    push    0        ;save current r14
-    push    0        ;save current r15
-    push    0        ;save fs
-    push    0        ;save gs
+    push    0x08       ;save current r8
+    push    0x09       ;save current r9
+    push    0x0A       ;save current r10
+    push    0x0B     ;save current r11
+    push    0x0C     ;save current r12
+    push    0x0D     ;save current r13
+    push    0x0E     ;save current r14
+    push    0x0F     ;save current r15
+    push    0x10     ;save fs
+    push    0x11     ;save gs
 %endmacro
 
-%macro LOADPROC 1
-    mov     rbx,    [%1 + (8 * 15)]
-    mov     rcx,    [%1 + (8 * 14)]
-    mov     rdx,    [%1 + (8 * 13)]
-    mov     rbp,    [%1 + (8 * 12)]
-    mov     rdi,    [%1 + (8 * 11)]
-    mov     rsi,    [%1 + (8 * 10)]
-    mov     r8,     [%1 + (8 * 09)]
-    mov     r9,     [%1 + (8 * 08)]
-    mov     r10,    [%1 + (8 * 07)]
-    mov     r11,    [%1 + (8 * 06)]
-    mov     r12,    [%1 + (8 * 05)]
-    mov     r13,    [%1 + (8 * 04)]
-    mov     r14,    [%1 + (8 * 03)]
-    mov     r15,    [%1 + (8 * 02)]
-    mov     fs,     [%1 + (8 * 01)]
-    mov     gs,     [%1 + (8 * 00)]
+%macro LOADPROC 0
+    pop     gs
+    pop     fs
+    pop     r15
+    pop     r14
+    pop     r13
+    pop     r12
+    pop     r11
+    pop     r10
+    pop     r9
+    pop     r8
+    pop     rsi
+    pop     rdi
+    add     rsp,    8
+    pop     rdx
+    pop     rcx
+    pop     rbx
+    pop     rax
 %endmacro
 
 ; First param must point to gs @ PUSHA / INITPROC

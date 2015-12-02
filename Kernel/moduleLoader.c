@@ -7,6 +7,15 @@
 static void loadModule(uint8_t ** module, void * targetModuleAddress);
 static uint32_t readUint32(uint8_t ** address);
 
+static void print_brief(uint8_t * start, int max)
+{
+	int i;
+	for (i = 0; i < max; i++) {
+		printf("%x%x ", start[2 * i], start[2 * i + 1]);
+	}
+	puts("\n");
+}
+
 uint64_t ldr_module_section_size(void * module_section_start)
 {
 	int i;
@@ -39,6 +48,7 @@ void * ldr_module_load(void * module_section_start, char * module_name, struct m
 		if (strcmp(buffer, module_name) == 0) {
 			entry->start = currentModule;
 			entry->size = moduleSize;
+			print_brief(entry->start, 16);
 			memcpy(entry->name, buffer, MODULE_NAME_SIZE);
 			return currentModule;
 		}

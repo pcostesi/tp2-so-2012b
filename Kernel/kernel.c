@@ -49,7 +49,7 @@ uint8_t * get_module_zone(void)
 
 uint8_t * get_safe_zone(void)
 {
-	return ALIGN4K((uint64_t) get_module_zone() + ldr_module_section_size(get_module_zone()));
+	return ALIGN4K((uint64_t) get_module_zone() + (&endOfKernel - &endOfKernelBinary));
 }
 
 
@@ -64,7 +64,6 @@ void panic(char * msg)
 {
 	puts("\nKERNEL PANIC\n");
 	printf("Achtung! %s\n", msg);
-	print_log();
 	vid_show(VID_SYSLOG);
 	vid_update();
 	syscall_halt();
@@ -121,8 +120,7 @@ int main(void)
 	struct module_entry init;
 
 	vid_init();
-	print_log();
-
+	print_log();	
 	// init pmm
 	init_mem((uint64_t) get_safe_zone());
 	
@@ -130,7 +128,6 @@ int main(void)
 	if (!vmm_initialize(&bitmap)) panic("Failed to start vmm.");
 
 	sched_init(bitmap);
-
 	/* set up IDTs & int80h */
 	install_syscall_handler((IntSysHandler) &int80h);
 	install_hw_handler((IntHwHandler) &kbrd_irq, INT_KEYB);
@@ -139,13 +136,13 @@ int main(void)
 
 	/* driver initialization */
 	kbrd_install(&handle_esc);
-
 	if (!ldr_module_load(get_module_zone(), INIT, &init)) {
 		panic("Failed to load INIT. Halting.");
 	}
 
 
 	printf("Dropping to userland.\n");
+	sched_spawn_module(&init);
 	sched_spawn_module(&init);
 	//sched_spawn_module(&init);
 	/* Drop to environment */
