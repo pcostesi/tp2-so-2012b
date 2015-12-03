@@ -8,14 +8,16 @@ EXTERN panic
 
 EXTERN _sched_get_current_process_entry
 EXTERN sched_pick_process
+EXTERN sched_get_process
 
 ; Read this before making any changes (or reviewing the code):
 ; http://stackoverflow.com/questions/9383544
 
 %macro DISARM_HOOK 1
-    pop     %1          ;load RIP
-    add     rsp,    8   ;save code segment
-    popf                ;load rflags
+    pop     %1  ;load RIP
+    pop     cs  ;save code segment
+    popf        ;load rflags
+    mov     rbp, rsp
 %endmacro
 
 SECTION .data
@@ -67,10 +69,8 @@ sched_step_syscall_rax:
 ; Force a scheduler step
 ; then jump to userspace
 sched_drop_to_user:
-	cli
-	ENTER
-	call sched_pick_process
-	mov 	r15, 	rax
-
+	call sched_get_process
+    mov     rsp,    rax
+    call _sched_get_current_process_entry
     sti
-    LEAVE
+    jmp rax

@@ -55,9 +55,6 @@ EXTERN halt
 GLOBAL _start
 _start:
     ENTER
-    mov     rdi, greetings
-    call    printf
-    call    halt
     call 	main
     mov     rdi,    rax
     call    exit

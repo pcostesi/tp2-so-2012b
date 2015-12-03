@@ -28,43 +28,43 @@
 ; This macro will set a pristine process stack
 ; with 
 %macro INITPROC 3
-    push    0x01       ;save current rax
-    push    0x02       ;save current rbx
-    push    0x03       ;save current rcx
-    push    0x04       ;save current rdx
+    push    0        ;save current rax
+    push    0        ;save current rbx
+    push    0        ;save current rcx
+    push    0        ;save current rdx
     push    %1       ;save current rbp
     push    %2       ;save current rdi
     push    %3       ;save current rsi
-    push    0x08       ;save current r8
-    push    0x09       ;save current r9
-    push    0x0A       ;save current r10
-    push    0x0B     ;save current r11
-    push    0x0C     ;save current r12
-    push    0x0D     ;save current r13
-    push    0x0E     ;save current r14
-    push    0x0F     ;save current r15
-    push    0x10     ;save fs
-    push    0x11     ;save gs
+    push    0        ;save current r8
+    push    0        ;save current r9
+    push    0        ;save current r10
+    push    0      ;save current r11
+    push    0      ;save current r12
+    push    0      ;save current r13
+    push    0      ;save current r14
+    push    0      ;save current r15
+    push    0      ;save fs
+    push    0      ;save gs
 %endmacro
 
 %macro LOADPROC 0
-    pop     gs
-    pop     fs
-    pop     r15
-    pop     r14
-    pop     r13
-    pop     r12
-    pop     r11
-    pop     r10
-    pop     r9
-    pop     r8
-    pop     rsi
-    pop     rdi
-    add     rsp,    8
-    pop     rdx
-    pop     rcx
-    pop     rbx
-    pop     rax
+    mov     gs,     [rsp + 8 * 16]
+    mov     fs,     [rsp + 8 * 15]
+    mov     r15,    [rsp + 8 * 14]
+    mov     r14,    [rsp + 8 * 13]
+    mov     r13,    [rsp + 8 * 12]
+    mov     r12,    [rsp + 8 * 11]
+    mov     r11,    [rsp + 8 * 10]
+    mov     r10,    [rsp + 8 *  9]
+    mov     r9,     [rsp + 8 *  8]
+    mov     r8,     [rsp + 8 *  7]
+    mov     rsi,    [rsp + 8 *  6]
+    mov     rdi,    [rsp + 8 *  5]
+    mov     rbp,    [rsp + 8 *  4]
+    mov     rdx,    [rsp + 8 *  3]
+    mov     rcx,    [rsp + 8 *  2]
+    mov     rbx,    [rsp + 8 *  1]
+    mov     rax,    [rsp + 8 *  0]
 %endmacro
 
 ; First param must point to gs @ PUSHA / INITPROC

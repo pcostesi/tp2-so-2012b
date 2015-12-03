@@ -140,15 +140,14 @@ int main(void)
 		panic("Failed to load INIT. Halting.");
 	}
 
-
-	printf("Dropping to userland.\n");
+	handle_esc();
 	sched_spawn_module(&init);
 	sched_spawn_module(&init);
 	//sched_spawn_module(&init);
+
+	printf("Dropping to userland.\n");
 	/* Drop to environment */
-
 	sched_drop_to_user();
-
     while (1) 
     	_drool();
     syscall_halt();

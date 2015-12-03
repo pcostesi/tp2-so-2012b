@@ -17,7 +17,7 @@
 #define IDTE_I_GATE		0x0E		/*	Gate type (32bit)		....1110	*/
 #define IDTE_T_GATE		0x0F		/*	Gate type (32bit)		....1111	*/
 
-#define IDTE_HW			(IDTE_PRESENT | IDTE_DPL_HW | IDTE_I_GATE)
+#define IDTE_HW			(IDTE_PRESENT | IDTE_DPL_HW | IDTE_T_GATE)
 #define IDTE_SW			(IDTE_PRESENT | IDTE_DPL_SW | IDTE_T_GATE)
 #define INT_SYS 		0x80
 #define INT_MEM			0x0E
@@ -180,21 +180,24 @@ void install_interrupts(void)
 	table = (struct IDT_Entry *) idtr->offset;
 
 	/* override int80h entry */
-	install_IDT_entry(table, INT_SYS, 		&_int_sys_handler, IDTE_HW);
-	install_IDT_entry(table, INT_MEM, 		&_int_mem_handler, IDTE_HW);
+	install_IDT_entry(table, INT_SYS, 		&_int_sys_handler, IDTE_SW);
+	install_IDT_entry(table, INT_MEM, 		&_int_mem_handler, IDTE_SW);
 
 	/* override Master HW ints with our own */
 	install_IDT_entry(table, INT_PIT, 		&_irq_20h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_KEYB, 		&_irq_21h_handler, IDTE_HW);
 	/*						 cascade interrupt (not triggered) */
 	
+	/*
 	install_IDT_entry(table, INT_COM2, 		&_irq_23h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_COM1, 		&_irq_24h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_LPT2, 		&_irq_25h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_FLOPPY, 	&_irq_26h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_LPT1, 		&_irq_27h_handler, IDTE_HW);
-	
+	*/
+
 	/* override Slave HW ints with our own */
+	/*
 	install_IDT_entry(table, INT_CMOS, 		&_irq_70h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_SCSI1, 	&_irq_71h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_SCSI2, 	&_irq_72h_handler, IDTE_HW);
@@ -203,7 +206,7 @@ void install_interrupts(void)
 	install_IDT_entry(table, INT_FPU, 		&_irq_75h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_ATA1, 		&_irq_76h_handler, IDTE_HW);
 	install_IDT_entry(table, INT_ATA2, 		&_irq_77h_handler, IDTE_HW);
-	
+	*/
 	_lidt(idtr);
 }
 

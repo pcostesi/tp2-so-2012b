@@ -21,6 +21,7 @@ uint64_t _sched_get_current_process_entry(void);
 uint64_t sched_init(void * pagetable);
 uint64_t sched_terminate_process(pid_t pid, unsigned short retval);
 pid_t sched_getpid(void);
+uint64_t sched_get_process(void);
 
 extern void sched_drop_to_user(void);
 extern void sched_step_syscall_rax(void * stack, uint64_t value);
