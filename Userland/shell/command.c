@@ -424,7 +424,7 @@ int exec_string_malloc(char** args, int argc){
     
     while (argc)
     {
-        void * s = malloc(s_to_i(*args));
+        void * s = malloc(strlen(*args)+1);
         if (s){
             strcpy(s, *args++);
             printf("Malloc string \"%s\" at address %d\n", s, s); 
@@ -468,9 +468,9 @@ int exec_free(char** args, int argc){
 
     while (argc)
     {
-        void * dir = (void *)s_to_i(*args++);
-        free(dir);
-        printf("Freeing address %d\n", dir);
+        uint64_t dir = s_to_i(*args++);
+        free((void*)dir);
+        printf("Freeing address %d\n", (void*)dir);
         argc--;
     }
 

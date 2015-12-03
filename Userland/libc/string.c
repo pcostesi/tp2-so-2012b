@@ -42,17 +42,17 @@ int strlen(char * s)
 
 uint64_t s_to_i(char *string)
 {
-    int aux = strlen(string);
-    int resp = 0;
-    int multiplier = 1;
+    uint64_t aux = strlen(string);
+    uint64_t resp = 0;
+    uint64_t multiplier = 1;
     if(aux == 0 || aux > 19 ){
         return -1;
     }
-    for(aux = 0; aux > 0; aux--){
+    for(; aux > 0; aux--){
         if(string[aux-1] < 48 || string[aux-1] > 57){
             return -1;
         }
-        resp += ((int)string[aux-1] - 48) * multiplier;
+        resp += ((uint64_t)string[aux-1] - 48) * multiplier;
         multiplier *= 10;
     }
     return resp;

@@ -1,15 +1,44 @@
 #include <mmu.h>
 
-block* base_addr = NULL;
-block* last_alloced_block = NULL;
+void* cur_page;
+uint64_t used_bytes;
+uint64_t bytes_reserved;
 
 // MMU SYSCALLS
 
-void* syscall_mmap(void* from, uint64_t size) {
-	return mmu_kmalloc_from(from, size);
+void* syscall_mmap(void* addr, uint64_t size) {
+	void* ret_addr;
+	if (cur_page && bytes_reserved - used_bytes > size) {
+		ret_addr = (void*)((uint64_t) cur_page + used_bytes);
+		used_bytes += size;
+		return ret_addr;
+	} else {
+		int result;
+		if (addr) {
+			result = vmm_alloc_pages_from(addr, size, MASK_WRITEABLE | MASK_USER, &ret_addr);
+		} else {
+			result = vmm_alloc_pages(size, MASK_WRITEABLE | MASK_USER, &ret_addr);
+		}
+		if (result) {
+			uint64_t pages_used = size / VMM_PAGE_SIZE;
+			bytes_reserved = pages_used * VMM_PAGE_SIZE;
+			if (size % VMM_PAGE_SIZE != 0) {
+				bytes_reserved += VMM_PAGE_SIZE;
+			}
+			used_bytes = size;
+			cur_page = ret_addr;
+			return ret_addr;
+		} else {
+			return NULL;
+		}
+	}
 }
 
 // TODO: UNMAP
+
+
+block* base_addr = NULL;
+block* last_alloced_block = NULL;
 
 void* mmu_kmalloc(uint64_t size) {
 	return mmu_kmalloc_from(NULL, size);
