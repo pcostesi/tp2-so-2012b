@@ -2,13 +2,12 @@
 
 #define BLOCK_SIZE (sizeof(block))
 #define MIN_ALLOC_SIZE 4
-#define ENOMEM -1
 #define NULL 0
 
 typedef struct block block;
 
 struct block{
-	int size;
+	uint64_t size;
 	block* next;
 	block* prev;
 	int free;
