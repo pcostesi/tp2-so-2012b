@@ -51,6 +51,8 @@ void DeletePipe(int fd)
 	pipes[fd] = NULL;
 }
 
+
+/*Si no hay nada que leer, devuelve*/
 int GetPipe(int fd, void *data, unsigned size)
 {
 	struct Pipe *p = pipes[fd];
@@ -85,6 +87,8 @@ int GetPipe(int fd, void *data, unsigned size)
 }
 
 
+
+/*Si no hay lugar para escribir devuelve*/
 int PutPipe(int fd, void *data, unsigned size)
 {
 	struct Pipe *p = pipes[fd];
@@ -97,12 +101,17 @@ int PutPipe(int fd, void *data, unsigned size)
 		return 0;
 	}
 
-	if(!WaitSem(p->sem)){
-		return -1;
-	}
 	if(p->avail < size){
-		//wait
+		return 0;
 	}
+	/*while(p->avail < size){
+		wait(pid,500);
+		if(!WaitSem(p->sem)){
+		return -1;
+	}	
+	*/
+	
+	
 	char* d = data;
 	while(size > 0){
 		*p->head++ = *d++;
@@ -123,4 +132,22 @@ void ClosePipe(int fd)
 	if(pipes[fd]->users){
 		DeletePipe(fd);
 	}
+}
+
+
+int syscall_opipe(int fd)
+{	
+	return OpenPipe(fd);
+} 
+void syscall_cpipe(int fd)
+{
+	return ClosePipe(fd);
+}
+int syscall_wpipe(int fd, void* data, unsigned int size)
+{
+	return PutPipe(fd, data, size);
+}
+int syscall_rpipe (int fd, void* data, unsigned int size)
+{
+	return GetPipe(fd, data, size);
 }

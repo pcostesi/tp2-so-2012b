@@ -250,7 +250,8 @@ int producer_cmd(char** args, int argc)
 }
 
 
-int exec_string_malloc(char** args, int argc){
+int exec_string_malloc(char** args, int argc)
+{
     
     while (argc)
     {
@@ -266,7 +267,8 @@ int exec_string_malloc(char** args, int argc){
     return 0;
 }
 
-int exec_malloc(char** args, int argc){
+int exec_malloc(char** args, int argc)
+{
 
 	void * s = malloc(s_to_i(*args));
     if (s){
@@ -277,7 +279,8 @@ int exec_malloc(char** args, int argc){
     return 0;
 }
 
-int exec_print_heap(char** args, int argc){
+int exec_print_heap(char** args, int argc)
+{
 
     block* cur_block = get_base_block();
     
@@ -294,7 +297,8 @@ int exec_print_heap(char** args, int argc){
     return 0;
 }
 
-int exec_free(char** args, int argc){
+int exec_free(char** args, int argc)
+{
 
     while (argc)
     {
@@ -308,7 +312,15 @@ int exec_free(char** args, int argc){
 }
 
 
-
+int close_pipe(char** args, int argc)
+{
+	if(argc != 1){
+		printf("Invalid arguments, please refer to help");
+		return 0;
+	}
+	closePipe(args[0]);
+	return 0;
+}
 
 
 
@@ -516,6 +528,7 @@ void producer(int fd, char* msg)
 	putPipe(fd, (void *)msg, strlen(msg));
 	return;
 	closePipe(fd);
+	kill(getPid());
 }
 
 
@@ -526,8 +539,11 @@ void consumer(int fd, int size )
 	openPipe(fd);
 	int read_count = getPipe(fd, (void *)read, size);
 	while( read_count =! -1) {
-		readPipe(fd, read, size);
-		printf("Managed to read: %d characters, which were: \"%c\"\n", read_count, read);
+		if(read_count != 0){
+			readPipe(fd, read, size);
+			printf("Managed to read: %d characters, which were: \"%c\"\n", read_count, read);
+		}
 	}
 	closePipe(fd);
+	kill(getPid());
 }
