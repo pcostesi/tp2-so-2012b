@@ -13,6 +13,7 @@ typedef struct Semaphore{
 	int		value;
 	processQueue *	last;
 };
+
 /*
 CreateSem - aloca un semaforo y establece su cuenta inicial.
 */
@@ -38,12 +39,8 @@ void DeleteSem(Semaphore *sem)
 	//SetInts(ints);
 }
 
-/*
-WaitSem, WaitSemCond, WaitSemTimed - esperar en un semaforo.
-WaitSem espera indefinidamente, WaitSemCond retorna inmediatamente y
-WaitSemTimed espera con timeout. El valor de retorno indica si se consumio
-un evento del semaforo.
-*/
+
+
 
 int WaitSem(Semaphore *sem)
 {
@@ -53,7 +50,7 @@ int WaitSem(Semaphore *sem)
 	}
 	struct processQueue* newProc = mmu_kmalloc(sizeof(struct processQueue));
 
-	newProc->pid = sched_getpid();
+	newProc->pid = etpid();
 	newProc->next = NULL;
 
 	if(sem->queue == NULL){
@@ -105,8 +102,6 @@ unsigned ValueSem(Semaphore *sem)
 
 /*
 FlushSem - despierta todas las tareas que esperan en un semaforo.
-Las tareas completan su WaitSem() con el status que se pasa como argumento.
-Deja la cuenta en cero.
 */
 
 void FlushSem(Semaphore *sem)
