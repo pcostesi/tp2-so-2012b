@@ -199,17 +199,16 @@ int kill_cmd(char** args, int argc)
 		return 0;
 	}
 
-	int pid = s_to_i(args[0]);
+	int pid = atoi(args[0]);
 	if(pid == -1){
 		printf(KILL_ERROR);
 		return 0;
 	}
-	//if(syso kill(pid)){
-	//	printf("Killed pid: %d", pid);
-	//}
-	//else{
-	//	printf("No process with pid: %d found", pid);	
-	//}
+	if(kill(pid, 9)){
+		printf("Killed pid: %d", pid);
+	} else {
+		printf("No process with pid: %d found", pid);	
+	}
 	return 0;
 }
 
@@ -424,7 +423,7 @@ int exec_string_malloc(char** args, int argc){
     
     while (argc)
     {
-        void * s = malloc(s_to_i(*args));
+        void * s = malloc(atoi(*args));
         if (s){
             strcpy(s, *args++);
             printf("Malloc string \"%s\" at address %x\n", s, s); 
@@ -438,11 +437,11 @@ int exec_string_malloc(char** args, int argc){
 
 int exec_malloc(char** args, int argc){
 
-	void * s = malloc(s_to_i(*args));
+	void * s = malloc(atoi(*args));
     if (s){
-        printf("Malloc %d bytes at address %u\n", s_to_i(*args), s);
+        printf("Malloc %d bytes at address %u\n", atoi(*args), s);
     }else{
-        printf("Not enough heap for %d bytes\n", s_to_i(*args));
+        printf("Not enough heap for %d bytes\n", atoi(*args));
     }
     return 0;
 }
@@ -468,7 +467,7 @@ int exec_free(char** args, int argc){
 
     while (argc)
     {
-        void * dir = (void *)s_to_i(*args++);
+        void * dir = (void *)(uint64_t) atoi(*args++);
         free(dir);
         printf("Freeing address %u\n", dir);
         argc--;

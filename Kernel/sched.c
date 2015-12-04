@@ -105,7 +105,7 @@ static void _sched_init_process(struct sched_process * process, void * symbol, v
 void _sched_print_proclist(void)
 {
 	puts("processes: ");
-	struct sched_process * p;
+	volatile struct sched_process * p;
 	if (!active) {
 		puts("<idle>\n");
 		return;
@@ -149,7 +149,6 @@ static void _sched_load_module(struct module_entry * entry, struct sched_process
 	
 	void * stack = _sched_alloc_pages(PROC_BASE_STACK, 16);
 	void * kernel_stack = _sched_alloc_pages(NULL, 1);
-	
 
 	_sched_init_process(proc, proc->symbol, stack, kernel_stack, 16);
 
@@ -185,6 +184,7 @@ uint64_t sched_spawn_module(struct module_entry * entry)
 
 uint64_t sched_switch_to_kernel_stack(uint64_t stack)
 {
+	printf("u2k\n");
 	if (!active) {
 		idle_process.stack = (void *) stack;
 		return (uint64_t) idle_process.kernel_stack;
@@ -297,10 +297,14 @@ uint64_t sched_get_process(void)
 
 uint64_t sched_pick_process(void)
 {
+
+	printf("k2u\n");
 	if (!active) {
 		vmm_switch_process((void *) idle_process.cr3, idle_process.pagetable);
 		return (uint64_t) idle_process.stack;
 	}
+	if (active->pid == active->next->pid) return (uint64_t) active->stack;
+	
 	active = active->next;
 	vmm_switch_process((void *) active->cr3, active->pagetable);
 	return (uint64_t) active->stack;

@@ -13,16 +13,6 @@ EXTERN sched_get_process
 ; Read this before making any changes (or reviewing the code):
 ; http://stackoverflow.com/questions/9383544
 
-%macro DISARM_HOOK 1
-    pop     %1  ;load RIP
-    pop     cs  ;save code segment
-    popf        ;load rflags
-    mov     rbp, rsp
-%endmacro
-
-SECTION .data
-msg:    dw  'hello world'
-
 SECTION .text
 _sched_init_stack:
     ENTER
@@ -38,15 +28,16 @@ _sched_init_stack:
     ; in usermode / ring 3) and non-default for intra-privilege
     ; events (interrupt while already in kernel / ring 0)
 
+    push    0       ;save base pointer
     push    0       ;save stack segment
     push    rsp     ;save frame rsp
 
     ; Then RFLAGS, CS and RIP are pushed to the stack, each one
     ; using 8 bytes too.
 
-    push    0x202   ;save rflags
-    push    0x08    ;save code segment
-    push    rsi     ;save RIP
+    push    QWORD 0x202     ;save rflags
+    push    QWORD 0x08      ;save code segment
+    push    rsi             ;save RIP
 
     ; Create a faux trap frame. If / when we implement params,
     ; then this function should store argc and argv in the rdi
@@ -73,4 +64,4 @@ sched_drop_to_user:
     mov     rsp,    rax
     call _sched_get_current_process_entry
     sti
-    jmp rax
+    jmp     rax

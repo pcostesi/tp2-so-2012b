@@ -118,6 +118,7 @@ void print_log(void)
 int main(void)
 {	
 	struct module_entry init;
+	struct module_entry template;
 
 	vid_init();
 	print_log();	
@@ -139,12 +140,16 @@ int main(void)
 	if (!ldr_module_load(get_module_zone(), INIT, &init)) {
 		panic("Failed to load INIT. Halting.");
 	}
-
+	
+	if (!ldr_module_load(get_module_zone(), "template.bin", &template)) {
+		panic("Failed to load Template. Halting.");
+	}
+	
 	handle_esc();
-	sched_spawn_module(&init);
+	sched_spawn_module(&template);
 	sched_spawn_module(&init);
 	//sched_spawn_module(&init);
-
+	
 	printf("Dropping to userland.\n");
 	/* Drop to environment */
 	sched_drop_to_user();
