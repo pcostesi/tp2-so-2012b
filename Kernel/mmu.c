@@ -6,8 +6,6 @@ void* cur_page;
 uint64_t used_bytes;
 uint64_t bytes_reserved;
 
-// MMU SYSCALLS
-
 void* syscall_mmap(void* addr, uint64_t size) {
 	void* ret_addr;
 	if (cur_page && bytes_reserved - used_bytes > size) {
@@ -36,7 +34,16 @@ void* syscall_mmap(void* addr, uint64_t size) {
 	}
 }
 
-// TODO: UNMAP
+void syscall_munmap(void* addr, uint64_t size) {
+	// TODO
+	/*if (used_bytes - size <= 0) {
+		vmm_free_pages(cur_page, VMM_PAGE_SIZE);
+		cur_page = NULL;
+		used_bytes = 0;
+	} else {
+		used_bytes -= size;
+	}*/
+}
 
 block* base_addr = NULL;
 

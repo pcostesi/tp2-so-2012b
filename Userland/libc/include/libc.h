@@ -28,6 +28,11 @@ extern void shutdown(void);
 extern void beep(void);
 extern int ioctl(unsigned int fd, unsigned long request, void * params);
 extern void* mmap(void* add, uint64_t size);
+extern void munmap(void* add, uint64_t size);
+extern int opipe(int fd);
+extern void cpipe(int fd);
+extern int wpipe(int fd, void* data, unsigned int size);
+extern int rpipe (int fd, void* data, unsigned int size);
 
 #define IOCTL_MOVE 0
 #define IOCTL_CLR 1
