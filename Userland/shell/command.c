@@ -318,18 +318,27 @@ int close_pipe(char** args, int argc)
 		printf("Invalid arguments, please refer to help");
 		return 0;
 	}
-	closePipe(args[0]);
+	cpipe(args[0]);
 	return 0;
 }
 
 
 
+int get_pipes(char** args, int argc)
+{
+	int pipes[80];
+	int aux = 0;
+	printf("Los pipes activos son: \n" );
+	while(pipes[aux] != NULL){
+		printf("%d, \n", pipes[aux]);
+		aux++;
+	}
+	return 0;
+}
+
 
 
 /*****Auxiliary functions for commands*****/
-
-
-
 
 
 
@@ -524,11 +533,11 @@ int help_error_print()
 
 void producer(int fd, char* msg) 
 {
-	openPipe(fd);
-	putPipe(fd, (void *)msg, strlen(msg));
+	opipe(fd);
+	wpipe(fd, (void *)msg, strlen(msg));
 	return;
-	closePipe(fd);
-	kill(getPid());
+	cpipe(fd);
+	kill(getpid());
 }
 
 
@@ -536,14 +545,14 @@ void producer(int fd, char* msg)
 void consumer(int fd, int size ) 
 {
 	char * read;
-	openPipe(fd);
-	int read_count = getPipe(fd, (void *)read, size);
+	opipe(fd);
+	int read_count = rpipe(fd, (void *)read, size);
 	while( read_count =! -1) {
 		if(read_count != 0){
-			readPipe(fd, read, size);
+			rpipe(fd, read, size);
 			printf("Managed to read: %d characters, which were: \"%c\"\n", read_count, read);
 		}
 	}
-	closePipe(fd);
-	kill(getPid());
+	cpipe(fd);
+	kill(getpid());
 }

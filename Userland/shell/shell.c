@@ -10,7 +10,7 @@
 char shell_buffer[SHELL_BUFFER_SIZE];
 int curr_pos =0;
 
-cmd_entry cmd_table[20];
+cmd_entry cmd_table[23];
 int cmd_count = (sizeof(cmd_table) / sizeof(cmd_entry));
 
 void init_shell()
@@ -230,6 +230,7 @@ void initialize_cmd_table()
 	cmd_table[19].name = "pheap";
 	cmd_table[20].name = "consumer";
 	cmd_table[21].name = "pipeclose";
+	cmd_table[22].name = "getpipes";
 
 	cmd_table[0].func = &echo;
 	cmd_table[1].func = &clear;
@@ -253,6 +254,7 @@ void initialize_cmd_table()
 	cmd_table[19].func = &exec_print_heap;
 	cmd_table[20].func = &consumer_cmd;
 	cmd_table[21].func = &close_pipe;
+	cmd_table[22].func = &get_pipes;
 
 	cmd_table[0].help = "Echo repeats the input string following echo statement \n example: \"echo Hello I am using echo\".\n";
 	cmd_table[1].help = "Clears the screen, uses no arguments, therefore will ignore any ones received.\n";
@@ -276,4 +278,5 @@ void initialize_cmd_table()
 	cmd_table[19].help = "Prints current heap.\n";
 	cmd_table[20].help = "Initializes a consumer task, input is: \"producer fd numberToRead\". \n";
 	cmd_table[21].help = "Closes the Pipe, format is: \"pipeclose fd\".\n";
-}
+	cmd_table[22].help = "Returns the current open pipes. Receives no argumentes, ignores any given.\n";
+}	

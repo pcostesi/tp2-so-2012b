@@ -35,6 +35,7 @@ void consumer(int fd, int size );
 int producer_cmd(char** args, int argc);
 int consumer_cmd(char** args, int argc);
 int close_pipe(char** args, int argc);
+int get_pipes(char** args, int argc);
 
 int exec_string_malloc(char** args, int argc);
 int exec_malloc(char** args, int argc);
