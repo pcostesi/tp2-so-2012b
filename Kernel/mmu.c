@@ -1,4 +1,6 @@
 #include <mmu.h>
+#include <stdio.h>
+#include <pmm.h>
 
 void* cur_page;
 uint64_t used_bytes;
@@ -36,15 +38,14 @@ void* syscall_mmap(void* addr, uint64_t size) {
 
 // TODO: UNMAP
 
-
 block* base_addr = NULL;
-block* last_alloced_block = NULL;
 
-void* mmu_kmalloc(uint64_t size) {
-	return mmu_kmalloc_from(NULL, size);
-}
+void * mmu_kmalloc(uint64_t size){
 
-void * mmu_kmalloc_from(void* alloc_from, uint64_t size){
+	if (size > VMM_PAGE_SIZE) {
+		printf("Way too big bro\n");
+		return 0;
+	}
 
 	if(size < 0){
 		size = 0;
@@ -67,7 +68,7 @@ void * mmu_kmalloc_from(void* alloc_from, uint64_t size){
 		}else{
 
 			// Expand heap because it didnt find any available block to split
-			current_block = expand_heap(last_block, size, alloc_from);
+			current_block = expand_heap(last_block, size);
 			if(!current_block){
 				// Couldn't expand heap	
 				return NULL;
@@ -75,7 +76,7 @@ void * mmu_kmalloc_from(void* alloc_from, uint64_t size){
 		}
 	}else{
 		// First initialization
-		current_block = expand_heap(NULL, size, alloc_from);
+		current_block = expand_heap(NULL, size);
 		if(!current_block){
 			// Couldn't expand heap	
 			return NULL;
@@ -114,21 +115,13 @@ block* split_block(block* b, uint64_t size){
 	return b;
 }
 
-block* expand_heap(block* last_block, uint64_t size, void* from){
+block* expand_heap(block* last_block, uint64_t size){
 
 	// Mmap enough for the new block and requested size
-	void* result;
-	int alloced;
-	if (from){
-		alloced = vmm_alloc_pages_from(from, BLOCK_SIZE + size, MASK_WRITEABLE | MASK_USER, &result);
-	} else {
-		alloced = vmm_alloc_pages(BLOCK_SIZE + size, MASK_WRITEABLE | MASK_USER, &result);
-	}
+	void* result = gmem();
 
-	if(alloced == 0){
+	if(result == NULL){
 		return NULL;
-	}else{
-		last_alloced_block = result;
 	}
 	
 	// Create metadata block
@@ -147,7 +140,7 @@ block* expand_heap(block* last_block, uint64_t size, void* from){
 	}
 
 	// create extra free block if space is available
-	int free_bytes = VMM_PAGE_SIZE - size % VMM_PAGE_SIZE;
+	int free_bytes = VMM_PAGE_SIZE % size;
 	if (free_bytes > BLOCK_SIZE + MIN_ALLOC_SIZE && free_bytes < 4096) {
 		block* free_block;
 		free_block = (block *)((uint64_t) result + size + BLOCK_SIZE);
@@ -159,62 +152,30 @@ block* expand_heap(block* last_block, uint64_t size, void* from){
 	}
 
 	return new_block;	
-}	
-
-block* get_base_block(){
-	return base_addr;
 }
 
 void mmu_kfree(void * address){
 
 	// Check if its valid and get the actual block
 	block* block_to_free;
-	if(valid_address(address)){
-		block_to_free = get_block(address);
-		block_to_free->free = 1;
+	block_to_free = get_block(address);
+	if (block_to_free == NULL){
+		printf("Block doesnt exist\n");
+	}
+	block_to_free->free = 1;
 
-		// Try to merge with next or previous block if they're free to avoid fragmentation
-		if(block_to_free->prev && block_to_free->prev->free){
-			block_to_free = merge_free_blocks(block_to_free->prev, block_to_free);
-		}
-		if(block_to_free->next){
-			// Check wether the next one is also free for a merge
-			if(block_to_free->next->free){
-				block_to_free = merge_free_blocks(block_to_free, block_to_free->next);
-			}
+	if(!block_to_free->next){			
+		// If it was the last block, make sure prev points to null
+		if (block_to_free->prev){
+			block_to_free->prev->next = NULL;
 		}else{
-			// If it was the last block, make sure prev points to null
-			if (block_to_free->prev){
-				block_to_free->prev->next = NULL;
-			}else{
-				// Has no next nor previous so heap is empty
-				base_addr = NULL;
-			}
+			// Has no next nor previous so heap is empty
+			base_addr = NULL;
 		}
+
+		// Unmap since it was the last block
+		fmem((void*)block_to_free);
 	}
-}
-
-block* merge_free_blocks(block* prev_block, block* block_to_free){
-
-	//Merges the blocks and data
-	prev_block->size += block_to_free->size + BLOCK_SIZE;
-	prev_block->next = block_to_free->next;
-	if (prev_block->next){
-		prev_block->next->prev = prev_block;
-	}
-	return prev_block;
- }
- 
-int valid_address(void * address){
-
-	// Check if its a value in the heap
-	if(base_addr){
-		if(address >= (void *)base_addr && address <= (void *)last_alloced_block){
-			return get_block((void*)((uint64_t)address - BLOCK_SIZE)) != NULL;
-		}
-	}
-
-	return 0;
 }
 
 block* get_block(void * address){
@@ -222,10 +183,24 @@ block* get_block(void * address){
 	// Check if the address is a block in the structure
 	block* cur_block = base_addr;
 	while (cur_block){
-		if (cur_block == address){
+		if (cur_block+1 == address){
 			return cur_block;
 		}
 		cur_block = cur_block->next;
 	}
 	return NULL;
+}
+
+void mmu_print_kheap() {
+	block* cur_block = base_addr;
+    
+    if (!cur_block){
+        printf("Heap is empty bro\n");
+        return;
+    }
+
+    while (cur_block){
+        printf("Block address: %d\nData address: %d\nBlock size: %d\nPrev block: %d\nNext block: %d\nFree: %d\nString: %s\n\n", cur_block, cur_block + 1, cur_block->size, cur_block->prev, cur_block->next, cur_block->free, cur_block + 1);
+        cur_block = cur_block->next;
+    }
 }
