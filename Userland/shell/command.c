@@ -229,11 +229,11 @@ int ps_cmd(char** args, int argc)
 int consumer_cmd(char** args, int argc)
 {
 	int aux = s_to_i(args[0]);
-	if(args != 2 || aux < 1 || strlen(arg[2]) == 0){
+	if(argc != 2 || aux < 1 || strlen(args[2]) == 0){
 		printf("Invalid arguments, use help for more details \n");
 		return 0;
 	}
-	return excec(&producer);
+	return -1; // excec(&producer);
 }
 
 
@@ -241,11 +241,11 @@ int producer_cmd(char** args, int argc)
 {
 	int fd = s_to_i(args[0]);
 	int size = s_to_i(args[1]);
-	if(args != 2 || aux < 1 || size < 1){
+	if(argc != 2 || fd < 1 || size < 1){
 		printf("Invalid arguments, use help for more details \n");
 		return 0;
 	}
-	return excec(&consumer);	
+	return -1; // excec(&consumer);	
 }
 
 
@@ -317,7 +317,7 @@ int close_pipe(char** args, int argc)
 		printf("Invalid arguments, please refer to help");
 		return 0;
 	}
-	cpipe(args[0]);
+	cpipe(atoi(args[0]));
 	return 0;
 }
 
@@ -327,7 +327,7 @@ int get_pipes(char** args, int argc)
 {
 	int pipes[80];
 	int aux = 0;
-	gpipes(&pipes);
+	gpipes((int **) &pipes);
 	printf("Los pipes activos son: \n" );
 	while(pipes[aux] != NULL){
 		printf("%d, \n", pipes[aux]);
@@ -534,21 +534,21 @@ void producer(int fd, char* msg)
 	wpipe(fd, (void *)msg, strlen(msg));
 	return;
 	cpipe(fd);
-	kill(getpid());
+	kill(getpid(), 9);
 }
 
 
 void consumer(int fd, int size ) 
 {
-	char * read;
+	char read[200];
 	opipe(fd);
 	int read_count = rpipe(fd, (void *)read, size);
-	while( read_count =! -1) {
+	while( read_count != -1) {
 		if(read_count != 0){
 			rpipe(fd, read, size);
 			printf("Managed to read: %d characters, which were: \"%c\"\n", read_count, read);
 		}
 	}
 	cpipe(fd);
-	kill(getpid());
+	kill(getpid(), 9);
 }

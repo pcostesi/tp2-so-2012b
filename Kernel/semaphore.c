@@ -8,7 +8,7 @@ struct processQueue{
 };
 
 
-typedef struct Semaphore{
+struct Semaphore{
 	processQueue *	queue;
 	int		value;
 	processQueue *	last;
@@ -50,7 +50,7 @@ int WaitSem(Semaphore *sem)
 	}
 	struct processQueue* newProc = mmu_kmalloc(sizeof(struct processQueue));
 
-	newProc->pid = etpid();
+	newProc->pid = sched_getpid();
 	newProc->next = NULL;
 
 	if(sem->queue == NULL){
@@ -64,7 +64,7 @@ int WaitSem(Semaphore *sem)
 		sem->last = newProc;
 	}
 
-	sleep(newProc->pid);
+	//sleep(newProc->pid);
 	if(sem->value > 0){
 		sem->value--;
 		return 1;
@@ -86,9 +86,9 @@ void SignalSem(Semaphore *sem)
 		sem->value++;
 		return;
 	}
-	int pid = sem->queue->pid;
+//	int pid = sem->queue->pid;
 	sem->queue = sem->queue->next;
-	wake(pid);
+	//wake(pid);
 }
 
 /*
