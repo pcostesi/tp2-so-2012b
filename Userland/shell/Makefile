@@ -16,7 +16,7 @@ all: $(MODULE)
 
 
 $(MODULE):	$(ASMOBJECTS) $(COBJECTS)
-	$(LD) -T linkerScript.ld $(CRT0) $(ASMOBJECTS) $(COBJECTS) $(LIBC) -o ../$(MODULE) -M
+	$(LD) -T linkerScript.ld $(CRT0) $(ASMOBJECTS) $(COBJECTS) $(LIBC) -o ../$(MODULE) -Map map
 
 clean:
 	rm -rf *.o

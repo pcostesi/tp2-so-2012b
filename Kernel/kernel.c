@@ -49,7 +49,8 @@ uint8_t * get_module_zone(void)
 
 uint8_t * get_safe_zone(void)
 {
-	return ALIGN4K((uint64_t) get_module_zone() + ldr_module_section_size(get_module_zone()));
+	//sorry
+	return ALIGN4K(0xFFFFFFF);
 }
 
 
@@ -63,8 +64,7 @@ void * initializeKernelBinary(void)
 void panic(char * msg)
 {
 	puts("\nKERNEL PANIC\n");
-	printf("Achtung! %s\n", msg);
-	print_log();
+	printf("Error: %s\n", msg);
 	vid_show(VID_SYSLOG);
 	vid_update();
 	syscall_halt();
@@ -94,7 +94,6 @@ void vid_init(void)
 	vid_clr(VID_PROC);
 	vid_color(VID_SYSLOG, WHITE, BLUE);
 	vid_clr(VID_SYSLOG);
-	motd();
 }
 
 
@@ -119,16 +118,15 @@ void print_log(void)
 int main(void)
 {	
 	struct module_entry init;
+	struct module_entry template;
 
 	vid_init();
-	print_log();
-
+	print_log();	
 	// init pmm
 	init_mem((uint64_t) get_safe_zone());
 	
 	// init vmm with 1GB worth of vmm for the kernel
 	if (!vmm_initialize(&bitmap)) panic("Failed to start vmm.");
-
 	sched_init(bitmap);
 
 	/* set up IDTs & int80h */
@@ -139,19 +137,23 @@ int main(void)
 
 	/* driver initialization */
 	kbrd_install(&handle_esc);
-
 	if (!ldr_module_load(get_module_zone(), INIT, &init)) {
 		panic("Failed to load INIT. Halting.");
 	}
+	
+	if (!ldr_module_load(get_module_zone(), "template.bin", &template)) {
+		panic("Failed to load Template. Halting.");
+	}
 
+	memcpy((void *) 0x4100000, template.start, template.size);
+	sched_spawn_module(&template, (void *) 0x4100000);
 
+	memcpy((void *) 0x4000000, init.start, init.size);
+	printf("init size is %d\n", init.size);
+	//sched_spawn_module(&init,	  (void *) 0x4000000);
 	printf("Dropping to userland.\n");
-	sched_spawn_module(&init);
-	//sched_spawn_module(&init);
 	/* Drop to environment */
-
 	sched_drop_to_user();
-
     while (1) 
     	_drool();
     syscall_halt();

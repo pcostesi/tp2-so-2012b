@@ -199,17 +199,16 @@ int kill_cmd(char** args, int argc)
 		return 0;
 	}
 
-	int pid = s_to_i(args[0]);
+	int pid = atoi(args[0]);
 	if(pid == -1){
 		printf(KILL_ERROR);
 		return 0;
 	}
-	//if(syso kill(pid)){
-	//	printf("Killed pid: %d", pid);
-	//}
-	//else{
-	//	printf("No process with pid: %d found", pid);	
-	//}
+	if(kill(pid, 9)){
+		printf("Killed pid: %d", pid);
+	} else {
+		printf("No process with pid: %d found", pid);	
+	}
 	return 0;
 }
 
@@ -529,9 +528,6 @@ int help_error_print()
 	return 0;
 }
 
-
-
-
 void producer(int fd, char* msg) 
 {
 	opipe(fd);
@@ -540,7 +536,6 @@ void producer(int fd, char* msg)
 	cpipe(fd);
 	kill(getpid());
 }
-
 
 
 void consumer(int fd, int size ) 

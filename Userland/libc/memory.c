@@ -148,16 +148,7 @@ void free(void * address){
 
 		block_to_free->free = 1;
 
-		// Try to merge with next or previous block if they're free to avoid fragmentation
-		if(block_to_free->prev && block_to_free->prev->free){
-			block_to_free = merge_free_blocks(block_to_free->prev, block_to_free);
-		}
-		if(block_to_free->next){
-			// Check wether the next one is also free for a merge
-			if(block_to_free->next->free){
-				block_to_free = merge_free_blocks(block_to_free, block_to_free->next);
-			}
-		}else{
+		if(!block_to_free->next){
 			// If it was the last block, make sure prev points to null
 			if (block_to_free->prev){
 				block_to_free->prev->next = NULL;

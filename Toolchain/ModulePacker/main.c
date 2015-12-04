@@ -77,11 +77,11 @@ int buildImage(array_t fileArray, char *output_file) {
 		//Write the file size;
 		write_size(target, fileArray.array[i]);
 
-		//Write program name
-		write_name(target, fileArray.array[i]);
-
 		//Write the binary
 		write_file(target, source);
+
+		//Write program name
+		write_name(target, fileArray.array[i]);
 
 		fclose(source);
 

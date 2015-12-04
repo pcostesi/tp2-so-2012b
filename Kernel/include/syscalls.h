@@ -38,7 +38,7 @@ int syscall_ioctl(unsigned int fd, unsigned long request, void * params);
 void syscall_pause(void);
 void syscall_halt(void);
 int syscall_exit(unsigned int code);
-int syscall_kill(int pid, int sig);
+int syscall_kill(uint64_t pid, int sig);
 int syscall_getpid(void);
 void* syscall_mmap(void* address, uint64_t size);
 void syscall_munmap(void* address, uint64_t size);

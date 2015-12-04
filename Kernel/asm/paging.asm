@@ -5,6 +5,11 @@ GLOBAL _write_cr0
 GLOBAL _read_cr3
 GLOBAL _write_cr3
 
+EXTERN panic
+
+SECTION .data
+banana: dw 'breaks here'
+
 SECTION .text
 
 _read_cr0:
@@ -36,9 +41,6 @@ _read_cr3:
 
 
 _write_cr3:
-    push rbp
-    mov rbp, rsp
+    or  rdi, 0x8
     mov cr3, rdi
-    mov rsp, rbp
-    pop rbp
     ret
