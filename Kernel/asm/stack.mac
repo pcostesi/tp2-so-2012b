@@ -27,11 +27,11 @@
 
 ; This macro will set a pristine process stack
 ; with 
-%macro INITPROC 3
+%macro INITPROC 4
     push    0x01     ;save current rax
     push    0x02     ;save current rbx
     push    0x03     ;save current rcx
-    push    0x04     ;save current rdx
+    push    %4       ;save current rdx
     push    %1       ;save current rbp
     push    %2       ;save current rdi
     push    %3       ;save current rsi

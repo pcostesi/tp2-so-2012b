@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 static int print_str(int fd, char * str);
-static int print_dec(int fd, int n);
-static int print_oct(int fd, int n);
-static int print_hex(int fd, int n);
+static int print_dec(int fd, uint64_t n);
+static int print_oct(int fd, uint64_t n);
+static int print_hex(int fd, uint64_t n);
 static int print_chr(int fd, int c);
-static int print_to_base(int value, char * buffer, int base);
+static int print_to_base(uint64_t value, char * buffer, int base);
 
 int printf(char * fmt, ...)
 {
@@ -40,19 +41,19 @@ int print_number(int fd, va_list ap, char c)
 		break;
 
 		case 'd':
-		written = print_dec(fd, va_arg(ap, int));
+		written = print_dec(fd, va_arg(ap, uint64_t));
 		break;
 
 		case 'o':
-		written = print_oct(fd, va_arg(ap, int));
+		written = print_oct(fd, va_arg(ap, uint64_t));
 		break;
 
 		case 'x':
-		written = print_hex(fd, va_arg(ap, int));
+		written = print_hex(fd, va_arg(ap, uint64_t));
 		break;
 
 		case 'c':
-		written = print_chr(fd, va_arg(ap, int));
+		written = print_chr(fd, va_arg(ap, uint64_t));
 		break;
 
 		default:
@@ -105,28 +106,28 @@ static int print_chr(int fd, int c)
 	return 1;
 }
 
-static int print_dec(int fd, int n)
+static int print_dec(int fd, uint64_t n)
 {
 	int count;
-	char buffer[20] = {0};
+	char buffer[128] = {0};
 	count = print_to_base(n, buffer, 10);
 	fputsn(fd, buffer, count);
 	return count;
 }
 
-static int print_oct(int fd, int n)
+static int print_oct(int fd, uint64_t n)
 {
 	int count;
-	char buffer[20] = {0};
+	char buffer[128] = {0};
 	count = print_to_base(n, buffer, 8);
 	fputsn(fd, buffer, count);
 	return count;
 }
 
-static int print_hex(int fd, int n)
+static int print_hex(int fd, uint64_t n)
 {
 	int count;
-	char buffer[20] = {0};
+	char buffer[128] = {0};
 	count = print_to_base(n, buffer, 16);
 	fputsn(fd, buffer, count);
 	return count;
@@ -134,7 +135,7 @@ static int print_hex(int fd, int n)
 
 
 /* taken from naiveConsole :) */
-static int print_to_base(int value, char * buffer, int base)
+static int print_to_base(uint64_t value, char * buffer, int base)
 {
 	char *p = buffer;
 	char *p1, *p2;

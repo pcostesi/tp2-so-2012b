@@ -2,8 +2,6 @@ SECTION .text
 
 EXTERN main
 EXTERN exit
-EXTERN halt
-EXTERN clearBSS
 
 ; see https://msdn.microsoft.com/en-us/library/6t169e9c.aspx
 %macro PUSHCALL 0
@@ -41,9 +39,6 @@ EXTERN clearBSS
     pop     rbp
     ret
 %endmacro
-
-SECTION .data
-greetings: dw 'hello .....as.da.sd.asd.as.d'
 
 
 SECTION .text

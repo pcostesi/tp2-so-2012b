@@ -145,13 +145,12 @@ int main(void)
 		panic("Failed to load Template. Halting.");
 	}
 
-	handle_esc();
 	memcpy((void *) 0x4100000, template.start, template.size);
 	sched_spawn_module(&template, (void *) 0x4100000);
 
 	memcpy((void *) 0x4000000, init.start, init.size);
 	printf("init size is %d\n", init.size);
-	sched_spawn_module(&init,	  (void *) 0x4000000);
+	//sched_spawn_module(&init,	  (void *) 0x4000000);
 	printf("Dropping to userland.\n");
 	/* Drop to environment */
 	sched_drop_to_user();

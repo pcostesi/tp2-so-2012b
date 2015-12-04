@@ -9,6 +9,8 @@
 #define PROC_BASE_STACK ((void *) 0x50000000)
 #define OK_OR_PANIC(A, B) do { if (!(A)) panic(B); } while (0)
 
+extern void sched_call_zygote(int argc, char ** argv, void * symbol);
+
 struct sched_process {
 	volatile pid_t pid;
 	char name[128];
@@ -136,23 +138,25 @@ uint64_t sched_init(void * pagetable)
 	return 0;
 }
 
-static void _sched_load_module(struct module_entry * entry, struct sched_process * proc)
+static void _sched_load_module(struct module_entry * entry, struct sched_process * proc, void * symbol)
 {	
 	void * stack = _sched_alloc_pages(NULL, 16);
 	void * kernel_stack = _sched_alloc_pages(NULL, 1);
 
-	_sched_init_process(proc, proc->symbol, stack, kernel_stack, 16);
+	_sched_init_process(proc, symbol, stack, kernel_stack, 16);
 }
 
 uint64_t sched_spawn_module(struct module_entry * entry, void * symbol)
 {
 	struct sched_process * process = _sched_alloc_process();
 	struct sched_process * last;
-
+	void * zygote = (void *)(uint64_t)&sched_call_zygote;
 	process->pid = ++max_pid;
-	process->symbol = symbol;
+
+	//process->symbol = symbol;
 	memcpy(process->name, entry->name, sizeof(process->name));
-	_sched_load_module(entry, process);
+	_sched_load_module(entry, process, symbol);
+	process->symbol = zygote;
 
 	if (!active) {
 		active = process;
