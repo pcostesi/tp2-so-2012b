@@ -68,6 +68,22 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 		syscall_munmap((void *) RDI, (uint64_t) RSI);
 		break;
 
+		case SYSCALL_OPIPE:
+		exitno = syscall_opipe((int) RDI);
+		break;
+
+		case SYSCALL_CPIPE:
+		syscall_cpipe((int) RDI);
+		break;
+
+		case SYSCALL_WPIPE:
+		exitno = syscall_wpipe((int) RDI, (void*) RSI, (unsigned int) RDX);
+		break;
+
+		case SYSCALL_RPIPE:
+		exitno = syscall_rpipe((int) RDI, (void*) RSI, (unsigned int) RDX);
+		break;
+
 		default:
 		return -1;
 	}
