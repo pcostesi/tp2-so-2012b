@@ -1,11 +1,10 @@
 #include <stdlib.h>
 #include <libc.h>
 #include <string.h>
-
+#include <stdio.h>
 
 extern uint8_t bss;
 extern uint8_t endOfBinary;
-
 
 block* base_addr = NULL;
 void* last_mmap = NULL;
@@ -99,6 +98,7 @@ block* split_block(block* b, uint64_t size){
 
 block* expand_heap(block* last_block, uint64_t size){
 
+
 	// My future base address for the block
 	void* needed_base_addr;
 	if (last_block){
@@ -111,9 +111,9 @@ block* expand_heap(block* last_block, uint64_t size){
 	if(result == NULL){
 		return NULL;
 	}else{
-		last_mmap = result;
+		last_mmap = (void *)((uint64_t)result + BLOCK_SIZE);
 	}
-	
+
 	// Create metadata block
 	block* new_block;
 	new_block = (block *)result;
@@ -142,6 +142,10 @@ void free(void * address){
 	block* block_to_free;
 	if(valid_address(address)){
 		block_to_free = get_block(address);
+		if (block_to_free == NULL) {
+			return;
+		}
+
 		block_to_free->free = 1;
 
 		// Try to merge with next or previous block if they're free to avoid fragmentation
@@ -161,11 +165,15 @@ void free(void * address){
 				// Has no next nor previous so heap is empty
 				base_addr = NULL;
 			}
+			//un map the virtual address
+			last_mmap = (void*)((uint64_t)last_mmap - block_to_free->size - BLOCK_SIZE);
+			//munmap((void*)block_to_free, block_to_free->size + BLOCK_SIZE);
+
 		}
 	}
 }
 
-block*merge_free_blocks(block* prev_block, block* block_to_free){
+block* merge_free_blocks(block* prev_block, block* block_to_free){
 
 	//Merges the blocks and data
 	prev_block->size += block_to_free->size + BLOCK_SIZE;
@@ -178,13 +186,12 @@ block*merge_free_blocks(block* prev_block, block* block_to_free){
  
 int valid_address(void * address){
 
-	// Check if its a value in the heap
+	//Check if its a value in the heap
 	if(base_addr){
-		if(address >= (void *)base_addr && address <= (void *)last_mmap){
-			return get_block((void*)((uint64_t)address - BLOCK_SIZE)) != NULL;
+		if(address >= (void *)base_addr && address <= last_mmap){
+			return 1;
 		}
 	}
-
 	return 0;
 }
 
@@ -193,7 +200,7 @@ block* get_block(void * address){
 	// Check if the address is a block in the structure
 	block* cur_block = base_addr;
 	while (cur_block){
-		if (cur_block == address){
+		if (cur_block+1 == address){
 			return cur_block;
 		}
 		cur_block = cur_block->next;

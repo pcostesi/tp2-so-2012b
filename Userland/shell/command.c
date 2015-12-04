@@ -423,10 +423,10 @@ int exec_string_malloc(char** args, int argc){
     
     while (argc)
     {
-        void * s = malloc(atoi(*args));
+        void * s = malloc(strlen(args[0])+1);
         if (s){
             strcpy(s, *args++);
-            printf("Malloc string \"%s\" at address %x\n", s, s); 
+            printf("Malloc string \"%s\" at address %d\n", s, s); 
         }else{
             printf("Not enough heap for \"%s\"", *args);
         }
@@ -439,7 +439,7 @@ int exec_malloc(char** args, int argc){
 
 	void * s = malloc(atoi(*args));
     if (s){
-        printf("Malloc %d bytes at address %u\n", atoi(*args), s);
+        printf("Malloc %d bytes at address %d\n", atoi(*args), s);
     }else{
         printf("Not enough heap for %d bytes\n", atoi(*args));
     }
@@ -456,7 +456,7 @@ int exec_print_heap(char** args, int argc){
     }
 
     while (cur_block){
-        printf("Block address: %x\nData address: %x\nBlock size: %d\nPrev block: %x\nNext block: %x\nFree: %d\nString: %s\n\n", cur_block, cur_block + 1, cur_block->size, cur_block->prev, cur_block->next, cur_block->free, cur_block + 1);
+        printf("Block address: %d\nData address: %d\nBlock size: %d\nPrev block: %d\nNext block: %d\nFree: %d\nString: %s\n\n", cur_block, cur_block + 1, cur_block->size, cur_block->prev, cur_block->next, cur_block->free, cur_block + 1);
         cur_block = cur_block->next;
     }
 
@@ -467,9 +467,9 @@ int exec_free(char** args, int argc){
 
     while (argc)
     {
-        void * dir = (void *)(uint64_t) atoi(*args++);
-        free(dir);
-        printf("Freeing address %u\n", dir);
+        uint64_t dir = atoi(*args++);
+        free((void*)dir);
+        printf("Freeing address %d\n", (void*)dir);
         argc--;
     }
 

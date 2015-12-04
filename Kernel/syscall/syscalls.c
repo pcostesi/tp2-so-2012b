@@ -63,6 +63,10 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 		return (uint64_t) syscall_mmap((void *) RDI, (uint64_t) RSI);
 		break;
 
+		case SYSCALL_MUNMAP:
+		syscall_munmap((void *) RDI, (uint64_t) RSI);
+		break;
+
 		default:
 		return -1;
 	}
