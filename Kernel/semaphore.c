@@ -53,7 +53,7 @@ int WaitSem(Semaphore *sem)
 	}
 	struct processQueue* newProc = mmu_kmalloc(sizeof(struct processQueue));
 
-	newProc->pid = getpid();
+	newProc->pid = sched_getpid();
 	newProc->next = NULL;
 
 	if(sem->queue == NULL){

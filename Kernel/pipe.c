@@ -1,5 +1,6 @@
 #include <semaphore.h>
 #include <mmu.h>
+#include <sched.h>
 
 #define MAX_PIPES 20
 #define PIPE_SIZE 200
@@ -105,7 +106,7 @@ int PutPipe(int fd, void *data, unsigned size)
 		return 0;
 	}
 	/*while(p->avail < size){
-		wait(pid,500);
+		wait(sched_getpid(),500);
 		if(!WaitSem(p->sem)){
 		return -1;
 	}	
@@ -141,7 +142,7 @@ int syscall_opipe(int fd)
 } 
 void syscall_cpipe(int fd)
 {
-	return ClosePipe(fd);
+	ClosePipe(fd);
 }
 int syscall_wpipe(int fd, void* data, unsigned int size)
 {
