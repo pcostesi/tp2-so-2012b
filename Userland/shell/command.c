@@ -227,8 +227,97 @@ int ps_cmd(char** args, int argc)
 }
 
 
+int consumer_cmd(char** args, int argc)
+{
+	int aux = s_to_i(args[0]);
+	if(args != 2 || aux < 1 || strlen(arg[2]) == 0){
+		printf("Invalid arguments, use help for more details \n");
+		return 0;
+	}
+	return excec(&producer);
+}
+
+
+int producer_cmd(char** args, int argc)
+{
+	int fd = s_to_i(args[0]);
+	int size = s_to_i(args[1]);
+	if(args != 2 || aux < 1 || size < 1){
+		printf("Invalid arguments, use help for more details \n");
+		return 0;
+	}
+	return excec(&consumer);	
+}
+
+
+int exec_string_malloc(char** args, int argc){
+    
+    while (argc)
+    {
+        void * s = malloc(strlen(*args)+1);
+        if (s){
+            strcpy(s, *args++);
+            printf("Malloc string \"%s\" at address %d\n", s, s); 
+        }else{
+            printf("Not enough heap for \"%s\"", *args);
+        }
+        argc--;
+    }
+    return 0;
+}
+
+int exec_malloc(char** args, int argc){
+
+	void * s = malloc(s_to_i(*args));
+    if (s){
+        printf("Malloc %d bytes at address %d\n", s_to_i(*args), s);
+    }else{
+        printf("Not enough heap for %d bytes\n", s_to_i(*args));
+    }
+    return 0;
+}
+
+int exec_print_heap(char** args, int argc){
+
+    block* cur_block = get_base_block();
+    
+    if (!cur_block){
+        printf("Heap is empty bro\n");
+        return 1;
+    }
+
+    while (cur_block){
+        printf("Block address: %d\nData address: %d\nBlock size: %d\nPrev block: %d\nNext block: %d\nFree: %d\nString: %s\n\n", cur_block, cur_block + 1, cur_block->size, cur_block->prev, cur_block->next, cur_block->free, cur_block + 1);
+        cur_block = cur_block->next;
+    }
+
+    return 0;
+}
+
+int exec_free(char** args, int argc){
+
+    while (argc)
+    {
+        uint64_t dir = s_to_i(*args++);
+        free((void*)dir);
+        printf("Freeing address %d\n", (void*)dir);
+        argc--;
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
 
 /*****Auxiliary functions for commands*****/
+
+
+
 
 
 
@@ -418,61 +507,27 @@ int help_error_print()
 	return 0;
 }
 
-// Malloc/free commands
 
-int exec_string_malloc(char** args, int argc){
-    
-    while (argc)
-    {
-        void * s = malloc(strlen(*args)+1);
-        if (s){
-            strcpy(s, *args++);
-            printf("Malloc string \"%s\" at address %d\n", s, s); 
-        }else{
-            printf("Not enough heap for \"%s\"", *args);
-        }
-        argc--;
-    }
-    return 0;
+
+
+void producer(int fd, char* msg) 
+{
+	openPipe(fd);
+	putPipe(fd, (void *)msg, strlen(msg));
+	return;
+	closePipe(fd);
 }
 
-int exec_malloc(char** args, int argc){
 
-	void * s = malloc(s_to_i(*args));
-    if (s){
-        printf("Malloc %d bytes at address %d\n", s_to_i(*args), s);
-    }else{
-        printf("Not enough heap for %d bytes\n", s_to_i(*args));
-    }
-    return 0;
-}
 
-int exec_print_heap(char** args, int argc){
-
-    block* cur_block = get_base_block();
-    
-    if (!cur_block){
-        printf("Heap is empty bro\n");
-        return 1;
-    }
-
-    while (cur_block){
-        printf("Block address: %d\nData address: %d\nBlock size: %d\nPrev block: %d\nNext block: %d\nFree: %d\nString: %s\n\n", cur_block, cur_block + 1, cur_block->size, cur_block->prev, cur_block->next, cur_block->free, cur_block + 1);
-        cur_block = cur_block->next;
-    }
-
-    return 0;
-}
-
-int exec_free(char** args, int argc){
-
-    while (argc)
-    {
-        uint64_t dir = s_to_i(*args++);
-        free((void*)dir);
-        printf("Freeing address %d\n", (void*)dir);
-        argc--;
-    }
-
-    return 0;
+void consumer(int fd, int size ) 
+{
+	char * read;
+	openPipe(fd);
+	int read_count = getPipe(fd, (void *)read, size);
+	while( read_count =! -1) {
+		readPipe(fd, read, size);
+		printf("Managed to read: %d characters, which were: \"%c\"\n", read_count, read);
+	}
+	closePipe(fd);
 }

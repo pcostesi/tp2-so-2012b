@@ -30,6 +30,10 @@ int print_ascii_table(char** args, int argc);
 int setcolor(char** args, int argc);
 int kill_cmd(char** args, int argc);
 int ps_cmd(char** args, int argc);
+void producer(int fd, char* msg);
+void consumer(int fd, int size );
+int producer_cmd(char** args, int argc);
+int consumer_cmd(char** args, int argc);
 
 int exec_string_malloc(char** args, int argc);
 int exec_malloc(char** args, int argc);
