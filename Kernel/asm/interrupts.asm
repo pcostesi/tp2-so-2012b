@@ -13,8 +13,7 @@ EXTERN irq_handler
 
 EXTERN sched_switch_to_kernel_stack
 EXTERN sched_switch_from_kernel_stack
-EXTERN sched_pick_process
-
+EXTERN sched_switch_to_user_stack
 
 SECTION .text
 
@@ -42,7 +41,8 @@ SECTION .text
     mov     rdi,    %1
     call    irq_handler
 
-    call    sched_pick_process
+    mov     rdi,    rsp
+    call    sched_switch_to_user_stack
     mov     rsp,    rax
 %endmacro
 

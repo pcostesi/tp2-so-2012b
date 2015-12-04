@@ -52,7 +52,11 @@ _int80h mmap, 9
 _int80h munmap, 11
 
 _int80h ioctl, 16
-_int80h pipe, 22
+
+_int80h opipe, 22
+_int80h cpipe, 23
+_int80h wpipe, 24
+_int80h rpipe, 25
 
 _int80h pause, 34
 _int80h getpid, 39
@@ -68,3 +72,5 @@ _int80h kill, 62
 
 _int80h gettime, 228
 _int80h settime, 227
+
+_int80h gpipes, 26

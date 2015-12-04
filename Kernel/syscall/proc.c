@@ -24,8 +24,9 @@ int syscall_fork(pid_t pid)
 	return -1;
 }
 
-int syscall_kill(int pid, int sig)
+int syscall_kill(uint64_t pid, int sig)
 {
+	printf("Received kill signal\n");
 	switch (sig) {
 		case SIGKILL:
 		printf("Killing process %d\n", pid);
