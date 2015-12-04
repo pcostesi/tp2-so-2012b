@@ -328,6 +328,7 @@ int get_pipes(char** args, int argc)
 {
 	int pipes[80];
 	int aux = 0;
+	gpipes(&pipes);
 	printf("Los pipes activos son: \n" );
 	while(pipes[aux] != NULL){
 		printf("%d, \n", pipes[aux]);

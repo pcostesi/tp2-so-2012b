@@ -72,3 +72,5 @@ _int80h kill, 62
 
 _int80h gettime, 228
 _int80h settime, 227
+
+_int80h gpipes, 26

@@ -84,6 +84,10 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 		exitno = syscall_rpipe((int) RDI, (void*) RSI, (unsigned int) RDX);
 		break;
 
+		case SYSCALL_GPIPES:
+		exitno = syscall_get_pipes((int** ) RDI);
+		break;
+
 		default:
 		return -1;
 	}

@@ -152,3 +152,13 @@ int syscall_rpipe (int fd, void* data, unsigned int size)
 {
 	return GetPipe(fd, data, size);
 }
+
+void syscall_get_pipes(int* fd[]){
+	int aux = 0;
+	int indx = 0;
+	for (aux = 0; aux < MAX_PIPES; aux++){
+		if (pipes[aux] != NULL){
+			*fd[indx++] = aux;
+		}
+	}
+}

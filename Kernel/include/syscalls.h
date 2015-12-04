@@ -19,6 +19,7 @@ enum SyscallNumber {
 	SYSCALL_CPIPE 	= 23,
 	SYSCALL_WPIPE 	= 24,
 	SYSCALL_RPIPE 	= 25,
+	SYSCALL_GPIPES 	= 26,
 	SYSCALL_PAUSE 	= 34,
 	SYSCALL_GETPID 	= 39,
 	SYSCALL_BEEP 	= 42,
@@ -45,6 +46,7 @@ int syscall_opipe(int fd);
 void syscall_cpipe(int fd);
 int syscall_wpipe(int fd, void* data, unsigned int size);
 int syscall_rpipe (int fd, void* data, unsigned int size);
+void syscall_get_pipes(int* fd[]);
 
 uint64_t int80h(uint64_t sysno,
 	uint64_t RDI,

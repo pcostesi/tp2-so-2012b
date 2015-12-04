@@ -33,6 +33,7 @@ extern int opipe(int fd);
 extern void cpipe(int fd);
 extern int wpipe(int fd, void* data, unsigned int size);
 extern int rpipe (int fd, void* data, unsigned int size);
+extern void gpipes(int* fd[]);
 
 #define IOCTL_MOVE 0
 #define IOCTL_CLR 1
