@@ -28,23 +28,23 @@
 ; This macro will set a pristine process stack
 ; with 
 %macro INITPROC 3
-    push    0        ;save current rax
-    push    0        ;save current rbx
-    push    0        ;save current rcx
-    push    0        ;save current rdx
+    push    0x01     ;save current rax
+    push    0x02     ;save current rbx
+    push    0x03     ;save current rcx
+    push    0x04     ;save current rdx
     push    %1       ;save current rbp
     push    %2       ;save current rdi
     push    %3       ;save current rsi
-    push    0        ;save current r8
-    push    0        ;save current r9
-    push    0        ;save current r10
-    push    0      ;save current r11
-    push    0      ;save current r12
-    push    0      ;save current r13
-    push    0      ;save current r14
-    push    0      ;save current r15
-    push    0      ;save fs
-    push    0      ;save gs
+    push    0x08     ;save current r8
+    push    0x09     ;save current r9
+    push    0x0A     ;save current r10
+    push    0x0B     ;save current r11
+    push    0x0C     ;save current r12
+    push    0x0D     ;save current r13
+    push    0x0E     ;save current r14
+    push    0x0F     ;save current r15
+    push    0x00     ;save fs
+    push    0x00     ;save gs
 %endmacro
 
 %macro LOADPROC 0
@@ -96,43 +96,43 @@
 ; the stack. It does not, however, set the trap frame.
 ; See _sched_init_stack for that
 %macro PUSHA 0
-    push    QWORD rax      ;save current rax
-    push    QWORD rbx      ;save current rbx
-    push    QWORD rcx      ;save current rcx
-    push    QWORD rdx      ;save current rdx
-    push    QWORD rbp      ;save current rbp
-    push    QWORD rdi      ;save current rdi
-    push    QWORD rsi      ;save current rsi
-    push    QWORD r8       ;save current r8
-    push    QWORD r9       ;save current r9
-    push    QWORD r10      ;save current r10
-    push    QWORD r11      ;save current r11
-    push    QWORD r12      ;save current r12
-    push    QWORD r13      ;save current r13
-    push    QWORD r14      ;save current r14
-    push    QWORD r15      ;save current r15
-    push    QWORD fs       ;save fs
-    push    QWORD gs       ;save gs
+    push    rax      ;save current rax
+    push    rbx      ;save current rbx
+    push    rcx      ;save current rcx
+    push    rdx      ;save current rdx
+    push    rbp      ;save current rbp
+    push    rdi      ;save current rdi
+    push    rsi      ;save current rsi
+    push    r8       ;save current r8
+    push    r9       ;save current r9
+    push    r10      ;save current r10
+    push    r11      ;save current r11
+    push    r12      ;save current r12
+    push    r13      ;save current r13
+    push    r14      ;save current r14
+    push    r15      ;save current r15
+    push    fs       ;save fs
+    push    gs       ;save gs
 %endmacro
 
 %macro POPA 0
-    pop     QWORD gs
-    pop     QWORD fs
-    pop     QWORD r15      ;set r15
-    pop     QWORD r14      ;set r14
-    pop     QWORD r13      ;set r13
-    pop     QWORD r12      ;set r12
-    pop     QWORD r11      ;set r11
-    pop     QWORD r10      ;set r10
-    pop     QWORD r9       ;set r9
-    pop     QWORD r8       ;set r8
-    pop     QWORD rsi      ;set rsi
-    pop     QWORD rdi      ;set rdi
-    pop     QWORD rbp      ;set rbp
-    pop     QWORD rdx      ;set rdx
-    pop     QWORD rcx      ;set rcx
-    pop     QWORD rbx      ;set rbx
-    pop     QWORD rax      ;set rax
+    pop     gs
+    pop     fs
+    pop     r15      ;set r15
+    pop     r14      ;set r14
+    pop     r13      ;set r13
+    pop     r12      ;set r12
+    pop     r11      ;set r11
+    pop     r10      ;set r10
+    pop     r9       ;set r9
+    pop     r8       ;set r8
+    pop     rsi      ;set rsi
+    pop     rdi      ;set rdi
+    pop     rbp      ;set rbp
+    pop     rdx      ;set rdx
+    pop     rcx      ;set rcx
+    pop     rbx      ;set rbx
+    pop     rax      ;set rax
 %endmacro
 
 %macro ENTER 0

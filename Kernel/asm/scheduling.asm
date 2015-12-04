@@ -5,13 +5,17 @@ GLOBAL sched_drop_to_user
 GLOBAL sched_step_syscall_rax
 
 EXTERN panic
+EXTERN show_stack
 
 EXTERN _sched_get_current_process_entry
-EXTERN sched_pick_process
+EXTERN sched_switch_to_user_stack
 EXTERN sched_get_process
 
 ; Read this before making any changes (or reviewing the code):
 ; http://stackoverflow.com/questions/9383544
+
+SECTION .data
+warn: dw 'panic'
 
 SECTION .text
 _sched_init_stack:
@@ -62,6 +66,8 @@ sched_step_syscall_rax:
 sched_drop_to_user:
 	call sched_get_process
     mov     rsp,    rax
-    call _sched_get_current_process_entry
+    POPA
+    pop     rax
     sti
     jmp     rax
+    hlt

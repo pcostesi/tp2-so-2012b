@@ -34,14 +34,14 @@ void * ldr_module_load(void * module_section_start, char * module_name, struct m
 	for (i = 0; i < moduleCount; i++) {
 		moduleSize = readUint32(&currentModule);
 		memset(buffer, 0, MODULE_NAME_SIZE);
-		memcpy(buffer, currentModule, MODULE_NAME_SIZE);
-		currentModule += sizeof(buffer);
+		memcpy(buffer, currentModule + moduleSize, MODULE_NAME_SIZE);
 		if (strcmp(buffer, module_name) == 0) {
 			entry->start = currentModule;
 			entry->size = moduleSize;
 			memcpy(entry->name, buffer, MODULE_NAME_SIZE);
 			return currentModule;
 		}
+		currentModule += sizeof(buffer);
 		currentModule += moduleSize;
 	}
 	return NULL;

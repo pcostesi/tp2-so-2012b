@@ -2,8 +2,7 @@
 
 EXTERN sched_switch_to_kernel_stack
 EXTERN sched_switch_from_kernel_stack
-EXTERN sched_pick_process
-
+EXTERN sched_switch_to_user_stack
 EXTERN syscall_halt
 
 
@@ -12,6 +11,7 @@ GLOBAL _int_mem_handler
 
 EXTERN mem_handler
 EXTERN sys_handler
+EXTERN show_stack
 
 SECTION .text
 
@@ -38,7 +38,9 @@ _int_sys_handler:
 
     call    sys_handler                     ; Do the syscall thing
     SET_SYSCALL_RET r15, rax                ; Step rax at stack
-    call    sched_pick_process              ; Get new process stack
+
+    mov     rdi,    rsp
+    call    sched_switch_to_user_stack      ; Get new process stack
     mov     rsp,    rax                     ; Switch stacks
     
     POPA
@@ -48,6 +50,8 @@ _int_sys_handler:
 _int_mem_handler:
     cli
     PUSHA
+    mov     rdi,    [rsp + 8 * 18]
+    call show_stack
     mov     rdi,    [rsp + 8 * 17]
     mov     rsi,    cr2
     call    mem_handler

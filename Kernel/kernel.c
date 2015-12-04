@@ -49,7 +49,8 @@ uint8_t * get_module_zone(void)
 
 uint8_t * get_safe_zone(void)
 {
-	return ALIGN4K((uint64_t) get_module_zone() + (&endOfKernel - &endOfKernelBinary));
+	//sorry
+	return ALIGN4K(0xFFFFFFF);
 }
 
 
@@ -63,7 +64,7 @@ void * initializeKernelBinary(void)
 void panic(char * msg)
 {
 	puts("\nKERNEL PANIC\n");
-	printf("Achtung! %s\n", msg);
+	printf("Error: %s\n", msg);
 	vid_show(VID_SYSLOG);
 	vid_update();
 	syscall_halt();
@@ -93,7 +94,6 @@ void vid_init(void)
 	vid_clr(VID_PROC);
 	vid_color(VID_SYSLOG, WHITE, BLUE);
 	vid_clr(VID_SYSLOG);
-	motd();
 }
 
 
@@ -127,8 +127,8 @@ int main(void)
 	
 	// init vmm with 1GB worth of vmm for the kernel
 	if (!vmm_initialize(&bitmap)) panic("Failed to start vmm.");
-
 	sched_init(bitmap);
+
 	/* set up IDTs & int80h */
 	install_syscall_handler((IntSysHandler) &int80h);
 	install_hw_handler((IntHwHandler) &kbrd_irq, INT_KEYB);
@@ -144,12 +144,14 @@ int main(void)
 	if (!ldr_module_load(get_module_zone(), "template.bin", &template)) {
 		panic("Failed to load Template. Halting.");
 	}
-	
+
 	handle_esc();
-	sched_spawn_module(&template);
-	sched_spawn_module(&init);
-	//sched_spawn_module(&init);
-	
+	memcpy((void *) 0x4100000, template.start, template.size);
+	sched_spawn_module(&template, (void *) 0x4100000);
+
+	memcpy((void *) 0x4000000, init.start, init.size);
+	printf("init size is %d\n", init.size);
+	sched_spawn_module(&init,	  (void *) 0x4000000);
 	printf("Dropping to userland.\n");
 	/* Drop to environment */
 	sched_drop_to_user();
