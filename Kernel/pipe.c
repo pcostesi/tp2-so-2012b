@@ -17,14 +17,17 @@ struct Pipe
 	char *			tail;
 	char *			end;
 	int 			users;
-};
+}; 
 
 
-void OpenPipe(int fd)
+int OpenPipe(int fd)
 {
+	if(fd >= MAX_PIPES){
+		return -1;
+	}
 	if(pipes[fd] != NULL){
 		pipes[fd]->users++;
-		return;
+		return fd;
 	}
 	struct Pipe *p = mmu_kmalloc(sizeof(struct Pipe));
 	p->head = p->tail = p->buf = mmu_kmalloc(p->size = PIPE_SIZE);
@@ -32,6 +35,7 @@ void OpenPipe(int fd)
 	p->users = 1;
 	p->sem = CreateSem(1);
 	pipes[fd] = p;
+	return fd;
 }
 
 void DeletePipe(int fd)
