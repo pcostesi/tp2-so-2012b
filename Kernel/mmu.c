@@ -181,7 +181,7 @@ void mmu_kfree(void * address){
 		}
 
 		// Unmap since it was the last block
-		fmem((void*)block_to_free);
+		//fmem((void*)block_to_free);
 	}
 }
 
