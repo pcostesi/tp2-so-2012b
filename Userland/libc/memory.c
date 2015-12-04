@@ -98,6 +98,7 @@ block* split_block(block* b, uint64_t size){
 
 block* expand_heap(block* last_block, uint64_t size){
 
+
 	// My future base address for the block
 	void* needed_base_addr;
 	if (last_block){
@@ -112,7 +113,7 @@ block* expand_heap(block* last_block, uint64_t size){
 	}else{
 		last_mmap = (void *)((uint64_t)result + BLOCK_SIZE);
 	}
-	
+
 	// Create metadata block
 	block* new_block;
 	new_block = (block *)result;
@@ -164,6 +165,10 @@ void free(void * address){
 				// Has no next nor previous so heap is empty
 				base_addr = NULL;
 			}
+			//un map the virtual address
+			last_mmap = (void*)((uint64_t)last_mmap - block_to_free->size - BLOCK_SIZE);
+			//munmap((void*)block_to_free, block_to_free->size + BLOCK_SIZE);
+
 		}
 	}
 }
@@ -171,7 +176,7 @@ void free(void * address){
 block* merge_free_blocks(block* prev_block, block* block_to_free){
 
 	//Merges the blocks and data
-	prev_block->size += block_to_free->size;
+	prev_block->size += block_to_free->size + BLOCK_SIZE;
 	prev_block->next = block_to_free->next;
 	if (prev_block->next){
 		prev_block->next->prev = prev_block;

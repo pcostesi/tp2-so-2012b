@@ -14,7 +14,7 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 	uint64_t R8, uint64_t R9)
 {
 	int exitno = 0;
-	printf("TRACE %d\n", sysno);
+	//printf("TRACE %d\n", sysno);
 	switch (sysno) {
 		case SYSCALL_WRITE: /* sys_write fd buf size */
 		exitno = syscall_write((unsigned int) RDI, (char *) RSI, (unsigned int) RDX);
@@ -62,6 +62,10 @@ uint64_t int80h(uint64_t sysno, uint64_t RDI, uint64_t RSI, uint64_t RDX, uint64
 
 		case SYSCALL_MMAP:
 		return (uint64_t) syscall_mmap((void *) RDI, (uint64_t) RSI);
+		break;
+
+		case SYSCALL_MUNMAP:
+		syscall_munmap((void *) RDI, (uint64_t) RSI);
 		break;
 
 		default:
