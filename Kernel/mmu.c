@@ -1,48 +1,91 @@
 #include <mmu.h>
 #include <stdio.h>
 #include <pmm.h>
+#include <sched.h>
 
-void* cur_page;
-uint64_t used_bytes;
-uint64_t bytes_reserved;
+#define PAGES_PER_THREAD 5
+#define TOTAL_PAGES ((SCHED_MAX_PROC) * PAGES_PER_THREAD)
 
-void* syscall_mmap(void* addr, uint64_t size) {
-	void* ret_addr;
-	if (cur_page && bytes_reserved - used_bytes > size) {
-		ret_addr = (void*)((uint64_t) cur_page + used_bytes);
-		used_bytes += size;
-		return ret_addr;
-	} else {
-		int result;
-		if (addr) {
-			result = vmm_alloc_pages_from(addr, size, MASK_WRITEABLE | MASK_USER, &ret_addr);
-		} else {
-			result = vmm_alloc_pages(size, MASK_WRITEABLE | MASK_USER, &ret_addr);
+void* pages[TOTAL_PAGES];
+int bytes_used[TOTAL_PAGES];
+
+void free_thread_pages(int pid) {
+	int cur, first, last;
+	cur = first = pid * PAGES_PER_THREAD;
+	last = first + PAGES_PER_THREAD;
+
+	while (cur < last) {
+		if(pages[cur] != NULL) {
+			vmm_free_pages(pages[cur], VMM_PAGE_SIZE);
+			pages[cur] = NULL;
+			bytes_used[cur] = 0;
 		}
-		if (result) {
-			uint64_t pages_used = size / VMM_PAGE_SIZE;
-			bytes_reserved = pages_used * VMM_PAGE_SIZE;
-			if (size % VMM_PAGE_SIZE != 0) {
-				bytes_reserved += VMM_PAGE_SIZE;
-			}
-			used_bytes = size;
-			cur_page = ret_addr;
-			return ret_addr;
-		} else {
-			return NULL;
-		}
+		cur++;
 	}
 }
 
+void* syscall_mmap(void* addr, uint64_t size) {
+	if (size > VMM_PAGE_SIZE) {
+		return NULL;
+	}
+
+	uint64_t pid = (uint64_t)sched_getpid();
+
+	void* ret_addr;
+
+	int cur, first, last;
+	cur = first = pid * PAGES_PER_THREAD;
+	last = first + PAGES_PER_THREAD;
+
+	while (cur < last) {
+		// check if page wasnt allocated
+		if (pages[cur] == NULL) {
+			int result = vmm_alloc_pages(VMM_PAGE_SIZE, MASK_WRITEABLE | MASK_USER, &ret_addr);
+			if (result) {
+				pages[cur] = ret_addr;
+				bytes_used[cur] = size;
+				printf("Allocing at page %d of thread %d, bytes left: %d\n", cur - pid * PAGES_PER_THREAD, pid, VMM_PAGE_SIZE - bytes_used[cur]);
+				return ret_addr;
+			} else {
+				return NULL;
+			}
+		} else {
+			//check if it has enough space
+			if (VMM_PAGE_SIZE - bytes_used[cur] >= size) {
+				ret_addr = (void*)((uint64_t) pages[cur] + bytes_used[cur]);
+				bytes_used[cur] += size;
+				printf("Using page %d of thread %d, bytes left: %d\n", cur - pid * PAGES_PER_THREAD, pid, VMM_PAGE_SIZE - bytes_used[cur]);
+				return ret_addr;
+			}
+		}
+		cur++;
+	}
+	return NULL;
+}
+
 void syscall_munmap(void* addr, uint64_t size) {
-	// TODO
-	/*if (used_bytes - size <= 0) {
-		vmm_free_pages(cur_page, VMM_PAGE_SIZE);
-		cur_page = NULL;
-		used_bytes = 0;
-	} else {
-		used_bytes -= size;
-	}*/
+
+	uint64_t page_num = (uint64_t)addr / VMM_PAGE_SIZE;
+	void* page_addr = (void*) (page_num * VMM_PAGE_SIZE);
+
+	uint64_t pid = (uint64_t)sched_getpid();
+
+	int cur, first, last;
+	cur = first = pid * PAGES_PER_THREAD;
+	last = first + PAGES_PER_THREAD;
+
+	while (cur < last) {
+		if (pages[cur] == page_addr) {
+			if (bytes_used[cur] - size <= 0) {
+				vmm_free_pages(pages[cur], VMM_PAGE_SIZE);
+				bytes_used[cur] = 0;
+				pages[cur] = NULL;
+			} else {
+				bytes_used[cur] -= size;
+			}
+		}
+		cur++;
+	}
 }
 
 block* base_addr = NULL;

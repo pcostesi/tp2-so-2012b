@@ -158,7 +158,7 @@ void free(void * address){
 			}
 			//un map the virtual address
 			last_mmap = (void*)((uint64_t)last_mmap - block_to_free->size - BLOCK_SIZE);
-			//munmap((void*)block_to_free, block_to_free->size + BLOCK_SIZE);
+			munmap((void*)block_to_free, block_to_free->size + BLOCK_SIZE);
 
 		}
 	}

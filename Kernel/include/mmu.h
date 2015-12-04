@@ -17,7 +17,9 @@ struct block{
 	int free;
 };
 
+void free_thread_pages(int pid);
 void* syscall_mmap(void* address, uint64_t size);
+void syscall_munmap(void* addr, uint64_t size);
 
 void* mmu_kmalloc(uint64_t size);
 block* find_block(block** last_block, uint64_t size);
