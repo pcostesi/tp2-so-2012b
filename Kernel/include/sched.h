@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <moduleLoader.h>
-#define SCHED_MAX_PROC (256)
+#define SCHED_MAX_PROC (20)
 
 typedef uint64_t pid_t;
 typedef uint64_t size_t;

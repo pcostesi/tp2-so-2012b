@@ -3,7 +3,7 @@
 #include <pmm.h>
 #include <sched.h>
 
-#define PAGES_PER_THREAD 5
+#define PAGES_PER_THREAD 2
 #define TOTAL_PAGES ((SCHED_MAX_PROC) * PAGES_PER_THREAD)
 
 void* pages[TOTAL_PAGES];
