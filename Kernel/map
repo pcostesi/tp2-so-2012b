@@ -1,0 +1,496 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000000100000     0x8fe0
+                0x0000000000100000                text = .
+ *(.text*)
+ .text          0x0000000000100000       0x13 loader.o
+                0x0000000000100000                loader
+ .text          0x0000000000100013       0xd8 pte.o
+                0x0000000000100013                pte_add_attrib
+                0x000000000010003b                pte_del_attrib
+                0x0000000000100066                pte_set_frame
+                0x00000000001000a9                pte_is_present
+                0x00000000001000be                pte_is_writable
+                0x00000000001000d3                pte_pfn
+ .text          0x00000000001000eb      0x75f mmu.o
+                0x00000000001000eb                free_thread_pages
+                0x000000000010016b                syscall_mmap
+                0x0000000000100324                syscall_munmap
+                0x000000000010040d                mmu_kmalloc
+                0x00000000001004f9                find_block
+                0x0000000000100553                split_block
+                0x00000000001005f6                expand_heap
+                0x00000000001006f7                mmu_kfree
+                0x000000000010076e                get_block
+                0x00000000001007b5                mmu_print_kheap
+ .text          0x000000000010084a      0x214 semaphore.o
+                0x000000000010084a                CreateSem
+                0x000000000010088a                DeleteSem
+                0x00000000001008b1                WaitSem
+                0x0000000000100984                SignalSem
+                0x00000000001009c3                ValueSem
+                0x00000000001009d8                FlushSem
+                0x0000000000100a18                FlushSemQueue
+ .text          0x0000000000100a5e      0x651 time.o
+                0x0000000000100a5e                isleapyear
+                0x0000000000100ad5                valid_time
+                0x0000000000100b0b                valid_date
+                0x0000000000100bc7                syscall_get_time
+                0x0000000000100d81                syscall_set_time
+ .text          0x00000000001010af       0x36 io.o
+                0x00000000001010af                outportb
+                0x00000000001010c7                inportb
+ .text          0x00000000001010e5      0x37f interrupts.o
+                0x00000000001010e5                mem_handler
+                0x00000000001011b1                sys_handler
+                0x0000000000101258                irq_handler
+                0x000000000010134d                install_interrupts
+                0x0000000000101419                install_syscall_handler
+                0x0000000000101433                install_hw_handler
+ .text          0x0000000000101464      0x5a4 video.o
+                0x00000000001014c0                vid_update
+                0x0000000000101514                vid_show
+                0x000000000010152b                vid_raw_print
+                0x0000000000101594                vid_print
+                0x00000000001015de                vid_clr
+                0x0000000000101655                vid_color
+                0x000000000010168f                vid_putc
+                0x00000000001016ce                vid_cursor
+                0x0000000000101759                vid_raw_putc
+ .text          0x0000000000101a08      0xf18 vmm.o
+                0x0000000000101a08                pt_complete
+                0x0000000000101a5c                pt_incomplete
+                0x0000000000101ab2                pt_is_complete
+                0x0000000000101b01                vmm_alloc_pages_from
+                0x0000000000101b7c                vmm_alloc_pages
+                0x0000000000101bda                alloc_pages
+                0x0000000000101d7c                get_free_page_in_pt
+                0x0000000000101ded                mappable_from
+                0x0000000000101eb2                get_entry
+                0x0000000000101f56                get_entry_from_table
+                0x0000000000101fda                alloc_page
+                0x0000000000102033                update_bitmap
+                0x00000000001020b4                is_pt_incomplete
+                0x00000000001020f1                is_pt_range_incomplete
+                0x0000000000102164                vmm_free_pages
+                0x0000000000102222                free_page
+                0x000000000010225e                map_page
+                0x00000000001023d6                vmm_switch_process
+                0x0000000000102400                vmm_get_cur_bitmap
+                0x000000000010240d                vmm_shutdown_process
+                0x0000000000102474                recursively_destroy_tables
+                0x00000000001024fb                vmm_initialize
+                0x00000000001025ec                mark_bits
+                0x000000000010261e                identity_paging
+                0x0000000000102788                vmm_print_bitmap
+                0x00000000001027e0                vmm_print_pt
+                0x0000000000102888                vmm_print_bitmap_addr
+ .text          0x0000000000102920      0x1a8 rtc-driver.o
+                0x0000000000102920                get_rtc_seconds
+                0x0000000000102930                get_rtc_minutes
+                0x0000000000102940                get_rtc_hours
+                0x0000000000102950                get_rtc_day_of_week
+                0x0000000000102960                get_rtc_day_of_month
+                0x0000000000102970                get_rtc_month
+                0x0000000000102980                get_rtc_year
+                0x0000000000102990                get_rtc_crt
+                0x00000000001029b6                set_rtc_seconds
+                0x00000000001029d6                set_rtc_minutes
+                0x00000000001029f6                set_rtc_hours
+                0x0000000000102a16                set_rtc_day_of_week
+                0x0000000000102a36                set_rtc_day_of_month
+                0x0000000000102a56                set_rtc_month
+                0x0000000000102a76                set_rtc_year
+                0x0000000000102a96                set_rtc_crt
+ .text          0x0000000000102ac8      0x2dc moduleLoader.o
+                0x0000000000102ac8                ldr_module_section_size
+                0x0000000000102b3e                ldr_module_load
+                0x0000000000102cbf                loadModules
+ .text          0x0000000000102da4      0x47c pipe.o
+                0x0000000000102da4                OpenPipe
+                0x0000000000102e89                DeletePipe
+                0x0000000000102efb                GetPipe
+                0x0000000000103018                PutPipe
+                0x00000000001030fb                ClosePipe
+                0x000000000010313d                syscall_opipe
+                0x0000000000103154                syscall_cpipe
+                0x000000000010316c                syscall_wpipe
+                0x0000000000103194                syscall_rpipe
+                0x00000000001031bc                syscall_get_pipes
+ .text          0x0000000000103220      0x77d sched.o
+                0x0000000000103263                _sched_free_process
+                0x00000000001033b5                _sched_print_proclist
+                0x0000000000103455                sched_init
+                0x000000000010353a                sched_spawn_module
+                0x0000000000103635                _sched_get_current_process_entry
+                0x000000000010365e                sched_getpid
+                0x00000000001036de                sched_terminate_process
+                0x0000000000103847                sched_forkexec
+                0x0000000000103860                sched_get_process
+                0x0000000000103889                show_stack
+                0x00000000001038ec                sched_switch_to_kernel_stack
+                0x000000000010393a                sched_switch_to_user_stack
+ .text          0x000000000010399d      0x39e pmm.o
+                0x000000000010399d                mmap_alloc
+                0x00000000001039f1                mmap_free
+                0x0000000000103a47                mmap_is_occ
+                0x0000000000103a96                pop
+                0x0000000000103ad2                push
+                0x0000000000103b13                gmem
+                0x0000000000103b54                fmem
+                0x0000000000103bb7                init_mem
+ .text          0x0000000000103d3b      0x718 keyboard.o
+                0x0000000000103d3b                kbrd_key_to_ascii
+                0x0000000000103e72                isascii
+                0x0000000000103e97                key_buffer_init
+                0x0000000000103ed9                key_buffer_add
+                0x0000000000103f2e                buffer_is_empty
+                0x0000000000103f48                key_buffer_is_full
+                0x0000000000103f78                key_buffer_reset
+                0x0000000000103f89                kbrd_get_key
+                0x0000000000103fdd                kbrd_get_previous_key
+                0x0000000000104009                kbrd_get_scroll_lock
+                0x0000000000104016                kbrd_get_numlock
+                0x0000000000104023                kbrd_get_capslock
+                0x0000000000104030                kbrd_get_ctrl
+                0x000000000010403d                kbrd_get_alt
+                0x000000000010404a                kbrd_get_shift
+                0x0000000000104057                kbrd_get_last_scan
+                0x0000000000104064                kbrd_ctrl_read_status
+                0x0000000000104074                kbrd_ctrl_send_cmd
+                0x00000000001040a8                kbrd_enc_read_buf
+                0x00000000001040b8                kbrd_enc_send_cmd
+                0x00000000001040ec                kbrd_irq
+                0x000000000010433d                kbrd_install
+                0x00000000001043be                kbrd_set_leds
+                0x0000000000104438                kbrd_reset_system
+ .text          0x0000000000104453      0x125 sound.o
+                0x0000000000104453                sound
+                0x00000000001044d3                nosound
+                0x00000000001044f5                beep
+                0x0000000000104506                beepl
+                0x0000000000104523                beeplf
+                0x0000000000104551                tick_sound
+ .text          0x0000000000104578      0x427 kernel.o
+                0x0000000000104578                clearBSS
+                0x00000000001045a0                getStackBase
+                0x00000000001045b1                get_module_zone
+                0x00000000001045c8                get_safe_zone
+                0x00000000001045d3                initializeKernelBinary
+                0x0000000000104619                panic
+                0x000000000010465c                pit_irq
+                0x000000000010466f                handle_esc
+                0x000000000010469a                get_entry_point
+                0x00000000001046e2                vid_init
+                0x0000000000104725                print_log
+                0x0000000000104846                main
+ .text          0x000000000010499f       0xf7 motd.o
+                0x000000000010499f                motd
+ .text          0x0000000000104a96      0x2bb syscall/syscalls.o
+                0x0000000000104a96                int80h
+ .text          0x0000000000104d51      0x21b syscall/io.o
+                0x0000000000104d51                syscall_ioctl
+                0x0000000000104e3d                syscall_write
+                0x0000000000104f05                syscall_read
+ .text          0x0000000000104f6c       0x70 syscall/power.o
+                0x0000000000104f6c                syscall_halt
+ .text          0x0000000000104fdc       0xc2 syscall/proc.o
+                0x0000000000104fdc                syscall_pause
+                0x0000000000104fe3                syscall_exit
+                0x000000000010502a                syscall_getpid
+                0x0000000000105035                syscall_fork
+                0x0000000000105048                syscall_kill
+ .text          0x000000000010509e      0x6dc lib/printf.o
+                0x000000000010509e                printf
+                0x00000000001050f2                fprintf
+                0x0000000000105145                print_number
+                0x00000000001053b2                vfprintf
+ .text          0x000000000010577a      0x23c lib/string.o
+                0x000000000010577a                strlen
+                0x00000000001057ab                reverse
+                0x000000000010582a                itoa
+                0x00000000001058e9                substr
+                0x0000000000105957                strcmp
+ .text          0x00000000001059b6      0x1d6 lib/mem.o
+                0x00000000001059b6                memset
+                0x0000000000105a01                memcpy
+                0x0000000000105adc                memmove
+ .text          0x0000000000105b8c       0xbe lib/putc.o
+                0x0000000000105b8c                fputc
+                0x0000000000105bb4                putc
+                0x0000000000105bd3                fputsn
+                0x0000000000105bfb                fputs
+                0x0000000000105c2b                puts
+ *fill*         0x0000000000105c4a        0x6 
+ .text          0x0000000000105c50      0x6e4 asm/interrupts.o
+                0x0000000000105c50                idt_pic_master_mask
+                0x0000000000105c76                idt_pic_slave_mask
+                0x0000000000105c9c                idt_pic_master_set_map
+                0x0000000000105cc2                idt_pic_slave_set_map
+                0x0000000000105ce8                _irq_20h_handler
+                0x0000000000105d46                _irq_21h_handler
+                0x0000000000105da4                _irq_22h_handler
+                0x0000000000105e02                _irq_23h_handler
+                0x0000000000105e60                _irq_24h_handler
+                0x0000000000105ebe                _irq_25h_handler
+                0x0000000000105f1c                _irq_26h_handler
+                0x0000000000105f7a                _irq_27h_handler
+                0x0000000000105fd8                _irq_70h_handler
+                0x000000000010603a                _irq_71h_handler
+                0x000000000010609c                _irq_72h_handler
+                0x00000000001060fe                _irq_73h_handler
+                0x0000000000106160                _irq_74h_handler
+                0x00000000001061c2                _irq_75h_handler
+                0x0000000000106224                _irq_76h_handler
+                0x0000000000106286                _irq_77h_handler
+                0x00000000001062e8                _lidt
+                0x000000000010630c                _sidt
+                0x0000000000106330                _cli
+                0x0000000000106332                _sti
+ *fill*         0x0000000000106334        0xc 
+ .text          0x0000000000106340       0x69 asm/libasm.o
+                0x0000000000106340                cpu_vendor
+                0x0000000000106379                get_memory_size
+                0x00000000001063a4                _halt
+                0x00000000001063a7                _drool
+ *fill*         0x00000000001063a9        0x7 
+ .text          0x00000000001063b0       0xd9 asm/scheduling.o
+                0x00000000001063b0                _sched_init_stack
+                0x000000000010640d                sched_step_syscall_rax
+                0x0000000000106435                sched_drop_to_user
+                0x000000000010645d                sched_call_zygote
+ *fill*         0x0000000000106489        0x7 
+ .text          0x0000000000106490       0x32 asm/paging.o
+                0x0000000000106490                _read_cr0
+                0x000000000010649c                _write_cr0
+                0x00000000001064a8                _read_cr3
+                0x00000000001064ba                _write_cr3
+ *fill*         0x00000000001064c2        0xe 
+ .text          0x00000000001064d0       0xd6 asm/sys.o
+                0x00000000001064d0                _int_sys_handler
+                0x000000000010654b                _int_mem_handler
+                0x0000000000108000                . = ALIGN (0x4000)
+ *fill*         0x00000000001065a6     0x1a5a 
+                0x0000000000108000                rodata = .
+ *(.rodata*)
+ .rodata        0x0000000000108000      0x106 mmu.o
+ *fill*         0x0000000000108106        0x2 
+ .rodata        0x0000000000108108      0x2c8 interrupts.o
+ .rodata        0x00000000001083d0        0x5 vmm.o
+ .rodata        0x00000000001083d5       0x3a sched.o
+ *fill*         0x000000000010840f        0x1 
+ .rodata        0x0000000000108410      0x258 keyboard.o
+ .rodata        0x0000000000108668      0x1c2 kernel.o
+ *fill*         0x000000000010882a        0x6 
+ .rodata        0x0000000000108830      0x68b motd.o
+ *fill*         0x0000000000108ebb        0x5 
+ .rodata        0x0000000000108ec0       0x10 syscall/power.o
+ .rodata        0x0000000000108ed0       0x53 syscall/proc.o
+ *fill*         0x0000000000108f23        0x5 
+ .rodata        0x0000000000108f28       0xb8 lib/printf.o
+
+.data           0x000000000010c000      0x1b4
+                0x000000000010c000                data = .
+ *(.data*)
+ .data          0x000000000010c000        0x0 pte.o
+ .data          0x000000000010c000        0x0 mmu.o
+ .data          0x000000000010c000        0x0 semaphore.o
+ .data          0x000000000010c000        0x0 time.o
+ .data          0x000000000010c000        0x0 io.o
+ .data          0x000000000010c000        0x0 interrupts.o
+ .data          0x000000000010c000        0x8 video.o
+ .data          0x000000000010c008        0x0 vmm.o
+ .data          0x000000000010c008        0x0 rtc-driver.o
+ .data          0x000000000010c008        0x0 moduleLoader.o
+ .data          0x000000000010c008        0x0 pipe.o
+ .data          0x000000000010c008        0x0 sched.o
+ .data          0x000000000010c008        0x0 pmm.o
+ *fill*         0x000000000010c008       0x18 
+ .data          0x000000000010c020      0x16c keyboard.o
+ .data          0x000000000010c18c        0x0 sound.o
+ .data          0x000000000010c18c        0x0 kernel.o
+ .data          0x000000000010c18c        0x0 motd.o
+ .data          0x000000000010c18c        0x0 syscall/syscalls.o
+ *fill*         0x000000000010c18c        0x4 
+ .data          0x000000000010c190       0x10 syscall/io.o
+ .data          0x000000000010c1a0        0x0 syscall/power.o
+ .data          0x000000000010c1a0        0x0 syscall/proc.o
+ .data          0x000000000010c1a0        0x0 lib/printf.o
+ .data          0x000000000010c1a0        0x0 lib/string.o
+ .data          0x000000000010c1a0        0x0 lib/mem.o
+ .data          0x000000000010c1a0        0x0 lib/putc.o
+ .data          0x000000000010c1a0        0x6 asm/scheduling.o
+ *fill*         0x000000000010c1a6        0x2 
+ .data          0x000000000010c1a8        0xc asm/paging.o
+                0x000000000010c1b4                endOfKernelBinary = .
+
+.bss            0x0000000000110000     0x375c
+                0x0000000000110000                bss = .
+ *(.bss*)
+ .bss           0x0000000000110000        0x0 pte.o
+ .bss           0x0000000000110000      0x1e8 mmu.o
+                0x0000000000110000                pages
+                0x0000000000110140                bytes_used
+                0x00000000001101e0                base_addr
+ .bss           0x00000000001101e8        0x0 semaphore.o
+ .bss           0x00000000001101e8        0x0 time.o
+ .bss           0x00000000001101e8        0x0 io.o
+ *fill*         0x00000000001101e8       0x18 
+ .bss           0x0000000000110200       0x90 interrupts.o
+ *fill*         0x0000000000110290       0x10 
+ .bss           0x00000000001102a0     0x1f54 video.o
+ *fill*         0x00000000001121f4        0x4 
+ .bss           0x00000000001121f8        0x8 vmm.o
+ .bss           0x0000000000112200        0x0 rtc-driver.o
+ .bss           0x0000000000112200        0x0 moduleLoader.o
+ .bss           0x0000000000112200       0xa0 pipe.o
+ .bss           0x00000000001122a0     0x1344 sched.o
+                0x00000000001122a0                max_pid
+                0x00000000001122a8                fg_pid
+ *fill*         0x00000000001135e4        0x4 
+ .bss           0x00000000001135e8       0x20 pmm.o
+ *fill*         0x0000000000113608       0x18 
+ .bss           0x0000000000113620      0x129 keyboard.o
+                0x0000000000113620                esc_fn
+                0x0000000000113628                num_lock
+                0x0000000000113629                scroll_lock
+                0x000000000011362a                caps_lock
+                0x000000000011362b                shift_hold
+                0x000000000011362c                alt_hold
+                0x000000000011362d                ctrl_hold
+                0x0000000000113630                kbrd_disable
+ *fill*         0x0000000000113749        0x3 
+ .bss           0x000000000011374c        0x4 sound.o
+ .bss           0x0000000000113750        0xc kernel.o
+                0x0000000000113750                bitmap
+ .bss           0x000000000011375c        0x0 motd.o
+ .bss           0x000000000011375c        0x0 syscall/syscalls.o
+ .bss           0x000000000011375c        0x0 syscall/io.o
+ .bss           0x000000000011375c        0x0 syscall/power.o
+ .bss           0x000000000011375c        0x0 syscall/proc.o
+ .bss           0x000000000011375c        0x0 lib/printf.o
+ .bss           0x000000000011375c        0x0 lib/string.o
+ .bss           0x000000000011375c        0x0 lib/mem.o
+ .bss           0x000000000011375c        0x0 lib/putc.o
+ *(EXCLUDE_FILE(*.o) COMMON)
+                0x0000000000114000                . = ALIGN (0x1000)
+                0x0000000000114000                endOfKernel = .
+LOAD loader.o
+LOAD pte.o
+LOAD mmu.o
+LOAD semaphore.o
+LOAD time.o
+LOAD io.o
+LOAD interrupts.o
+LOAD video.o
+LOAD vmm.o
+LOAD rtc-driver.o
+LOAD moduleLoader.o
+LOAD pipe.o
+LOAD sched.o
+LOAD pmm.o
+LOAD keyboard.o
+LOAD sound.o
+LOAD kernel.o
+LOAD motd.o
+LOAD syscall/syscalls.o
+LOAD syscall/io.o
+LOAD syscall/power.o
+LOAD syscall/proc.o
+LOAD lib/printf.o
+LOAD lib/string.o
+LOAD lib/mem.o
+LOAD lib/putc.o
+LOAD asm/interrupts.o
+LOAD asm/libasm.o
+LOAD asm/scheduling.o
+LOAD asm/paging.o
+LOAD asm/sys.o
+OUTPUT(kernel.bin binary)
+
+.comment        0x0000000000000000      0x465
+ .comment       0x0000000000000000       0x2d pte.o
+ .comment       0x000000000000002d       0x2d mmu.o
+ .comment       0x000000000000005a       0x2d semaphore.o
+ .comment       0x0000000000000087       0x2d time.o
+ .comment       0x00000000000000b4       0x2d io.o
+ .comment       0x00000000000000e1       0x2d interrupts.o
+ .comment       0x000000000000010e       0x2d video.o
+ .comment       0x000000000000013b       0x2d vmm.o
+ .comment       0x0000000000000168       0x2d rtc-driver.o
+ .comment       0x0000000000000195       0x2d moduleLoader.o
+ .comment       0x00000000000001c2       0x2d pipe.o
+ .comment       0x00000000000001ef       0x2d sched.o
+ .comment       0x000000000000021c       0x2d pmm.o
+ .comment       0x0000000000000249       0x2d keyboard.o
+ .comment       0x0000000000000276       0x2d sound.o
+ .comment       0x00000000000002a3       0x2d kernel.o
+ .comment       0x00000000000002d0       0x2d motd.o
+ .comment       0x00000000000002fd       0x2d syscall/syscalls.o
+ .comment       0x000000000000032a       0x2d syscall/io.o
+ .comment       0x0000000000000357       0x2d syscall/power.o
+ .comment       0x0000000000000384       0x2d syscall/proc.o
+ .comment       0x00000000000003b1       0x2d lib/printf.o
+ .comment       0x00000000000003de       0x2d lib/string.o
+ .comment       0x000000000000040b       0x2d lib/mem.o
+ .comment       0x0000000000000438       0x2d lib/putc.o
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 pte.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 mmu.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 semaphore.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 time.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 io.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 interrupts.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 video.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 vmm.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 rtc-driver.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 moduleLoader.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 pipe.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 sched.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 pmm.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 keyboard.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 sound.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 kernel.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 motd.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 syscall/syscalls.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 syscall/io.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 syscall/power.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 syscall/proc.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 lib/printf.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 lib/string.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 lib/mem.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 lib/putc.o

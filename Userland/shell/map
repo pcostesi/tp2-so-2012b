@@ -1,0 +1,222 @@
+Archive member included to satisfy reference by file (symbol)
+
+..//libc.a(syscalls.o)        command.o (ioctl)
+..//libc.a(printf.o)          ../crt0.o (printf)
+..//libc.a(string.o)          shell.o (strlen)
+..//libc.a(putc.o)            ..//libc.a(printf.o) (fputc)
+..//libc.a(scanf.o)           command.o (scanf)
+..//libc.a(memory.o)          command.o (malloc)
+..//libc.a(getc.o)            ..//libc.a(scanf.o) (fungetc)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+
+.text           0x0000000004000000     0x5088
+ *(.text*)
+ .text          0x0000000004000000       0x2e ../crt0.o
+                0x0000000004000000                _start
+ .text          0x000000000400002e      0x7e6 shell.o
+                0x000000000400002e                init_shell
+                0x000000000400004e                print_shell_text
+                0x0000000004000064                print_shell_error
+                0x0000000004000084                update_shell
+                0x000000000400018f                excecute_command
+                0x0000000004000245                parse_command
+                0x0000000004000310                get_arguments
+                0x00000000040003fa                clean_buffer
+                0x0000000004000439                prnt_welcome_msg
+                0x000000000400044f                get_cmd_index
+                0x00000000040004ae                get_command_table
+                0x00000000040004b9                print_commands
+                0x000000000400050a                get_cmd_count
+                0x0000000004000516                initialize_cmd_table
+ .text          0x0000000004000814       0x1a main.o
+                0x0000000004000814                main
+ .text          0x000000000400082e     0x133d command.o
+                0x000000000400082e                help
+                0x00000000040008ca                echo
+                0x0000000004000928                clear
+                0x0000000004000966                commands
+                0x0000000004000990                date
+                0x00000000040009d8                time
+                0x0000000004000a20                set_date
+                0x0000000004000aaf                set_time
+                0x0000000004000b4a                halt_system
+                0x0000000004000b65                print_ascii_table
+                0x0000000004000bf7                setcolor
+                0x0000000004000dd5                kill_cmd
+                0x0000000004000e72                ps_cmd
+                0x0000000004000efd                consumer_cmd
+                0x0000000004000f5e                producer_cmd
+                0x0000000004000fc4                exec_string_malloc
+                0x0000000004001064                exec_malloc
+                0x00000000040010ea                exec_print_heap
+                0x0000000004001195                exec_free
+                0x00000000040011f4                close_pipe
+                0x000000000400123c                get_pipes
+                0x00000000040012b3                parse_date
+                0x0000000004001481                parse_time
+                0x000000000400164f                is_num
+                0x0000000004001676                valid_time
+                0x00000000040016b9                valid_date
+                0x0000000004001773                is_leap_year
+                0x00000000040017df                getchar_cmd
+                0x0000000004001821                printf_cmd
+                0x0000000004001896                scanf_cmd
+                0x0000000004001a35                reset_vect
+                0x0000000004001a6b                help_error_print
+                0x0000000004001a85                producer
+                0x0000000004001ac0                consumer
+ *fill*         0x0000000004001b6b        0x5 
+ .text          0x0000000004001b70      0x353 ..//libc.a(syscalls.o)
+                0x0000000004001b70                write
+                0x0000000004001b95                read
+                0x0000000004001bba                open
+                0x0000000004001bdf                close
+                0x0000000004001c04                mmap
+                0x0000000004001c29                munmap
+                0x0000000004001c4e                ioctl
+                0x0000000004001c73                opipe
+                0x0000000004001c98                cpipe
+                0x0000000004001cbd                wpipe
+                0x0000000004001ce2                rpipe
+                0x0000000004001d07                pause
+                0x0000000004001d2c                getpid
+                0x0000000004001d51                beep
+                0x0000000004001d76                halt
+                0x0000000004001d9b                shutdown
+                0x0000000004001dc0                fork
+                0x0000000004001de5                execv
+                0x0000000004001e0a                exit
+                0x0000000004001e2f                kill
+                0x0000000004001e54                gettime
+                0x0000000004001e79                settime
+                0x0000000004001e9e                gpipes
+ .text          0x0000000004001ec3      0x68a ..//libc.a(printf.o)
+                0x0000000004001ec3                printf
+                0x0000000004001f17                fprintf
+                0x0000000004001f6a                print_number
+                0x000000000400217c                vfprintf
+ .text          0x000000000400254d      0x34f ..//libc.a(string.o)
+                0x000000000400254d                strlen
+                0x000000000400257e                reverse
+                0x00000000040025fd                itoa
+                0x00000000040026bc                s_to_i
+                0x0000000004002780                substr
+                0x00000000040027ee                strcmp
+                0x000000000400284d                strcpy
+ .text          0x000000000400289c       0xbe ..//libc.a(putc.o)
+                0x000000000400289c                fputc
+                0x00000000040028c4                putc
+                0x00000000040028e3                fputsn
+                0x000000000400290b                fputs
+                0x000000000400293b                puts
+ .text          0x000000000400295a      0x451 ..//libc.a(scanf.o)
+                0x000000000400295a                scanf
+                0x00000000040029ae                fscanf
+                0x0000000004002a01                vfscanf
+                0x0000000004002d53                atoi
+ .text          0x0000000004002dab      0x4ad ..//libc.a(memory.o)
+                0x0000000004002dab                memset
+                0x0000000004002df6                clearBSS
+                0x0000000004002e1f                malloc
+                0x0000000004002ee3                find_block
+                0x0000000004002f3c                split_block
+                0x0000000004002fd9                expand_heap
+                0x00000000040030a7                get_base_block
+                0x00000000040030b4                free
+                0x0000000004003172                merge_free_blocks
+                0x00000000040031d1                valid_address
+                0x0000000004003211                get_block
+ .text          0x0000000004003258      0x1af ..//libc.a(getc.o)
+                0x0000000004003258                fungetc
+                0x000000000400327b                ungetc
+                0x000000000400329b                fgetc
+                0x0000000004003305                getc
+                0x0000000004003315                fgetsn
+                0x000000000400338c                fgets
+                0x00000000040033e2                gets
+                0x0000000004004000                . = ALIGN (0x4000)
+ *fill*         0x0000000004003407      0xbf9 
+ *(.rodata*)
+ .rodata        0x0000000004004000      0x724 shell.o
+ *fill*         0x0000000004004724        0x4 
+ .rodata        0x0000000004004728      0x8aa command.o
+ *fill*         0x0000000004004fd2        0x6 
+ .rodata        0x0000000004004fd8       0xb0 ..//libc.a(printf.o)
+
+.data           0x0000000004008000        0x8
+ *(.data*)
+ .data          0x0000000004008000        0x4 shell.o
+                0x0000000004008000                cmd_count
+ .data          0x0000000004008004        0x0 main.o
+ .data          0x0000000004008004        0x0 command.o
+ .data          0x0000000004008004        0x0 ..//libc.a(printf.o)
+ .data          0x0000000004008004        0x0 ..//libc.a(string.o)
+ .data          0x0000000004008004        0x0 ..//libc.a(putc.o)
+ .data          0x0000000004008004        0x0 ..//libc.a(scanf.o)
+ .data          0x0000000004008004        0x0 ..//libc.a(memory.o)
+ .data          0x0000000004008004        0x4 ..//libc.a(getc.o)
+
+.bss            0x000000000400c000      0x420
+                0x000000000400c000                bss = .
+ *(.bss*)
+ .bss           0x000000000400c000      0x2c8 shell.o
+                0x000000000400c000                shell_buffer
+                0x000000000400c080                curr_pos
+                0x000000000400c0a0                cmd_table
+ .bss           0x000000000400c2c8        0x0 main.o
+ *fill*         0x000000000400c2c8       0x18 
+ .bss           0x000000000400c2e0      0x130 command.o
+ .bss           0x000000000400c410        0x0 ..//libc.a(printf.o)
+ .bss           0x000000000400c410        0x0 ..//libc.a(string.o)
+ .bss           0x000000000400c410        0x0 ..//libc.a(putc.o)
+ .bss           0x000000000400c410        0x0 ..//libc.a(scanf.o)
+ .bss           0x000000000400c410       0x10 ..//libc.a(memory.o)
+                0x000000000400c410                base_addr
+                0x000000000400c418                last_mmap
+ .bss           0x000000000400c420        0x0 ..//libc.a(getc.o)
+                0x000000000400c420                endOfBinary = .
+LOAD ../crt0.o
+LOAD shell.o
+LOAD main.o
+LOAD command.o
+LOAD ..//libc.a
+OUTPUT(../shell.bin binary)
+
+.comment        0x0000000000000000      0x195
+ .comment       0x0000000000000000       0x2d shell.o
+ .comment       0x000000000000002d       0x2d main.o
+ .comment       0x000000000000005a       0x2d command.o
+ .comment       0x0000000000000087       0x2d ..//libc.a(printf.o)
+ .comment       0x00000000000000b4       0x2d ..//libc.a(string.o)
+ .comment       0x00000000000000e1       0x2d ..//libc.a(putc.o)
+ .comment       0x000000000000010e       0x2d ..//libc.a(scanf.o)
+ .comment       0x000000000000013b       0x2d ..//libc.a(memory.o)
+ .comment       0x0000000000000168       0x2d ..//libc.a(getc.o)
+
+.note.GNU-stack
+                0x0000000000000000        0x0
+ .note.GNU-stack
+                0x0000000000000000        0x0 shell.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 main.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 command.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 ..//libc.a(printf.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 ..//libc.a(string.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 ..//libc.a(putc.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 ..//libc.a(scanf.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 ..//libc.a(memory.o)
+ .note.GNU-stack
+                0x0000000000000000        0x0 ..//libc.a(getc.o)

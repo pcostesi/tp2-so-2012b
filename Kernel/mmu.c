@@ -40,7 +40,7 @@ void* syscall_mmap(void* addr, uint64_t size) {
 	while (cur < last) {
 		// check if page wasnt allocated
 		if (pages[cur] == NULL) {
-			int result = vmm_alloc_pages(VMM_PAGE_SIZE, MASK_WRITEABLE | MASK_USER, &ret_addr);
+			int result = vmm_alloc_pages_from((void*)0x43000000, VMM_PAGE_SIZE, MASK_WRITEABLE | MASK_USER, &ret_addr);
 			if (result) {
 				pages[cur] = ret_addr;
 				bytes_used[cur] = size;
